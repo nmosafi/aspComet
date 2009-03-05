@@ -43,54 +43,56 @@ namespace AspComet
             return client;
         }
 
-        public Message[] HandleMessage(Message message)
+        public Message[] HandleMessages(Message[] messages)
         {
-            if (message.Channel == null)
-            {
-                message.Successful = false;
-                message.Error = "No channel";
-                return new[] { message };
-            }
+            List<Message> responseMessages = new List<Message>();
 
-            try
+            foreach (Message message in messages)
             {
-                List<Message> response = new List<Message>();
-                if (message.Channel.StartsWith("/meta/"))
+                if (message.Channel == null)
                 {
-                    IMessageHandler handler = this.metaHandlers[message.Channel];
-                    if (handler == null)
+                    message.Successful = false;
+                    message.Error = "No channel";
+                    responseMessages.Add(message);
+                    continue;
+                }
+
+                try
+                {
+                    if (message.Channel.StartsWith("/meta/"))
                     {
-                        throw new Exception("Unknown meta channel " + message.Channel);
+                        IMessageHandler handler = this.metaHandlers[message.Channel];
+                        if (handler == null)
+                        {
+                            throw new Exception("Unknown meta channel " + message.Channel);
+                        }
+                        responseMessages.Add(handler.HandleMessage(this, message));
+                        if (handler is MetaHandshakeHandler)
+                        {
+                            continue;
+                        }
                     }
-                    response.Add(handler.HandleMessage(this, message));
-                    if (handler is MetaHandshakeHandler)
+
+                    Client sendingClient = this.clientRepository.GetByID(message.ClientID);
+                    if (sendingClient == null)
                     {
-                        return response.ToArray();
+                        throw new Exception("Sending client cannot be null");
                     }
-                }
 
-                Client sendingClient = this.clientRepository.GetByID(message.ClientID);
-                if (sendingClient == null)
+                    foreach (Client client in this.clientRepository.WhereSubscribedTo(message.Channel))
+                    {
+                        client.Enqueue(message);
+                    }
+
+                    responseMessages.AddRange(sendingClient.WaitForQueuedMessages());
+                }
+                catch (Exception exception)
                 {
-                    throw new Exception("Sending client cannot be null");
+                    responseMessages.Add(new Message {Channel = message.Channel, Error = exception.Message});
                 }
-
-                foreach (Client client in this.clientRepository.WhereSubscribedTo(message.Channel))
-                {
-                    client.Enqueue(message);
-                }
-
-                response.AddRange(sendingClient.WaitForQueuedMessages());
-                return response.ToArray();
-            }
-            catch (Exception exception)
-            {
-                return new[]
-                           {
-                               new Message {Channel = message.Channel, Error = exception.Message}
-                           };
             }
 
+            return responseMessages.ToArray();
         }
 
         private class MessageHandlerCollection : KeyedCollection<string, IMessageHandler>

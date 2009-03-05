@@ -6,8 +6,14 @@ namespace AspComet
 {
     public class CometHttpHandler : IHttpAsyncHandler
     {
-        private static Action action;
-        private static readonly MessageBroker messageBroker = new MessageBroker(new InMemoryClientRepository());
+        private readonly Action<HttpContext, Message[]> action;
+        private readonly MessageBroker messageBroker = new MessageBroker(new InMemoryClientRepository());
+
+        public CometHttpHandler()
+        {
+            this.action = (context, request) => 
+                context.Response.Write(MessageConverter.ToJson(this.messageBroker.HandleMessages(request)));
+        }
 
         public bool IsReusable
         {
@@ -19,19 +25,12 @@ namespace AspComet
             throw new Exception("Cannot process synchronous requests");
         }
 
-        public IAsyncResult BeginProcessRequest(HttpContext context, AsyncCallback cb, object extraData)
+        public IAsyncResult BeginProcessRequest(HttpContext context, AsyncCallback callback, object asyncState)
         {
-            Message request = MessageConverter.FromJson(context.Request, "message");
+            Message[] request = MessageConverter.FromJson(context.Request, "message");
 
-            action = () =>
-            {
-                Message[] response = messageBroker.HandleMessage(request);
-
-                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Message[]));
-                serializer.WriteObject(context.Response.OutputStream, response);
-            };
-
-            return action.BeginInvoke(cb, extraData);
+            //this.messageBroker.HandleMessages(context, request, callback, asyncState)
+            return action.BeginInvoke(context, request, callback, asyncState);
         }
 
         public void EndProcessRequest(IAsyncResult result)
