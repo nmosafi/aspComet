@@ -7,6 +7,11 @@ namespace AspComet.MessageHandlers
             get { return "/meta/disconnect"; }
         }
 
+        public bool ShouldWait
+        {
+            get { return false; }
+        }
+
         public Message HandleMessage(MessageBroker source, Message request)
         {
             source.RemoveClient(request.ClientID);

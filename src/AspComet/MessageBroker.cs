@@ -17,15 +17,6 @@ namespace AspComet
             this.InitialiseMetaHandlers();
         }
 
-        public void InitialiseMetaHandlers()
-        {
-            this.metaHandlers.Add(new MetaHandshakeHandler());
-            this.metaHandlers.Add(new MetaConnectHandler());
-            this.metaHandlers.Add(new MetaDisconnectHandler());
-            this.metaHandlers.Add(new MetaSubscribeHandler());
-            this.metaHandlers.Add(new MetaUnsubscribeHandler());
-        }
-
         public Client GetClient(string clientID)
         {
             return this.clientRepository.GetByID(clientID);
@@ -43,22 +34,24 @@ namespace AspComet
             return client;
         }
 
-        public Message[] HandleMessages(Message[] messages)
+        public void HandleMessages(Message[] messages, CometAsyncResult asyncResult)
         {
-            List<Message> responseMessages = new List<Message>();
+            Client source = this.GetSourceFrom(messages);
+            if (source != null)
+                source.CurrentAsyncResult = asyncResult;
+
+            List<Message> response = new List<Message>();
+            bool sendResultStraightAway = false;
 
             foreach (Message message in messages)
             {
-                if (message.Channel == null)
-                {
-                    message.Successful = false;
-                    message.Error = "No channel";
-                    responseMessages.Add(message);
-                    continue;
-                }
-
                 try
                 {
+                    if (message.Channel == null)
+                    {
+                        throw new Exception("Channel is null");
+                    }
+
                     if (message.Channel.StartsWith("/meta/"))
                     {
                         IMessageHandler handler = this.metaHandlers[message.Channel];
@@ -66,33 +59,73 @@ namespace AspComet
                         {
                             throw new Exception("Unknown meta channel " + message.Channel);
                         }
-                        responseMessages.Add(handler.HandleMessage(this, message));
-                        if (handler is MetaHandshakeHandler)
+
+                        if (!handler.ShouldWait)
                         {
-                            continue;
+                            sendResultStraightAway = true;
+                        }
+
+                        response.Add(handler.HandleMessage(this, message));
+                    }
+                    else
+                    {
+                        foreach (Client client in this.clientRepository.WhereSubscribedTo(message.Channel))
+                        {
+                            client.Enqueue(message);
+                            client.FlushQueue();
                         }
                     }
-
-                    Client sendingClient = this.clientRepository.GetByID(message.ClientID);
-                    if (sendingClient == null)
-                    {
-                        throw new Exception("Sending client cannot be null");
-                    }
-
-                    foreach (Client client in this.clientRepository.WhereSubscribedTo(message.Channel))
-                    {
-                        client.Enqueue(message);
-                    }
-
-                    responseMessages.AddRange(sendingClient.WaitForQueuedMessages());
                 }
                 catch (Exception exception)
                 {
-                    responseMessages.Add(new Message {Channel = message.Channel, Error = exception.Message});
+                    response.Add(new Message { Channel = message.Channel, Error = exception.Message });
+                    sendResultStraightAway = true;
                 }
             }
 
-            return responseMessages.ToArray();
+            if (source == null)
+            {
+                asyncResult.ResponseMessages = response.ToArray();
+                asyncResult.Complete();
+            }
+            else
+            {
+                source.Enqueue(response.ToArray());
+                if (sendResultStraightAway)
+                {
+                    source.FlushQueue();
+                }
+            }
+        }
+
+        private Client GetSourceFrom(IEnumerable<Message> messages)
+        {
+            Client sendingClient = null;
+            foreach (Message message in messages)
+            {
+                if (message.ClientID == null)
+                {
+                    return null;
+                }
+
+                Client client = this.clientRepository.GetByID(message.ClientID);
+                if (sendingClient != null && sendingClient != client)
+                {
+                    throw new Exception("All messages must have the same client");
+                }
+                sendingClient = client;
+            }
+
+            return sendingClient;
+        }
+
+        private void InitialiseMetaHandlers()
+        {
+            this.metaHandlers.Add(new MetaHandshakeHandler());
+            this.metaHandlers.Add(new MetaConnectHandler());
+            this.metaHandlers.Add(new MetaDisconnectHandler());
+            this.metaHandlers.Add(new MetaSubscribeHandler());
+            this.metaHandlers.Add(new MetaUnsubscribeHandler());
         }
 
         private class MessageHandlerCollection : KeyedCollection<string, IMessageHandler>

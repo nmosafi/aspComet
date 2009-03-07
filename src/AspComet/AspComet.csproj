@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client.cs" />
+    <Compile Include="CometAsyncResult.cs" />
     <Compile Include="CometHttpHandler.cs" />
     <Compile Include="InMemoryClientRepository.cs" />
     <Compile Include="IClientRepository.cs" />

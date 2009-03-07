@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using System.Timers;
 
 namespace AspComet
 {
@@ -9,15 +9,17 @@ namespace AspComet
     {
         private readonly List<string> subscriptions = new List<string>();
         private readonly Queue<Message> messages = new Queue<Message>();
-        private readonly AutoResetEvent autoResetEvent = new AutoResetEvent(false);
         private readonly object syncRoot = new object();
+        private readonly Timer timer = new Timer { AutoReset = false, Enabled = false, Interval = 10000 };
 
         public Client()
         {
             this.ID = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            this.timer.Elapsed += HandleTimerCallback;
         }
 
         public string ID { get; private set; }
+        public CometAsyncResult CurrentAsyncResult { private get; set; }
 
         public void SubscribeTo(string subscription)
         {
@@ -41,12 +43,34 @@ namespace AspComet
             }
         }
 
-        public void Enqueue(Message message)
+        public void Enqueue(params Message[] messages)
         {
             lock (this.syncRoot)
             {
-                this.messages.Enqueue(message);
-                this.autoResetEvent.Set();
+                foreach (Message message in messages)
+                {
+                    this.messages.Enqueue(message);
+                }
+            }
+
+            this.timer.Start();
+        }
+
+        public void FlushQueue()
+        {
+            this.timer.Stop();
+
+            if (this.messages.Count > 0 && this.CurrentAsyncResult != null)
+            {
+                lock (syncRoot) // double checked lock
+                {
+                    if (this.messages.Count > 0 && this.CurrentAsyncResult != null)
+                    {
+                        this.CurrentAsyncResult.ResponseMessages = this.GetMessages().ToArray();
+                        this.CurrentAsyncResult.Complete();
+                        this.CurrentAsyncResult = null;
+                    }
+                }
             }
         }
 
@@ -55,21 +79,17 @@ namespace AspComet
             return this.subscriptions.Contains(channel);
         }
 
-        public List<Message> WaitForQueuedMessages()
-        {
-            if (this.subscriptions.Count > 0 && this.messages.Count == 0)
-            {
-                this.autoResetEvent.WaitOne(TimeSpan.FromSeconds(10));
-            }
-            return this.GetMessages().ToList();
-        }
-
         private IEnumerable<Message> GetMessages()
         {
             while (this.messages.Count > 0)
             {
                 yield return this.messages.Dequeue();
             }
+        }
+
+        private void HandleTimerCallback(object state, ElapsedEventArgs e)
+        {
+            this.FlushQueue();
         }
 
         #region Object Members

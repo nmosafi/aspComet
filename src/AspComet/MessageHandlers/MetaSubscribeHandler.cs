@@ -7,6 +7,11 @@ namespace AspComet.MessageHandlers
             get { return "/meta/subscribe"; }
         }
 
+        public bool ShouldWait
+        {
+            get { return false; }
+        }
+
         public Message HandleMessage(MessageBroker source, Message request)
         {
             Client client = source.GetClient(request.ClientID);
