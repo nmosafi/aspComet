@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title></title>
-    <script type="text/javascript" src="Scripts/dojo/dojo.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3.0/dojo/dojo.xd.js" type="text/javascript"></script>
     <script type="text/javascript" language="javascript">
 
         dojo.require("dojox.cometd");
