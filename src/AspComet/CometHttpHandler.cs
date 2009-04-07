@@ -6,7 +6,7 @@ namespace AspComet
 {
     public class CometHttpHandler : IHttpAsyncHandler
     {
-        private readonly MessageBroker messageBroker = new MessageBroker(new InMemoryClientRepository());
+        private readonly MessageBus messageBus = new MessageBus(new InMemoryClientRepository());
 
         public bool IsReusable
         {
@@ -23,7 +23,7 @@ namespace AspComet
             Message[] request = MessageConverter.FromJson(context.Request, "message");
 
             CometAsyncResult asyncResult = new CometAsyncResult(context, callback, asyncState);
-            this.messageBroker.HandleMessages(request, asyncResult);
+            this.messageBus.HandleMessages(request, asyncResult);
             return asyncResult;
         }
 

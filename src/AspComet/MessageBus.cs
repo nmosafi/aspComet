@@ -6,12 +6,12 @@ using AspComet.MessageHandlers;
 
 namespace AspComet
 {
-    public class MessageBroker
+    public class MessageBus
     {
         private readonly MessageHandlerCollection metaHandlers = new MessageHandlerCollection();
         private readonly IClientRepository clientRepository;
 
-        public MessageBroker(IClientRepository clientRepository)
+        public MessageBus(IClientRepository clientRepository)
         {
             this.clientRepository = clientRepository;
             this.InitialiseMetaHandlers();
@@ -38,7 +38,9 @@ namespace AspComet
         {
             Client source = this.GetSourceFrom(messages);
             if (source != null)
+            {
                 source.CurrentAsyncResult = asyncResult;
+            }
 
             List<Message> response = new List<Message>();
             bool sendResultStraightAway = false;

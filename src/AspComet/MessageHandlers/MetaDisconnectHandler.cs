@@ -12,7 +12,7 @@ namespace AspComet.MessageHandlers
             get { return false; }
         }
 
-        public Message HandleMessage(MessageBroker source, Message request)
+        public Message HandleMessage(MessageBus source, Message request)
         {
             source.RemoveClient(request.ClientID);
 

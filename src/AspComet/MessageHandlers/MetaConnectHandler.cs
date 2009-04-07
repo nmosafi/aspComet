@@ -12,7 +12,7 @@ namespace AspComet.MessageHandlers
             get { return true; }
         }
 
-        public Message HandleMessage(MessageBroker source, Message request)
+        public Message HandleMessage(MessageBus source, Message request)
         {
             Client client = source.GetClient(request.ClientID);
 
