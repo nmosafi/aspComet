@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using NUnit.Framework;
+
+// ReSharper disable InconsistentNaming
 
 namespace AspComet.Specifications
 {
@@ -42,7 +40,8 @@ namespace AspComet.Specifications
                 [Test]
                 public void Argument_exception_is_thrown()
                 {
-                    Assert.Throws<ArgumentException>(() => ChannelName.From("/foo").Matches("/*/bar"));
+                    ChannelName channelName = ChannelName.From("/foo");
+                    Assert.Throws<ArgumentException>(() => channelName.Matches("/*/bar"));
                 }
             }
 
@@ -79,6 +78,12 @@ namespace AspComet.Specifications
                 public void A_different_segment_does_not_match()
                 {
                     Assert.That(channelName.Matches("/bar"), Is.False);
+                }
+
+                [Test]
+                public void The_same_segment_followed_by_another_segment_does_not_match()
+                {
+                    Assert.That(channelName.Matches("/foo/bar"), Is.False);
                 }
 
                 [Test]
@@ -139,3 +144,5 @@ namespace AspComet.Specifications
         }
     }
 }
+
+// ReSharper restore InconsistentNaming
