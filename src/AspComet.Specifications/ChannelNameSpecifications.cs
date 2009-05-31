@@ -1,148 +1,177 @@
-﻿using System;
+﻿// ReSharper disable InconsistentNaming
+//
+// These specs are attempting to capture the rules in section 2.2 of 
+// http://svn.cometd.org/trunk/bayeux/bayeux.html
+//
+
+using System;
 using NUnit.Framework;
 
-// ReSharper disable InconsistentNaming
+using SpecUnit;
 
 namespace AspComet.Specifications
 {
-    // These specs are attempting to capture the rules in section 2.2 of 
-    // http://svn.cometd.org/trunk/bayeux/bayeux.html
-    public static class ChannelNameSpecifications
+    [Concern("Channel names")]
+    public class when_creating_a_channel_name_which_does_not_start_with_slash : ContextSpecification
     {
-        public class When_creating_a_channel_name
-        {
-            [TestFixture]
-            public class And_the_name_does_not_start_with_slash
-            {
-                [Test]
-                public void Argument_exception_is_thrown()
-                {
-                    Assert.Throws<ArgumentException>(() => ChannelName.From("foo"));
-                }
-            }
+        private Exception exception;
 
-            [TestFixture]
-            public class And_the_name_contains_wildcards
-            {
-                [Test]
-                public void Argument_exception_is_thrown()
-                {
-                    Assert.Throws<ArgumentException>(() => ChannelName.From("/foo/*"));
-                }
-            }
+        protected override void  Because()
+        {
+            exception = ((MethodThatThrows) (() => ChannelName.From("foo"))).GetException();
         }
 
-        public class When_matching_channels
+        [Observation]
+        public void should_fail_due_to_invalid_argument()
         {
-            [TestFixture]
-            public class And_a_wildcard_is_not_at_the_end
-            {
-                [Test]
-                public void Argument_exception_is_thrown()
-                {
-                    ChannelName channelName = ChannelName.From("/foo");
-                    Assert.Throws<ArgumentException>(() => channelName.Matches("/*/bar"));
-                }
-            }
+            exception.ShouldBeOfType(typeof(ArgumentException));
+        }
+    }
 
-            [TestFixture]
-            public class And_the_channel_has_a_single_segment
-            {
-                private ChannelName channelName;
+    [Concern("Channel names")]
+    public class when_creating_a_channel_name_which_contains_wildcards : ContextSpecification
+    {
+        private Exception exception;
 
-                [SetUp]
-                public void Setup()
-                {
-                    this.channelName = ChannelName.From("/foo");
-                }
+        protected override void Because()
+        {
+            exception = ((MethodThatThrows) (() => ChannelName.From("/foo/*"))).GetException();
+        }
 
-                [Test]
-                public void The_same_string_matches()
-                {
-                    Assert.That(channelName.Matches("/foo"));
-                }
+        [Observation]
+        public void should_fail_due_to_invalid_argument()
+        {
+            exception.ShouldBeOfType(typeof(ArgumentException));
+        }
+    }
 
-                [Test]
-                public void A_single_wildcard_matches()
-                {
-                    Assert.That(channelName.Matches("/*"));
-                }
+    [Concern("Channel names")]
+    public class when_matching_channels_and_a_wildcard_is_there_but_not_at_the_end : ContextSpecification
+    {
+        private Exception exception;
+        private ChannelName channelName;
 
-                [Test]
-                public void A_double_wildcard_matches()
-                {
-                    Assert.That(channelName.Matches("/**"));
-                }
+        protected override void Context()
+        {
+            channelName = ChannelName.From("/foo");
+        }
 
-                [Test]
-                public void A_different_segment_does_not_match()
-                {
-                    Assert.That(channelName.Matches("/bar"), Is.False);
-                }
+        protected override void Because()
+        {
+            exception = ((MethodThatThrows) (() => channelName.Matches("/*/bar"))).GetException();
+        }
 
-                [Test]
-                public void The_same_segment_followed_by_another_segment_does_not_match()
-                {
-                    Assert.That(channelName.Matches("/foo/bar"), Is.False);
-                }
+        [Observation]
+        public void should_fail_due_to_invalid_argument()
+        {
+            exception.ShouldBeOfType(typeof(ArgumentException));
+        }
+    }
 
-                [Test]
-                public void The_same_segment_followed_by_wildcard_does_not_match()
-                {
-                    Assert.That(channelName.Matches("/foo/*"), Is.False);
-                }
-            }
+    [Concern("Channel names")]
+    public class when_matching_channels_and_the_channel_has_a_single_segment : ContextSpecification
+    {
+        private ChannelName channelName;
 
-            [TestFixture]
-            public class And_the_channel_has_two_segments
-            {
-                private ChannelName channelName;
+        protected override void Context()
+        {
+            channelName = ChannelName.From("/foo");
+        }
 
-                [SetUp]
-                public void Setup()
-                {
-                    this.channelName = ChannelName.From("/foo/bar");
-                }
+        [Observation]
+        public void should_match_with_the_same_string()
+        {
+            channelName.ShouldMatch("/foo");
+        }
 
-                [Test]
-                public void The_same_string_matches()
-                {
-                    Assert.That(channelName.Matches("/foo/bar"));
-                }
+        [Test]
+        public void should_match_single_wildcard()
+        {
+            channelName.ShouldMatch("/*");
+        }
 
-                [Test]
-                public void A_different_second_segment_does_not_match()
-                {
-                    Assert.That(channelName.Matches("/foo/boo"), Is.False);
-                }
+        [Test]
+        public void should_match_double_wildcard()
+        {
+            channelName.ShouldMatch("/**");
+        }
 
-                [Test]
-                public void A_single_wildcard_on_second_segment_matches()
-                {
-                    Assert.That(channelName.Matches("/foo/*"));
-                }
+        [Test]
+        public void should_not_match_different_segment()
+        {
+            channelName.ShouldNotMatch("/bar");
+        }
 
-                [Test]
-                public void A_double_wildcard_on_second_segment_matches()
-                {
-                    Assert.That(channelName.Matches("/foo/**"));
-                }
+        [Test]
+        public void should_not_match_same_segment_followed_by_another_segment()
+        {
+            channelName.ShouldNotMatch("/foo/bar");
+        }
 
-                [Test]
-                public void A_single_wildcard_on_first_segment_does_not_match()
-                {
-                    Assert.That(channelName.Matches("/*"), Is.False);
-                }
+        [Test]
+        public void should_not_match_same_segment_followed_by_wildcard()
+        {
+            channelName.ShouldNotMatch("/foo/*");
+        }
+    }
 
-                [Test]
-                public void A_double_wildcard_on_first_segment_matches()
-                {
-                    Assert.That(channelName.Matches("/**"));
-                }
+    [Concern("Channel names")]
+    public class when_matching_channels_and_the_channel_has_two_segments : ContextSpecification
+    {
+        private ChannelName channelName;
 
-            }
+        protected override void Context()
+        {
+            channelName = ChannelName.From("/foo/bar");
+        }
+
+        [Test]
+        public void should_match_the_same_string()
+        {
+            channelName.ShouldMatch("/foo/bar");
+        }
+
+        [Test]
+        public void should_not_match_channelname_with_a_different_second_segment()
+        {
+            channelName.ShouldNotMatch("/foo/boo");
+        }
+
+        [Test]
+        public void A_single_wildcard_on_second_segment_matches()
+        {
+            channelName.ShouldMatch("/foo/*");
+        }
+
+        [Test]
+        public void A_double_wildcard_on_second_segment_matches()
+        {
+            channelName.ShouldMatch("/foo/**");
+        }
+
+        [Test]
+        public void A_single_wildcard_on_first_segment_does_not_match()
+        {
+            channelName.ShouldNotMatch("/*");
+        }
+
+        [Test]
+        public void A_double_wildcard_on_first_segment_matches()
+        {
+            channelName.ShouldMatch("/**");
+        }
+    }
+
+    public static class ChannelNameExtensions
+    {
+        public static void ShouldMatch(this ChannelName channelName, string match)
+        {
+            channelName.Matches(match).ShouldBeTrue();
+        }
+
+        public static void ShouldNotMatch(this ChannelName channelName, string match)
+        {
+            channelName.Matches(match).ShouldBeFalse();
         }
     }
 }
-
-// ReSharper restore InconsistentNaming

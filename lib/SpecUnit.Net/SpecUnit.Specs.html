@@ -1,0 +1,316 @@
+<html>
+	<head>
+		<title>Specification Report for SpecUnit</title>
+		<style type="text/css">
+			body {
+				font-family: Arial,Helvetica,sans-serif;
+				font-size: .9em;
+			}
+
+			.count {
+				color: LightGrey;
+			}
+
+			.behaves_like {
+				color: DarkGrey;
+				font-weight: bold;
+				margin-left: 20px;
+				margin-top: -10px;
+			}
+
+			hr {
+				color: LightGrey;
+				border: 1px solid LightGrey;
+				height: 1px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>SpecUnit&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">9 concerns, 40 contexts, 81 specifications</span></h1><hr>
+
+<h2 class="concern">Concern specifications&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">4 contexts, 4 specifications</span></h2>
+
+
+<h3 class="context">Concern, when creating a concern based on a type&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><p class="behaves_like">behaves like: context with concern</p>
+
+<ul>
+	<li>should be named for the type</li>
+</ul>
+
+
+<h3 class="context">Concern, after adding a context for a type&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><p class="behaves_like">behaves like: context with concern</p>
+
+<ul>
+	<li>should have the context in its list of contexts</li>
+</ul>
+
+
+<h3 class="context">Concern, when a context does not belong to a concern&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><p class="behaves_like">behaves like: context with concern</p>
+
+<ul>
+	<li>should not have the context in its list of contexts</li>
+</ul>
+
+
+<h3 class="context">Concern, when adding a context to a concern that it does not belong to&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should cause an error</li>
+</ul>
+
+<hr>
+
+<h2 class="concern">Console specifications&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">3 contexts, 3 specifications</span></h2>
+
+
+<h3 class="context">Console, when no arguments are provided&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should display an error message</li>
+</ul>
+
+
+<h3 class="context">Console, when there is no assembly that corresponds to the assembly name provided as a console argument&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should display an error message</li>
+</ul>
+
+
+<h3 class="context">Console, when given a valid assembly file path&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should write the spec report for the assembly indicated by the file path</li>
+</ul>
+
+<hr>
+
+<h2 class="concern">Context specifications&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">7 contexts, 13 specifications</span></h2>
+
+
+<h3 class="context">Context, when a test fixture class is a concern&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">3 specifications</span></h3><ul>
+	<li>should be attributed with the ConcernAttribute</li>
+	<li>should have a name that is prefixed with the concern name</li>
+	<li>should have a concern name that is the name specified by the concern attribute</li>
+</ul>
+
+
+<h3 class="context">Context, when a test fixture class is not a concern&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">3 specifications</span></h3><ul>
+	<li>should not be attributed with the ConcernAttribute</li>
+	<li>should not have a name that is prefixed with the concern name</li>
+	<li>should not have a concern name</li>
+</ul>
+
+
+<h3 class="context">Context, when building a context for a test fixture type&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">2 specifications</span></h3><ul>
+	<li>should collect and build the specifications</li>
+	<li>should create a specification for each test method in the type</li>
+</ul>
+
+
+<h3 class="context">Context, when creating a context for a type that is not a test fixture&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should cause an error</li>
+</ul>
+
+
+<h3 class="context">Context, when two contexts represent the same test fixture&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>they should be equal</li>
+</ul>
+
+
+<h3 class="context">Context, when a context behaves like another context&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should have a subclass whose name begins with "behaves like"</li>
+</ul>
+
+
+<h3 class="context">Context, when a context does not behave like another context&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">2 specifications</span></h3><ul>
+	<li>should not have a subclass whose name begins with "behaves like"</li>
+	<li>may not have a subclass</li>
+</ul>
+
+<hr>
+
+<h2 class="concern">ReportGenerator specifications&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">11 contexts, 19 specifications</span></h2>
+
+
+<h3 class="context">ReportGenerator, when rendering the report title&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">5 specifications</span></h3><ul>
+	<li>should include the specification dataset name</li>
+	<li>should inlude the counts of the concerns</li>
+	<li>should inlude the counts of the contexts</li>
+	<li>should inlude the counts of the specifications</li>
+	<li>should render the name in an H1</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when rendering a concern header&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">3 specifications</span></h3><ul>
+	<li>should include the counts of the contexts</li>
+	<li>should include the counts of the specifications</li>
+	<li>should render the name in an H2</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when rendering a concern&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should render its contexts</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when rendering a context header&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">2 specifications</span></h3><ul>
+	<li>should render the count of specifications</li>
+	<li>should render the name in an H3</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when rendering a context that behaves like another context&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should indicate that it behaves like another context</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when rendering a context that does not behaves like another context&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should indicate that it behaves like another context</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when rendering a context&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">2 specifications</span></h3><ul>
+	<li>should render each specification</li>
+	<li>should render specifications as a bulletted list</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when writing the spec report for an assembly&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should write an html file named for the assembly that the report is created for</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when pluralizing a caption for a count where the count is greater than one&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should append "s" to the caption to indicate the plurality</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when pluralizing a caption for a count where the count is zero&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should append "s" to the caption to indicate the plurality</li>
+</ul>
+
+
+<h3 class="context">ReportGenerator, when pluralizing a caption for a count where the count is equal to one&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should not append "s" to the caption</li>
+</ul>
+
+<hr>
+
+<h2 class="concern">Specification specifications&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">4 contexts, 4 specifications</span></h2>
+
+
+<h3 class="context">Specification, when a test method is a specificaition&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should have an attribute in the SpecificationAttribute family</li>
+</ul>
+
+
+<h3 class="context">Specification, when a creating a specification for a method&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should be a method that has an attribute in the SpecificationAttribute family</li>
+</ul>
+
+
+<h3 class="context">Specification, when a specification name contains "when"&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should add a warning to the specification name indicating that the specification may be a context</li>
+</ul>
+
+
+<h3 class="context">Specification, when a specification name contains "if"&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should add a warning to the specification name indicating that the specification may be a context</li>
+</ul>
+
+<hr>
+
+<h2 class="concern">SpecificationDataset specifications&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">3 contexts, 5 specifications</span></h2>
+
+
+<h3 class="context">SpecificationDataset, when building a dataset for an assembly&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">2 specifications</span></h3><ul>
+	<li>should collect and build the assembly's concerns</li>
+	<li>should be named for the file stem of the of the assembly name</li>
+</ul>
+
+
+<h3 class="context">SpecificationDataset, when collecting concerns from an assembly&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should include one concern for each unique concern found</li>
+</ul>
+
+
+<h3 class="context">SpecificationDataset, when selecting context classes from a list of types&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">2 specifications</span></h3><ul>
+	<li>should ignore abstract types</li>
+	<li>should include concrete classes with the TestFixture attribute</li>
+</ul>
+
+<hr>
+
+<h2 class="concern">SpecificationExtensions specifications&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">2 contexts, 27 specifications</span></h2>
+
+
+<h3 class="context">SpecificationExtensions, when expressing assertions as BDD style extension methods&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">26 specifications</span></h3><ul>
+	<li>should allow "ShouldBeFalse" to be used in place of "Assert IsFalse"</li>
+	<li>should allow "ShouldBeTrue" to be used in place of "Assert IsTrue"</li>
+	<li>should allow "ShouldEqual" to be used in place of "Assert AreEqual"</li>
+	<li>should allow "ShouldNotEqual" to be used in place of "Assert AreNotEqual"</li>
+	<li>should allow "ShouldBeNull" to be used in place of "Assert IsNull"</li>
+	<li>should allow "ShouldNotBeNull" to be used in place of "Assert IsNotNull"</li>
+	<li>should allow "ShouldBeTheSameAs" to be used in place of "Assert AreSame"</li>
+	<li>should allow "ShouldNotBeTheSameAs" to be used in place of Assert AreNotSame</li>
+	<li>should allow "ShouldBeOfType" to be used in place of "Assert IsInstanceOfType"</li>
+	<li>should allow "ShouldNotBeOfType" to be used in place of "Assert IsNotInstanceOfType"</li>
+	<li>should allow "ShouldContain" to be used in place of "Assert Contains"</li>
+	<li>should allow "ShouldNotContain" to be used in place of "Assert NotContains"</li>
+	<li>should allow "ShouldBeEmpty" to be used on a collection in place of "Assert IsEmpty"</li>
+	<li>should allow "ShouldBeEmpty" to be used on a string in place of "Assert IsEmpty"</li>
+	<li>should allow "ShouldNotBeEmpty" to be used on a string in place of "Assert IsNotEmpty"</li>
+	<li>should allow "ShouldNotBeEmpty" to be used on a collection in place of "Assert IsNotEmpty"</li>
+	<li>should allow "ShouldBeGreaterThan" to be used in place of "Assert Greater"</li>
+	<li>should allow "ShouldBeLessThan" to be used in place of "Assert Less"</li>
+	<li>should allow "ShouldContain" to be used in place of "StringAssert Contains"</li>
+	<li>should allow "ShouldBeEqualIgnoringCase" to be used in place of "StringAssert AreEqualIgnoringCase"</li>
+	<li>should allow "ShouldStartWith" to be used in place of "StringAssert StartsWith"</li>
+	<li>should allow "ShouldEndWith" to be used in place of "StringAssert EndsWith"</li>
+	<li>should allow "ShouldBeSurroundedWith" to be used in place of "StringAssert StartsWith" and "StringAssert EndsWith"</li>
+	<li>should allow "ShouldBeSurroundedWith" with a single delimiter to be used in place of "StringAssert StartsWith" and "StringAssert EndsWith"</li>
+	<li>should allow "ShouldBeThrownBy" to be used in place of "ExpectedExceptionAttribute"</li>
+	<li>should allow "ShouldContainErrorMessage" to be used on an exception in place of "StringAssert Contains"</li>
+</ul>
+
+
+<h3 class="context">SpecificationExtensions, when the ShouldBeThrownBy assertion is not satisfied&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should fail the test</li>
+</ul>
+
+<hr>
+
+<h2 class="concern">SpecificationExtensions (GetException extention) specifications&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 context, 1 specification</span></h2>
+
+
+<h3 class="context">SpecificationExtensions (GetException extention), when a delegate throws an exception&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should retrieve the exception</li>
+</ul>
+
+<hr>
+
+<h2 class="concern">SpecificationName specifications&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">5 contexts, 5 specifications</span></h2>
+
+
+<h3 class="context">SpecificationName, when the name has underscores&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should replace underscores with spaces</li>
+</ul>
+
+
+<h3 class="context">SpecificationName, when the name has a leading underscore&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should replace underscores with spaces</li>
+</ul>
+
+
+<h3 class="context">SpecificationName, when the name has a trailing underscore&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should replace underscores with spaces</li>
+</ul>
+
+
+<h3 class="context">SpecificationName, when the name has two consecutive underscores&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should replace the underscores with a quotation mark</li>
+</ul>
+
+
+<h3 class="context">SpecificationName, when the name has an underscore followed by an "S" followed by an underscore&nbsp;&nbsp;&nbsp;&nbsp;<span class="count">1 specification</span></h3><ul>
+	<li>should replace it with appostrophy "S"</li>
+</ul>
+
+<hr>
+
+
+	</body>
+</html>
