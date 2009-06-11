@@ -14,14 +14,14 @@ namespace AspComet.MessageHandlers
 
         public Message HandleMessage(MessageBus source, Message request)
         {
-            Client client = source.GetClient(request.ClientID);
+            Client client = source.GetClient(request.clientId);
 
             return new Message
                        {
-                           Channel = this.ChannelName,
-                           Successful = true,
-                           ClientID = client.ID,
-                           ConnectionType = "long-polling"
+                           channel = this.ChannelName,
+                           successful = true,
+                           clientId = client.ID,
+                           connectionType = "long-polling"
                        };
         }
     }

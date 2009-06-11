@@ -1,50 +1,22 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
 
 namespace AspComet
 {
-    [DataContract]
     public class Message
     {
-        [DataMember(Name = "channel")]
-        public string Channel { get; set; }
-
-        [DataMember(Name = "clientId")]
-        public string ClientID { get; set; }
-
-        [DataMember(Name = "data")]
-        public object Data { get; set; }
-
-        [DataMember(Name = "version")]
-        public string Version { get; set; }
-
-        [DataMember(Name = "minimumVersion")]
-        public string MinimumVersion { get; set; }
-
-        [DataMember(Name = "supportedConnectionTypes")]
-        public string[] SupportedConnectionTypes { get; set; }
-
-        [DataMember(Name = "advice")]
-        public string Advice { get; set; }
-
-        [DataMember(Name = "connectionType")]
-        public string ConnectionType { get; set; }
-
-        [DataMember(Name = "id")]
-        public string Id { get; set; }
-
-        [DataMember(Name = "timestamp")]
-        public string Timestamp { get; set; }
-
-        [DataMember(Name = "successful")]
-        public bool Successful { get; set; }
-
-        [DataMember(Name = "subscription")]
-        public string Subscription { get; set; }
-
-        [DataMember(Name = "error")]
-        public string Error { get; set; }
-
-        [DataMember(Name = "ext")]
-        public string Ext { get; set; }
+        public string channel { get; set; }
+        public string clientId { get; set; }
+        public object data { get; set; }
+        public string version { get; set; }
+        public string minimumVersion { get; set; }
+        public string[] supportedConnectionTypes { get; set; }
+        public string advice { get; set; }
+        public string connectionType { get; set; }
+        public string id { get; set; }
+        public string timestamp { get; set; }
+        public bool successful { get; set; }
+        public string subscription { get; set; }
+        public string error { get; set; }
+        public string ext { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Web;
 
@@ -39,7 +40,7 @@ namespace AspComet
             get { return this.httpContext; }
         }
 
-        public Message[] ResponseMessages { get; set; }
+        public IEnumerable<Message> ResponseMessages { get; set; }
 
         public void Complete()
         {

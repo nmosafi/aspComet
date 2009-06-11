@@ -14,15 +14,15 @@ namespace AspComet.MessageHandlers
 
         public Message HandleMessage(MessageBus source, Message request)
         {
-            Client client = source.GetClient(request.ClientID);
-            client.UnsubscribeFrom(request.Subscription);
+            Client client = source.GetClient(request.clientId);
+            client.UnsubscribeFrom(request.subscription);
 
             return new Message
                        {
-                           Channel = this.ChannelName,
-                           Successful = true,
-                           ClientID = client.ID,
-                           Subscription = request.Subscription
+                           channel = this.ChannelName,
+                           successful = true,
+                           clientId = client.ID,
+                           subscription = request.subscription
                        };
         }
     }

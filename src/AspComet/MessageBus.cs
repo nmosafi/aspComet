@@ -29,9 +29,25 @@ namespace AspComet
 
         public Client CreateClient()
         {
-            Client client = new Client();
-            this.clientRepository.Add(client);
-            return client;
+            lock (this.clientRepository)
+            {
+                // Use a strong RNG to generate a 20 random character base64 client ID.
+                // Do lookups in client repository to ensure uniqueness of ID.
+                string clientID;
+                var rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
+                do
+                {
+                    byte[] bytes = new byte[15];
+                    rng.GetBytes(bytes);
+                    clientID = Convert.ToBase64String(bytes);
+                }
+                while (this.clientRepository.ContainsID(clientID));
+
+                // Create, add and return client.
+                Client client = new Client(clientID);
+                this.clientRepository.Add(client);
+                return client;
+            }
         }
 
         public void HandleMessages(Message[] messages, CometAsyncResult asyncResult)
@@ -39,7 +55,14 @@ namespace AspComet
             Client source = this.GetSourceFrom(messages);
             if (source != null)
             {
-                source.CurrentAsyncResult = asyncResult;
+                if (source.CurrentAsyncResult == null)
+                {
+                    source.CurrentAsyncResult = asyncResult;
+                }
+                else
+                {
+                    source = null;
+                }
             }
 
             List<Message> response = new List<Message>();
@@ -49,17 +72,17 @@ namespace AspComet
             {
                 try
                 {
-                    if (message.Channel == null)
+                    if (message.channel == null)
                     {
                         throw new Exception("Channel is null");
                     }
 
-                    if (message.Channel.StartsWith("/meta/"))
+                    if (message.channel.StartsWith("/meta/"))
                     {
-                        IMessageHandler handler = this.metaHandlers[message.Channel];
+                        IMessageHandler handler = this.metaHandlers[message.channel];
                         if (handler == null)
                         {
-                            throw new Exception("Unknown meta channel " + message.Channel);
+                            throw new Exception("Unknown meta channel " + message.channel);
                         }
 
                         if (!handler.ShouldWait)
@@ -71,7 +94,9 @@ namespace AspComet
                     }
                     else
                     {
-                        foreach (Client client in this.clientRepository.WhereSubscribedTo(message.Channel))
+                        // Remove clientId from message before delivering to subscribers.
+                        message.clientId = null;
+                        foreach (Client client in this.clientRepository.WhereSubscribedTo(message.channel))
                         {
                             client.Enqueue(message);
                             client.FlushQueue();
@@ -80,14 +105,14 @@ namespace AspComet
                 }
                 catch (Exception exception)
                 {
-                    response.Add(new Message { Channel = message.Channel, Error = exception.Message });
+                    response.Add(new Message { channel = message.channel, error = exception.Message });
                     sendResultStraightAway = true;
                 }
             }
 
             if (source == null)
             {
-                asyncResult.ResponseMessages = response.ToArray();
+                asyncResult.ResponseMessages = response;
                 asyncResult.Complete();
             }
             else
@@ -105,12 +130,12 @@ namespace AspComet
             Client sendingClient = null;
             foreach (Message message in messages)
             {
-                if (message.ClientID == null)
+                if (message.clientId == null)
                 {
                     return null;
                 }
 
-                Client client = this.clientRepository.GetByID(message.ClientID);
+                Client client = this.clientRepository.GetByID(message.clientId);
                 if (sendingClient != null && sendingClient != client)
                 {
                     throw new Exception("All messages must have the same client");

@@ -14,13 +14,13 @@ namespace AspComet.MessageHandlers
 
         public Message HandleMessage(MessageBus source, Message request)
         {
-            source.RemoveClient(request.ClientID);
+            source.RemoveClient(request.clientId);
 
             return new Message
                        {
-                           Channel = this.ChannelName,
-                           Successful = true,
-                           ClientID = request.ClientID
+                           channel = this.ChannelName,
+                           successful = true,
+                           clientId = request.clientId
                        };
         }
     }

@@ -18,11 +18,11 @@ namespace AspComet.MessageHandlers
 
             return new Message
                        {
-                           Channel = this.ChannelName,
-                           Version = "1.0",
-                           SupportedConnectionTypes = new[] { "long-polling" },
-                           ClientID = Client.ID,
-                           Successful = true
+                           channel = this.ChannelName,
+                           version = "1.0",
+                           supportedConnectionTypes = new[] { "long-polling" },
+                           clientId = Client.ID,
+                           successful = true
                        };
         }
     }

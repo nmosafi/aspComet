@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Timers;
 
 namespace AspComet
@@ -12,14 +11,14 @@ namespace AspComet
         private readonly object syncRoot = new object();
         private readonly Timer timer = new Timer { AutoReset = false, Enabled = false, Interval = 10000 };
 
-        public Client()
+        public Client(string id)
         {
-            this.ID = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            this.ID = id;
             this.timer.Elapsed += HandleTimerCallback;
         }
 
         public string ID { get; private set; }
-        public CometAsyncResult CurrentAsyncResult { private get; set; }
+        public CometAsyncResult CurrentAsyncResult { get; set; }
 
         public void SubscribeTo(string subscription)
         {
@@ -66,7 +65,7 @@ namespace AspComet
                 {
                     if (this.messages.Count > 0 && this.CurrentAsyncResult != null)
                     {
-                        this.CurrentAsyncResult.ResponseMessages = this.GetMessages().ToArray();
+                        this.CurrentAsyncResult.ResponseMessages = this.GetMessages();
                         this.CurrentAsyncResult.Complete();
                         this.CurrentAsyncResult = null;
                     }

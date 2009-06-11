@@ -5,7 +5,12 @@ namespace AspComet
 {
     public class CometHttpHandler : IHttpAsyncHandler
     {
-        private readonly MessageBus messageBus = new MessageBus(new InMemoryClientRepository());
+        private readonly MessageBus messageBus;
+
+        public CometHttpHandler()
+        {
+            messageBus = new MessageBus(CreateClientRepository());
+        }
 
         public bool IsReusable
         {
@@ -19,8 +24,7 @@ namespace AspComet
 
         public IAsyncResult BeginProcessRequest(HttpContext context, AsyncCallback callback, object asyncState)
         {
-            Message[] request = MessageConverter.FromJson(context.Request, "message");
-
+            Message[] request = MessageConverter.FromJson(context.Request);
             CometAsyncResult asyncResult = new CometAsyncResult(context, callback, asyncState);
             this.messageBus.HandleMessages(request, asyncResult);
             return asyncResult;
@@ -30,6 +34,11 @@ namespace AspComet
         {
             CometAsyncResult cometAsyncResult = (CometAsyncResult) result;
             cometAsyncResult.HttpContext.Response.Write(MessageConverter.ToJson(cometAsyncResult.ResponseMessages));            
+        }
+
+        protected virtual IClientRepository CreateClientRepository()
+        {
+            return new InMemoryClientRepository();
         }
     }
 }

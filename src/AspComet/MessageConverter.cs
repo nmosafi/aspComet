@@ -1,40 +1,36 @@
 using System.IO;
-using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Script.Serialization;
 
 namespace AspComet
 {
     public class MessageConverter
     {
-        public static Message[] FromJson(HttpRequest request, string requestKey)
+        static readonly JavaScriptSerializer SERIALIZER = new JavaScriptSerializer();
+        static readonly Regex REGEX_ARRAY = new Regex(@"^\s*\[", RegexOptions.Compiled);
+        static readonly Regex REGEX_NULL = new Regex(@"(""[^""]+"":null,)|(,""[^""]+"":null)", RegexOptions.Compiled);
+
+        public static Message[] FromJson(HttpRequest request)
         {
-            string json = request[requestKey];
-            if (string.IsNullOrEmpty(json))
-            {
-                using (StreamReader reader = new StreamReader(request.InputStream))
+            // Get the "message" parameter from the post collection, as specified in Bayeux sec. 3.4.
+            string json = request.Form["message"];
+
+            // Dojo seems to just send the message as the body, without any name.
+            if (json == null)
+                using (var reader = new StreamReader(request.InputStream))
                     json = reader.ReadToEnd();
-            }
-            using (Stream stream = new MemoryStream(Encoding.Unicode.GetBytes(json)))
-            {
-                return (Message[]) new DataContractJsonSerializer(typeof(Message[])).ReadObject(stream);
-            }
+
+            // If the message starts with a [ read as an array - otherwise read into single field array.
+            return REGEX_ARRAY.IsMatch(json) ? SERIALIZER.Deserialize<Message[]>(json)
+                : new[] { SERIALIZER.Deserialize<Message>(json) };
         }
 
         public static string ToJson<TModel>(TModel model)
         {
-            return Regex.Replace(Serialize(model), @"""[^""]*"":null,", string.Empty);
-        }
-
-        private static string Serialize<TModel>(TModel model)
-        {
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(TModel));
-            using (MemoryStream stream = new MemoryStream())
-            {
-                serializer.WriteObject(stream, model);
-                return Encoding.Default.GetString(stream.ToArray());
-            }
+            string txt = SERIALIZER.Serialize(model);
+            return REGEX_NULL.Replace(txt, string.Empty);
         }
     }
 }

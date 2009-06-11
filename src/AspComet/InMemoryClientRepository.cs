@@ -1,12 +1,16 @@
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace AspComet
 {
     public class InMemoryClientRepository : IClientRepository
     {
         private static readonly KeyedClientCollection clients = new KeyedClientCollection();
+
+        public bool ContainsID(string clientID)
+        {
+            return clients.Contains(clientID);
+        }
 
         public Client GetByID(string clientID)
         {
@@ -25,7 +29,9 @@ namespace AspComet
 
         public IEnumerable WhereSubscribedTo(string channel)
         {
-            return clients.Where(c => c.IsSubscribedTo(channel));
+            foreach (var client in clients)
+                if (client.IsSubscribedTo(channel))
+                    yield return client;
         }
 
         private class KeyedClientCollection : KeyedCollection<string, Client>
