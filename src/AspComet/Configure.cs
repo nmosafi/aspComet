@@ -1,10 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AspComet
+﻿namespace AspComet
 {
-    public class Configure
+    public static class Configuration
     {
+        internal static IMessageBus MessageBus { get; private set; }
+
+        public static class InitialiseHttpHandler
+        {
+            public static void WithMessageBus(IMessageBus messageBus)
+            {
+                MessageBus = messageBus;
+            }
+
+            public static void WithTheDefaultConfiguration()
+            {
+                IClientRepository clientRepository = new InMemoryClientRepository();
+                IClientIDGenerator clientIDGenerator = new RngUniqueClientIDGenerator(clientRepository);
+
+                MessageBus = new MessageBus(clientRepository, clientIDGenerator);
+            }
+        }
     }
 }

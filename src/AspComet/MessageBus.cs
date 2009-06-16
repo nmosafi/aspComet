@@ -6,14 +6,17 @@ using AspComet.MessageHandlers;
 
 namespace AspComet
 {
-    public class MessageBus
+    public class MessageBus : IMessageBus
     {
         private readonly MessageHandlerCollection metaHandlers = new MessageHandlerCollection();
         private readonly IClientRepository clientRepository;
+        private readonly IClientIDGenerator clientIDGenerator;
+        private readonly object clientRepositorySyncRoot = new object();
 
-        public MessageBus(IClientRepository clientRepository)
+        public MessageBus(IClientRepository clientRepository, IClientIDGenerator clientIDGenerator)
         {
             this.clientRepository = clientRepository;
+            this.clientIDGenerator = clientIDGenerator;
             this.InitialiseMetaHandlers();
         }
 
@@ -29,25 +32,14 @@ namespace AspComet
 
         public Client CreateClient()
         {
-            lock (this.clientRepository)
-            {
-                // Use a strong RNG to generate a 20 random character base64 client ID.
-                // Do lookups in client repository to ensure uniqueness of ID.
-                string clientID;
-                var rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
-                do
-                {
-                    byte[] bytes = new byte[15];
-                    rng.GetBytes(bytes);
-                    clientID = Convert.ToBase64String(bytes);
-                }
-                while (this.clientRepository.ContainsID(clientID));
+            string clientID = this.clientIDGenerator.GenerateClientID();
+            Client client = new Client(clientID);
 
-                // Create, add and return client.
-                Client client = new Client(clientID);
+            lock (this.clientRepositorySyncRoot)
+            {
                 this.clientRepository.Add(client);
-                return client;
             }
+            return client;
         }
 
         public void HandleMessages(Message[] messages, CometAsyncResult asyncResult)

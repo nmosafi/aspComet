@@ -36,7 +36,10 @@
     <Reference Include="System" />
     <Reference Include="System.Web" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ASP.NET 2.0 AJAX Extensions\System.Web.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -45,6 +48,8 @@
     <Compile Include="CometAsyncResult.cs" />
     <Compile Include="CometHttpHandler.cs" />
     <Compile Include="Configure.cs" />
+    <Compile Include="IClientIDGenerator.cs" />
+    <Compile Include="IMessageBus.cs" />
     <Compile Include="InMemoryClientRepository.cs" />
     <Compile Include="IClientRepository.cs" />
     <Compile Include="IMessageHandler.cs" />
@@ -58,6 +63,7 @@
     <Compile Include="MessageHandlers\MetaUnsubscribeHandler.cs" />
     <Compile Include="MessageHandlers\PassThruHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RngUniqueClientIDGenerator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
