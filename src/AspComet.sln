@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet", "AspComet\AspComet.csproj", "{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet.WebHost", "AspComet.WebHost\AspComet.WebHost.csproj", "{936A6B5E-E690-48E5-AB65-516A97FA87BB}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet.Specifications", "AspComet.Specifications\AspComet.Specifications.csproj", "{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{F672F752-37B9-43AD-B89E-9F0517083F44}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat", "Samples\Chat\Chat.csproj", "{936A6B5E-E690-48E5-AB65-516A97FA87BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,16 +19,19 @@ Global
 		{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{936A6B5E-E690-48E5-AB65-516A97FA87BB} = {F672F752-37B9-43AD-B89E-9F0517083F44}
 	EndGlobalSection
 EndGlobal
