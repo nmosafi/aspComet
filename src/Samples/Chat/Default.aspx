@@ -29,6 +29,7 @@
 					if (msg) {
 						dojox.cometd.publish('/chat', { sender: name, message: msg });
 						dojo.byId('message').value = '';
+						dojo.byId('message').focus();
 					}
 					return false;
 				};
