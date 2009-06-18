@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 using AspComet.MessageHandlers;
 
@@ -8,7 +7,6 @@ namespace AspComet
 {
     public class MessageBus : IMessageBus
     {
-        private readonly MessageHandlerCollection metaHandlers = new MessageHandlerCollection();
         private readonly IClientRepository clientRepository;
         private readonly IClientIDGenerator clientIDGenerator;
         private readonly object clientRepositorySyncRoot = new object();
@@ -17,7 +15,6 @@ namespace AspComet
         {
             this.clientRepository = clientRepository;
             this.clientIDGenerator = clientIDGenerator;
-            this.InitialiseMetaHandlers();
         }
 
         public Client GetClient(string clientID)
@@ -45,75 +42,25 @@ namespace AspComet
         public void HandleMessages(Message[] messages, CometAsyncResult asyncResult)
         {
             Client source = this.GetSourceFrom(messages);
-            if (source != null)
-            {
-                if (source.CurrentAsyncResult == null)
-                {
-                    source.CurrentAsyncResult = asyncResult;
-                }
-                else
-                {
-                    source = null;
-                }
-            }
-
             List<Message> response = new List<Message>();
             bool sendResultStraightAway = false;
 
-            foreach (Message message in messages)
+            foreach (Message msg in messages)
             {
-                try
-                {
-                    if (message.channel == null)
-                    {
-                        throw new Exception("Channel is null");
-                    }
-
-                    if (message.channel.StartsWith("/meta/"))
-                    {
-                        IMessageHandler handler = this.metaHandlers[message.channel];
-                        if (handler == null)
-                        {
-                            throw new Exception("Unknown meta channel " + message.channel);
-                        }
-
-                        if (!handler.ShouldWait)
-                        {
-                            sendResultStraightAway = true;
-                        }
-
-                        response.Add(handler.HandleMessage(this, message));
-                    }
-                    else
-                    {
-                        // Remove clientId from message before delivering to subscribers.
-                        message.clientId = null;
-                        foreach (Client client in this.clientRepository.WhereSubscribedTo(message.channel))
-                        {
-                            client.Enqueue(message);
-                            client.FlushQueue();
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    response.Add(new Message { channel = message.channel, error = exception.Message });
-                    sendResultStraightAway = true;
-                }
+                IMessageHandler handler = GetMessageHandler(msg.channel);
+                response.Add(handler.HandleMessage(this, msg));
+                sendResultStraightAway |= !handler.ShouldWait;
             }
 
-            if (source == null)
+            if (sendResultStraightAway || source == null || source.CurrentAsyncResult != null)
             {
                 asyncResult.ResponseMessages = response;
                 asyncResult.Complete();
             }
             else
             {
+                source.CurrentAsyncResult = asyncResult;
                 source.Enqueue(response.ToArray());
-                if (sendResultStraightAway)
-                {
-                    source.FlushQueue();
-                }
             }
         }
 
@@ -138,21 +85,32 @@ namespace AspComet
             return sendingClient;
         }
 
-        private void InitialiseMetaHandlers()
+        private IMessageHandler GetMessageHandler(string channelName)
         {
-            this.metaHandlers.Add(new MetaHandshakeHandler());
-            this.metaHandlers.Add(new MetaConnectHandler());
-            this.metaHandlers.Add(new MetaDisconnectHandler());
-            this.metaHandlers.Add(new MetaSubscribeHandler());
-            this.metaHandlers.Add(new MetaUnsubscribeHandler());
-        }
+            // If no channel name is given, no handler can be found.
+            if (channelName == null) new ExceptionHandler("Empty channel field in request.");
 
-        private class MessageHandlerCollection : KeyedCollection<string, IMessageHandler>
-        {
-            protected override string GetKeyForItem(IMessageHandler item)
+            // Use switch statement to identify known meta channels.
+            if (channelName.StartsWith("/meta/"))
             {
-                return item.ChannelName;
+                switch (channelName.Substring(6))
+                {
+                    case "connect": return new MetaConnectHandler();
+                    case "disconnect": return new MetaDisconnectHandler();
+                    case "handshake": return new MetaHandshakeHandler();
+                    case "subscribe": return new MetaSubscribeHandler();
+                    case "unsubscribe": return new MetaUnsubscribeHandler();
+                    default: return new ExceptionHandler("Unknown meta channel.");
+                }
             }
+            
+            if (channelName.StartsWith("/service/"))
+            {
+                // TODO Return some class defined by application, or some kind of "null handler"?
+            }
+
+            // If neither meta nor service, pass-thru as ordinary publish.
+            return new PassThruHandler(channelName, clientRepository.WhereSubscribedTo(channelName));
         }
     }
 }

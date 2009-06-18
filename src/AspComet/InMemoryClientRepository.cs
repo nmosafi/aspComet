@@ -1,4 +1,5 @@
-using System.Collections;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace AspComet
@@ -27,7 +28,7 @@ namespace AspComet
             clients.Add(client);
         }
 
-        public IEnumerable WhereSubscribedTo(string channel)
+        public IEnumerable<Client> WhereSubscribedTo(string channel)
         {
             foreach (var client in clients)
                 if (client.IsSubscribedTo(channel))

@@ -1,4 +1,5 @@
-using System.Collections;
+using System;
+using System.Collections.Generic;
 
 namespace AspComet
 {
@@ -8,6 +9,6 @@ namespace AspComet
         Client GetByID(string clientID);
         void RemoveByID(string clientID);
         void Add(Client client);
-        IEnumerable WhereSubscribedTo(string channel);
+        IEnumerable<Client> WhereSubscribedTo(string channel);
     }
 }

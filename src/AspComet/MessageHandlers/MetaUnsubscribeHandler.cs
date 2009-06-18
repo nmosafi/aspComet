@@ -11,7 +11,7 @@ namespace AspComet.MessageHandlers
 
         public bool ShouldWait
         {
-            get { return true; }
+            get { return false; }
         }
 
         public Message HandleMessage(MessageBus source, Message request)
