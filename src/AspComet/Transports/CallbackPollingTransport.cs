@@ -13,14 +13,14 @@ namespace AspComet.Transports
             this.callback = callback;
         }
 
-        public void SendMessages(HttpContextBase context, IEnumerable<Message> messages)
+        public void SendMessages(HttpResponseBase response, IEnumerable<Message> messages)
         {
-            context.Response.ContentType = "text/javascript";
+            response.ContentType = "text/javascript";
 
-            context.Response.Write(callback ?? "jsonpcallback");
-            context.Response.Write("(");
-            context.Response.Write(MessageConverter.ToJson(messages));
-            context.Response.Write(");");
+            response.Write(callback ?? "jsonpcallback");
+            response.Write("(");
+            response.Write(MessageConverter.ToJson(messages));
+            response.Write(");");
         }
     }
 }

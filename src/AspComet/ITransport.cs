@@ -6,6 +6,6 @@ namespace AspComet
 {
     public interface ITransport
     {
-        void SendMessages(HttpContextBase context, IEnumerable<Message> messages);
+        void SendMessages(HttpResponseBase response, IEnumerable<Message> messages);
     }
 }
