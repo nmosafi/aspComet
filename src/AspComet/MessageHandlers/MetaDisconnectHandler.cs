@@ -1,3 +1,5 @@
+using System;
+
 namespace AspComet.MessageHandlers
 {
     public class MetaDisconnectHandler : IMessageHandler
@@ -18,6 +20,7 @@ namespace AspComet.MessageHandlers
 
             return new Message
                        {
+                           id = request.id,
                            channel = this.ChannelName,
                            successful = true,
                            clientId = request.clientId

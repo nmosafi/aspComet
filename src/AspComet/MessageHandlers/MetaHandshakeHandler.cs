@@ -1,3 +1,5 @@
+using System;
+
 namespace AspComet.MessageHandlers
 {
     public class MetaHandshakeHandler : IMessageHandler
@@ -18,6 +20,7 @@ namespace AspComet.MessageHandlers
 
             return new Message
                        {
+                           id = request.id,
                            channel = this.ChannelName,
                            version = "1.0",
                            supportedConnectionTypes = new[] { "long-polling" },

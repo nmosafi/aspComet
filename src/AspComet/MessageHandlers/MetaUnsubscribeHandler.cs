@@ -1,3 +1,5 @@
+using System;
+
 namespace AspComet.MessageHandlers
 {
     public class MetaUnsubscribeHandler : IMessageHandler
@@ -19,6 +21,7 @@ namespace AspComet.MessageHandlers
 
             return new Message
                        {
+                           id = request.id,
                            channel = this.ChannelName,
                            successful = true,
                            clientId = client.ID,
