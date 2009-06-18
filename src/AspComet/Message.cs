@@ -14,7 +14,7 @@ namespace AspComet
         public string connectionType { get; set; }
         public string id { get; set; }
         public string timestamp { get; set; }
-        public bool successful { get; set; }
+        public bool? successful { get; set; }
         public string subscription { get; set; }
         public string error { get; set; }
         public string ext { get; set; }
