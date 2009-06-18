@@ -22,13 +22,26 @@ namespace AspComet
 
         public IAsyncResult BeginProcessRequest(HttpContext context, AsyncCallback callback, object asyncState)
         {
+            return BeginProcessRequest(new HttpContextWrapper(context), callback, asyncState);
+        }
+
+        public IAsyncResult BeginProcessRequest(HttpContextBase context, AsyncCallback callback, object asyncState)
+        {
             EnsureMessageBus();
 
-            HttpContextBase abstractContext = new HttpContextWrapper(context);
-            Message[] request = MessageConverter.FromJson(abstractContext.Request);
-            CometAsyncResult asyncResult = new CometAsyncResult(abstractContext, callback, asyncState);
+            Message[] request = MessageConverter.FromJson(context.Request);
+            CometAsyncResult asyncResult = new CometAsyncResult(context, callback, asyncState);
             this.messageBus.HandleMessages(request, asyncResult);
             return asyncResult;
+        }
+
+        public void EndProcessRequest(IAsyncResult result)
+        {
+            CometAsyncResult cometAsyncResult = (CometAsyncResult) result;
+
+            // TODO Find some way to determine the correct transport. Possibly earlier, saving it in the CometAsyncResult.
+            ITransport transport = new Transports.LongPollingTransport();
+            transport.SendMessages(cometAsyncResult.HttpContext.Response, cometAsyncResult.ResponseMessages);
         }
 
         private void EnsureMessageBus()
@@ -39,15 +52,6 @@ namespace AspComet
                 if (this.messageBus != null) return;
                 this.messageBus = Configuration.MessageBus;
             }
-        }
-
-        public void EndProcessRequest(IAsyncResult result)
-        {
-            CometAsyncResult cometAsyncResult = (CometAsyncResult) result;
-
-            // TODO Find some way to determine the correct transport. Possibly earlier, saving it in the CometAsyncResult.
-            ITransport transport = new Transports.LongPollingTransport();
-            transport.SendMessages(cometAsyncResult.HttpContext.Response, cometAsyncResult.ResponseMessages);
         }
     }
 }
