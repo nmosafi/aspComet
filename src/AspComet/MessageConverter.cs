@@ -12,7 +12,7 @@ namespace AspComet
         static readonly Regex REGEX_ARRAY = new Regex(@"^\s*\[", RegexOptions.Compiled);
         static readonly Regex REGEX_NULL = new Regex(@"(""[^""]+"":null,)|(,""[^""]+"":null)", RegexOptions.Compiled);
 
-        public static Message[] FromJson(HttpRequest request)
+        public static Message[] FromJson(HttpRequestBase request)
         {
             // Get the "message" parameter from the post collection, as specified in Bayeux sec. 3.4.
             string json = request.Form["message"];

@@ -24,8 +24,9 @@ namespace AspComet
         {
             EnsureMessageBus();
 
-            Message[] request = MessageConverter.FromJson(context.Request);
-            CometAsyncResult asyncResult = new CometAsyncResult(context, callback, asyncState);
+            HttpContextBase abstractContext = new HttpContextWrapper(context);
+            Message[] request = MessageConverter.FromJson(abstractContext.Request);
+            CometAsyncResult asyncResult = new CometAsyncResult(abstractContext, callback, asyncState);
             this.messageBus.HandleMessages(request, asyncResult);
             return asyncResult;
         }
@@ -43,7 +44,10 @@ namespace AspComet
         public void EndProcessRequest(IAsyncResult result)
         {
             CometAsyncResult cometAsyncResult = (CometAsyncResult) result;
-            cometAsyncResult.HttpContext.Response.Write(MessageConverter.ToJson(cometAsyncResult.ResponseMessages));            
+
+            // TODO Find some way to determine the correct transport. Possibly earlier, saving it in the CometAsyncResult.
+            ITransport transport = new Transports.LongPollingTransport();
+            transport.SendMessages(cometAsyncResult.HttpContext, cometAsyncResult.ResponseMessages);
         }
     }
 }

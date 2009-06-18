@@ -7,11 +7,11 @@ namespace AspComet
 {
     public class CometAsyncResult : IAsyncResult
     {
-        private readonly HttpContext httpContext;
+        private readonly HttpContextBase httpContext;
         private readonly AsyncCallback callback;
         private readonly object asyncState;
 
-        public CometAsyncResult(HttpContext httpContext, AsyncCallback callback, object asyncState)
+        public CometAsyncResult(HttpContextBase httpContext, AsyncCallback callback, object asyncState)
         {
             this.httpContext = httpContext;
             this.callback = callback;
@@ -35,7 +35,7 @@ namespace AspComet
             get { return false; }
         }
 
-        public HttpContext HttpContext
+        public HttpContextBase HttpContext
         {
             get { return this.httpContext; }
         }
