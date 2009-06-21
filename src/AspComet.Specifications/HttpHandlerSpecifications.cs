@@ -54,7 +54,6 @@ namespace AspComet.Specifications
         }
     }
    
-
     [Concern("Handling HTTP requests")]
     public class aynchronously_with_a_message_field_which_is_an_object : behaves_like_context_with_http_handler
     {

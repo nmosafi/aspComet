@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Timers;
 
+using AspComet.Eventing;
+
 namespace AspComet
 {
-    public class Client
+    public class Client : IClient
     {
         private readonly List<string> subscriptions = new List<string>();
         private readonly Queue<Message> messages = new Queue<Message>();
@@ -26,6 +28,7 @@ namespace AspComet
                 throw new ArgumentException("Subscription cannot be null or empty");
 
             this.subscriptions.Add(subscription);
+            EventHub.Publish(new SubscribedEvent(this, subscription));
         }
 
         public void UnsubscribeFrom(string subscription)
