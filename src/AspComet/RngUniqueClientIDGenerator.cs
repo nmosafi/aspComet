@@ -6,7 +6,7 @@ namespace AspComet
 {
     public class RngUniqueClientIDGenerator : IClientIDGenerator
     {
-        private static readonly Regex NON_ALPHANUM = new Regex("[^a-zA-Z0-9]", RegexOptions.Compiled);
+        private static readonly Regex NonAlphanumericRegex = new Regex("[^a-zA-Z0-9]", RegexOptions.Compiled);
 
         private readonly RNGCryptoServiceProvider rngCryptoServiceProvider = new RNGCryptoServiceProvider();
         private readonly IClientRepository clientRepository;
@@ -23,11 +23,10 @@ namespace AspComet
             {
                 byte[] bytes = new byte[15];
                 this.rngCryptoServiceProvider.GetBytes(bytes);
-                clientID = NON_ALPHANUM.Replace(Convert.ToBase64String(bytes), "");
+                clientID = NonAlphanumericRegex.Replace(Convert.ToBase64String(bytes), "");
             }
             while (this.clientRepository.ContainsID(clientID));
             return clientID;
         }
-
     }
 }
