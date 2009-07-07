@@ -13,6 +13,10 @@ namespace AspComet.Eventing
 
         public static void Publish<T>(T ev) where T : IEvent
         {
+            // NOTE: This should be thread safe as we can't currently unsubscribe, no need to lock
+            if (!Subscriptions.Contains(typeof(T)))
+                return;
+
             foreach (Action<T> action in Subscriptions[typeof(T)])
             {
                 TryAndInvoke(action, ev);

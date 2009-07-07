@@ -41,30 +41,29 @@ namespace AspComet
 
         public void HandleMessages(Message[] messages, CometAsyncResult asyncResult)
         {
-            Client source = this.GetSourceFrom(messages);
             List<Message> response = new List<Message>();
-            bool sendResultStraightAway = false;
+            bool shouldSendResultStraightBackToClient = false;
 
             foreach (Message msg in messages)
             {
                 IMessageHandler handler = GetMessageHandler(msg.channel);
                 response.Add(handler.HandleMessage(this, msg));
-                sendResultStraightAway |= !handler.ShouldWait;
+                shouldSendResultStraightBackToClient |= !handler.ShouldWait;
             }
 
-            if (sendResultStraightAway || source == null || source.CurrentAsyncResult != null)
+            Client sender = this.GetSenderOf(messages);
+            if (shouldSendResultStraightBackToClient || sender == null || sender.CurrentAsyncResult != null)
             {
                 asyncResult.ResponseMessages = response;
                 asyncResult.Complete();
+                return;
             }
-            else
-            {
-                source.CurrentAsyncResult = asyncResult;
-                source.Enqueue(response.ToArray());
-            }
+
+            sender.CurrentAsyncResult = asyncResult;
+            sender.Enqueue(response.ToArray());
         }
 
-        private Client GetSourceFrom(IEnumerable<Message> messages)
+        private Client GetSenderOf(IEnumerable<Message> messages)
         {
             Client sendingClient = null;
             foreach (Message message in messages)
