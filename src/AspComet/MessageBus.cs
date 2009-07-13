@@ -51,16 +51,26 @@ namespace AspComet
                 shouldSendResultStraightBackToClient |= !handler.ShouldWait;
             }
 
-            Client sender = this.GetSenderOf(messages);
-            if (shouldSendResultStraightBackToClient || sender == null || sender.CurrentAsyncResult != null)
+            Client sendingClient = this.GetSenderOf(messages);
+            if (sendingClient == null)
             {
                 asyncResult.ResponseMessages = response;
                 asyncResult.Complete();
                 return;
             }
 
-            sender.CurrentAsyncResult = asyncResult;
-            sender.Enqueue(response.ToArray());
+            if (sendingClient.CurrentAsyncResult != null)
+            {
+                sendingClient.CurrentAsyncResult.Complete();
+            }
+
+            sendingClient.CurrentAsyncResult = asyncResult;
+            sendingClient.Enqueue(response.ToArray());
+
+            if (shouldSendResultStraightBackToClient)
+            {
+                sendingClient.FlushQueue();
+            }
         }
 
         private Client GetSenderOf(IEnumerable<Message> messages)
