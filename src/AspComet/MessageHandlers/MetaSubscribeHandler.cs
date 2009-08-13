@@ -20,7 +20,7 @@ namespace AspComet.MessageHandlers
             Client client = source.GetClient(request.clientId);
             client.SubscribeTo(request.subscription);
 
-            var e = new SubscribedEvent(client, request.channel);
+            var e = new SubscribedEvent(client, request.subscription);
             EventHub.Publish(e); // TODO handle e.Cancel == false
 
             return new Message
