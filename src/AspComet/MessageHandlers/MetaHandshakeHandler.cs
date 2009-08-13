@@ -1,4 +1,5 @@
 using System;
+using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
 {
@@ -16,7 +17,10 @@ namespace AspComet.MessageHandlers
 
         public Message HandleMessage(MessageBus source, Message request)
         {
-            Client Client = source.CreateClient();
+            Client client = source.CreateClient();
+
+            var e = new HandshakeEvent(client);
+            EventHub.Publish(e); // TODO handle e.Cancel == false
 
             return new Message
                        {
@@ -24,7 +28,7 @@ namespace AspComet.MessageHandlers
                            channel = this.ChannelName,
                            version = "1.0",
                            supportedConnectionTypes = new[] { "long-polling" },
-                           clientId = Client.ID,
+                           clientId = client.ID,
                            successful = true
                        };
         }

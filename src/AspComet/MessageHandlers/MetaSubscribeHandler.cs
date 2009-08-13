@@ -1,4 +1,5 @@
 using System;
+using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
 {
@@ -18,6 +19,9 @@ namespace AspComet.MessageHandlers
         {
             Client client = source.GetClient(request.clientId);
             client.SubscribeTo(request.subscription);
+
+            var e = new SubscribedEvent(client, request.channel);
+            EventHub.Publish(e); // TODO handle e.Cancel == false
 
             return new Message
                        {

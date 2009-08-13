@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AspComet
 {
@@ -18,5 +19,11 @@ namespace AspComet
         public string subscription { get; set; }
         public string error { get; set; }
         public string ext { get; set; }
+
+        public T GetData<T>(string key)
+        {
+            var dict = (Dictionary<string, object>)data;
+            return (T)dict[key];
+        }
     }
 }

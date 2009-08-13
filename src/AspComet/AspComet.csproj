@@ -54,7 +54,9 @@
     <Compile Include="CometHttpHandler.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Eventing\EventHub.cs" />
+    <Compile Include="Eventing\HandshakeEvent.cs" />
     <Compile Include="Eventing\IEvent.cs" />
+    <Compile Include="Eventing\PublishEvent.cs" />
     <Compile Include="Eventing\SubscribedEvent.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="Lookup.cs" />

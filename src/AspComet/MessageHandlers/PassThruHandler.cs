@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
 {
@@ -22,27 +23,35 @@ namespace AspComet.MessageHandlers
         {
             bool sendToSelf = false;
 
-            Message forward = new Message
-            {
-                channel = this.ChannelName,
-                data = request.data
-                // TODO What other fields should be forwarded?
-            };
+            var e = new PublishEvent(request);
+            EventHub.Publish(e);
 
-            foreach (Client client in this.Recipients)
+            if (!e.Cancel)
             {
-                if (client.ID == request.clientId)
+                Message forward = new Message
                 {
-                    sendToSelf = true;
-                }
-                else
+                    channel = this.ChannelName,
+                    data = request.data
+                    // TODO What other fields should be forwarded?
+                };
+
+                foreach (Client client in this.Recipients)
                 {
-                    client.Enqueue(forward);
-                    client.FlushQueue();
+                    if (client.ID == request.clientId)
+                    {
+                        sendToSelf = true;
+                    }
+                    else
+                    {
+                        client.Enqueue(forward);
+                        client.FlushQueue();
+                    }
                 }
+
+                return sendToSelf ? forward : null;
             }
 
-            return sendToSelf ? forward : null;
+            return null; // TODO should we return some error?
         }
     }
 }

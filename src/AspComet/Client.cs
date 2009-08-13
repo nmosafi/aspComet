@@ -28,7 +28,6 @@ namespace AspComet
                 throw new ArgumentException("Subscription cannot be null or empty");
 
             this.subscriptions.Add(subscription);
-            EventHub.Publish(new SubscribedEvent(this, subscription));
         }
 
         public void UnsubscribeFrom(string subscription)
