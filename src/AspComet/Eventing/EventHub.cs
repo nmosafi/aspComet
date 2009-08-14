@@ -20,7 +20,6 @@ namespace AspComet.Eventing
             foreach (Action<T> action in Subscriptions[typeof(T)])
             {
                 TryAndInvoke(action, ev);
-                if (ev.Cancel) return;
             }
         }
 

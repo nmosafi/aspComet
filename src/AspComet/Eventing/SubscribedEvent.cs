@@ -2,7 +2,6 @@
 {
     public class SubscribedEvent : IEvent
     {
-        public bool Cancel { get; set; }
         private readonly IClient client;
         private readonly string channel;
 

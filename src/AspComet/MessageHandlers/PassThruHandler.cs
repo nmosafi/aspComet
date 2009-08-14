@@ -23,7 +23,7 @@ namespace AspComet.MessageHandlers
         {
             bool sendToSelf = false;
 
-            var e = new PublishEvent(request);
+            var e = new PublishingEvent(request);
             EventHub.Publish(e);
 
             if (!e.Cancel)

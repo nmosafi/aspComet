@@ -5,12 +5,12 @@ using System.Text;
 
 namespace AspComet.Eventing
 {
-    public class PublishEvent : IEvent
+    public class PublishingEvent : ICancellableEvent
     {
         public bool Cancel { get; set; }
         public Message Message { get; private set; }
 
-        public PublishEvent(Message message)
+        public PublishingEvent(Message message)
         {
             Message = message;
         }

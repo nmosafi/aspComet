@@ -19,7 +19,7 @@ namespace AspComet.MessageHandlers
         {
             Client client = source.CreateClient();
 
-            var e = new HandshakeEvent(client);
+            var e = new ConnectedEvent(client);
             EventHub.Publish(e); // TODO handle e.Cancel == false
 
             return new Message
