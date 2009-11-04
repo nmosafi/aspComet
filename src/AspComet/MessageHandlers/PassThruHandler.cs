@@ -3,6 +3,10 @@ using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
 {
+    /// <summary>
+    ///     A message handler which passes the message through to any clients subscribed to the
+    ///     relevant channel
+    /// </summary>
     public class PassThruHandler : IMessageHandler
     {
         public string ChannelName { get; private set; }

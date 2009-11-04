@@ -115,7 +115,7 @@ namespace AspComet
             
             if (channelName.StartsWith("/service/"))
             {
-                // TODO Return some class defined by application, or some kind of "null handler"?
+                return new SwallowHandler(channelName);
             }
 
             // If neither meta nor service, pass-thru as ordinary publish.
