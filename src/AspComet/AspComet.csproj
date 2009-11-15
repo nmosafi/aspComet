@@ -59,6 +59,7 @@
     <Compile Include="Eventing\IEvent.cs" />
     <Compile Include="Eventing\PublishingEvent.cs" />
     <Compile Include="Eventing\SubscribedEvent.cs" />
+    <Compile Include="Eventing\SubscribingEvent.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="Lookup.cs" />
     <Compile Include="IClientIDGenerator.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Message.cs" />
     <Compile Include="MessageBus.cs" />
     <Compile Include="MessageConverter.cs" />
+    <Compile Include="MessageExtensions.cs" />
     <Compile Include="MessageHandlers\ExceptionHandler.cs" />
     <Compile Include="MessageHandlers\MetaConnectHandler.cs" />
     <Compile Include="MessageHandlers\MetaDisconnectHandler.cs" />

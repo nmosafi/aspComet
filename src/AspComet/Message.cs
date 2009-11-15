@@ -1,8 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// ReSharper disable InconsistentNaming
+// We use lower case property names because we are using the JSON serializer which doesn't
+// provide a way to attribute classes
 
 namespace AspComet
 {
+    /// <summary>
+    ///     A bauyeux message
+    /// </summary>
     public class Message
     {
         public string channel { get; set; }
@@ -19,11 +23,5 @@ namespace AspComet
         public string subscription { get; set; }
         public string error { get; set; }
         public string ext { get; set; }
-
-        public T GetData<T>(string key)
-        {
-            var dict = (Dictionary<string, object>)data;
-            return (T)dict[key];
-        }
     }
 }

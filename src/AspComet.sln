@@ -7,9 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet.Specifications", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{F672F752-37B9-43AD-B89E-9F0517083F44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Dojo", "Samples\Chat.Dojo\Chat.Dojo.csproj", "{936A6B5E-E690-48E5-AB65-516A97FA87BB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.JQuery", "Samples\Chat.JQuery\Chat.JQuery.csproj", "{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat", "Samples\Chat.JQuery\Chat.csproj", "{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +23,6 @@ Global
 		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{936A6B5E-E690-48E5-AB65-516A97FA87BB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -38,7 +32,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{936A6B5E-E690-48E5-AB65-516A97FA87BB} = {F672F752-37B9-43AD-B89E-9F0517083F44}
 		{B5C5A727-7A0D-4106-9A80-739E8B52AA0D} = {F672F752-37B9-43AD-B89E-9F0517083F44}
 	EndGlobalSection
 EndGlobal

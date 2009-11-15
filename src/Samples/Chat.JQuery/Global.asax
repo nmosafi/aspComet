@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="AspComet.WebHost.Global" Language="C#" %>
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="AspComet.Samples.Chat.Global" Language="C#" %>
