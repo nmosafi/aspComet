@@ -3,7 +3,7 @@
     /// <summary>
     ///     Raised when a client is publishing a message to the comet message bus
     /// </summary>
-    public class PublishingEvent : ICancellableEvent
+    public class PublishingEvent : CancellableEvent
     {
         private readonly Message message;
 
@@ -23,15 +23,5 @@
         {
             get { return this.message; }
         }
-
-        /// <summary>
-        ///     Gets or sets whether to cancel the event
-        /// </summary>
-        public bool Cancel { get; set; }
-
-        /// <summary>
-        ///     Gets or sets sets the reason for cancellation
-        /// </summary>
-        public string CancellationReason { get; set; }
     }
 }

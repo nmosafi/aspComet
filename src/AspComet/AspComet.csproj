@@ -53,6 +53,7 @@
     <Compile Include="CometAsyncResult.cs" />
     <Compile Include="CometHttpHandler.cs" />
     <Compile Include="Configure.cs" />
+    <Compile Include="Eventing\CancellableEvent.cs" />
     <Compile Include="Eventing\EventHub.cs" />
     <Compile Include="Eventing\ConnectedEvent.cs" />
     <Compile Include="Eventing\ICancellableEvent.cs" />

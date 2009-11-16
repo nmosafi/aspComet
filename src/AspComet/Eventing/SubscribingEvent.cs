@@ -3,7 +3,7 @@
     /// <summary>
     ///     Raised when a client is subscribing to a channel
     /// </summary>
-    public class SubscribingEvent : ICancellableEvent
+    public class SubscribingEvent : CancellableEvent
     {
         private readonly IClient client;
         private readonly string channel;
@@ -34,15 +34,5 @@
         {
             get { return this.channel; }
         }
-
-        /// <summary>
-        ///     Gets or sets whether to cancel the event
-        /// </summary>
-        public bool Cancel { get; set; }
-
-        /// <summary>
-        ///     Gets or sets sets the reason for cancellation
-        /// </summary>
-        public string CancellationReason { get; set; }
     }
 }
