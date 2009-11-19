@@ -54,6 +54,7 @@
     <Compile Include="CometHttpHandler.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Eventing\CancellableEvent.cs" />
+    <Compile Include="Eventing\DisconnectedEvent.cs" />
     <Compile Include="Eventing\EventHub.cs" />
     <Compile Include="Eventing\ConnectedEvent.cs" />
     <Compile Include="Eventing\ICancellableEvent.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="Eventing\PublishingEvent.cs" />
     <Compile Include="Eventing\SubscribedEvent.cs" />
     <Compile Include="Eventing\SubscribingEvent.cs" />
+    <Compile Include="Eventing\UnsubscribedEvent.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="Lookup.cs" />
     <Compile Include="IClientIDGenerator.cs" />

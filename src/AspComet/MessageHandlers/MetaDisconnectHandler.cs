@@ -1,4 +1,5 @@
 using System;
+using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
 {
@@ -16,7 +17,11 @@ namespace AspComet.MessageHandlers
 
         public Message HandleMessage(MessageBus source, Message request)
         {
-            source.RemoveClient(request.clientId);
+            Client client = source.GetClient(request.clientId);
+            var e = new DisconnectedEvent(client);
+            EventHub.Publish(e);
+
+            source.RemoveClient(client.ID);
 
             return new Message
                        {
