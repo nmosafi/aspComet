@@ -9,12 +9,14 @@ namespace AspComet
     {
         private readonly IClientRepository clientRepository;
         private readonly IClientIDGenerator clientIDGenerator;
+        private readonly IClientFactory clientFactory;
         private readonly object clientRepositorySyncRoot = new object();
 
-        public MessageBus(IClientRepository clientRepository, IClientIDGenerator clientIDGenerator)
+        public MessageBus(IClientRepository clientRepository, IClientIDGenerator clientIDGenerator, IClientFactory clientFactory)
         {
             this.clientRepository = clientRepository;
             this.clientIDGenerator = clientIDGenerator;
+            this.clientFactory = clientFactory;
         }
 
         public Client GetClient(string clientID)
@@ -30,7 +32,7 @@ namespace AspComet
         public Client CreateClient()
         {
             string clientID = this.clientIDGenerator.GenerateClientID();
-            Client client = new Client(clientID);
+            Client client = this.clientFactory.CreateClient(clientID);
 
             lock (this.clientRepositorySyncRoot)
             {

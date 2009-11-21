@@ -1,4 +1,3 @@
-using System;
 using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers

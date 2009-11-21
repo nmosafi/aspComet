@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Timers;
 
-using AspComet.Eventing;
-
 namespace AspComet
 {
     public class Client : IClient
@@ -21,6 +19,7 @@ namespace AspComet
 
         public string ID { get; private set; }
         public CometAsyncResult CurrentAsyncResult { get; set; }
+        public bool IsConnected { get; private set; }
 
         public void SubscribeTo(string subscription)
         {
@@ -78,6 +77,11 @@ namespace AspComet
         public bool IsSubscribedTo(string channel)
         {
             return this.subscriptions.Contains(channel);
+        }
+
+        public void NotifyConnected()
+        {
+            this.IsConnected = true;
         }
 
         private IEnumerable<Message> GetMessages()

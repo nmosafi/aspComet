@@ -19,10 +19,11 @@ namespace AspComet.Samples.Chat
             // Configuration.InitialiseHttpHandler.WithTheDefaultConfiguration();
             //-------------------------------------------------------------------------------------------------
 
-            // Initialise everything ourselves as we need the client repository
+            // Initialise everything ourselves as we need the client repository for our event handlers
             IClientRepository clientRepository = new InMemoryClientRepository();
             IClientIDGenerator clientIDGenerator = new RngUniqueClientIDGenerator(clientRepository);
-            Configuration.InitialiseHttpHandler.WithMessageBus(new MessageBus(clientRepository, clientIDGenerator));
+            IClientFactory clientFactory = new ClientFactory();
+            Configuration.InitialiseHttpHandler.WithMessageBus(new MessageBus(clientRepository, clientIDGenerator, clientFactory));
 
             // Now create our bad language blocker
             BadLanguageBlocker badLanguageBlocker = new BadLanguageBlocker(clientRepository);

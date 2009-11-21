@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -50,6 +51,7 @@
   <ItemGroup>
     <Compile Include="ChannelName.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="ClientFactory.cs" />
     <Compile Include="CometAsyncResult.cs" />
     <Compile Include="CometHttpHandler.cs" />
     <Compile Include="Configure.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="Eventing\SubscribingEvent.cs" />
     <Compile Include="Eventing\UnsubscribedEvent.cs" />
     <Compile Include="IClient.cs" />
+    <Compile Include="IClientFactory.cs" />
     <Compile Include="Lookup.cs" />
     <Compile Include="IClientIDGenerator.cs" />
     <Compile Include="IMessageBus.cs" />

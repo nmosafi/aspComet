@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -6,31 +5,31 @@ namespace AspComet
 {
     public class InMemoryClientRepository : IClientRepository
     {
-        private static readonly KeyedClientCollection clients = new KeyedClientCollection();
+        private static readonly KeyedClientCollection Clients = new KeyedClientCollection();
 
         public bool ContainsID(string clientID)
         {
-            return clients.Contains(clientID);
+            return Clients.Contains(clientID);
         }
 
         public Client GetByID(string clientID)
         {
-            return clients[clientID];
+            return Clients[clientID];
         }
 
         public void RemoveByID(string clientID)
         {
-            clients.Remove(clientID);
+            Clients.Remove(clientID);
         }
 
         public void Add(Client client)
         {
-            clients.Add(client);
+            Clients.Add(client);
         }
 
         public IEnumerable<Client> WhereSubscribedTo(string channel)
         {
-            foreach (var client in clients)
+            foreach (var client in Clients)
                 if (client.IsSubscribedTo(channel))
                     yield return client;
         }
