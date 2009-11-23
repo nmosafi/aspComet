@@ -3,27 +3,31 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>AspComet chat sample</title>
+		<title>AspComet chat sample - Dojo</title>
+		<!-- Load the Dojo library --> 
 		<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3.1/dojo/dojo.xd.js" type="text/javascript"></script>
+		
+		<!--- Load the core Cometd library, and the jQuery binding --->
+		<script src="lib/cometd.js" type="text/javascript"></script>
+		<script src="lib/dojox.cometd.js" type="text/javascript"></script>
+		<!-- Load our chat JS file --> 
+		<script src="chat.js" type="text/javascript"></script>
 		<script type="text/javascript" language="javascript">
 
-			dojo.require("dojox.cometd");
-
 			dojo.addOnLoad(function() {
-				var name = window.prompt('Enter your nick name:');
 
-				dojox.cometd.init('/comet.axd');
+    			// Ensure we disconnect appropriately
+			    dojo.addOnUnload(dojox.cometd, chat.leave);
 
-				dojox.cometd.subscribe('/chat', function(comet) {
-					var message = document.createElement('li');
-					if (!comet.data.sender) message.style.fontStyle = 'italic';
-					message.appendChild(document.createTextNode((comet.data.sender || 'System') + ': ' + comet.data.message));
-					dojo.byId('messages').appendChild(message);
-					dojo.byId('messages').scrollTop = dojo.byId('messages').scrollHeight;
-				});
+			    // Get the users name	    
+			    var name = window.prompt('Enter your nick name:');
 
-				dojox.cometd.publish('/chat', { message: name + ' has joined the chat!' });
+				// Initialise the chat - this will take the Dojo comet object, 
+				// handshake with the server
+				// and then subscribe to the /chat channel
+				chat.init(dojox.cometd, name);
 
+				// Publish any messages the user enters
 				dojo.byId('entry').onsubmit = function() {
 					var msg = dojo.byId('message').value;
 					if (msg) {
@@ -32,10 +36,20 @@
 						dojo.byId('message').focus();
 					}
 					return false;
-				};
+            	};
 
-				dojo.byId('message').focus();
-			});
+                // focus the entry box
+	            dojo.byId('message').focus();
+
+	        });
+
+	        function handleIncomingMessage(comet) {
+			    var message = document.createElement('li');
+			    if (!comet.data.sender) message.style.fontStyle = 'italic';
+			    message.appendChild(document.createTextNode((comet.data.sender || 'System') + ': ' + comet.data.message));
+			    dojo.byId('messages').appendChild(message);
+			    dojo.byId('messages').scrollTop = dojo.byId('messages').scrollHeight;
+			}
 
 		</script>
 		<style type="text/css">

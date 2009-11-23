@@ -3,32 +3,46 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>AspComet chat sample</title>
+		<title>AspComet chat sample - jQuery</title>
+		<!-- Load the jQuery libraries --> 
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="text/javascript"></script>
-		<script src="lib/json2.js" type="text/javascript"></script>
-		<script src="lib/jquery.comet.js" type="text/javascript"></script>
+		<script src="lib/jquery.json-1.3.js" type="text/javascript"></script>
+		<!--- Load the core Cometd library, and the jQuery binding --->
+		<script src="lib/cometd.js" type="text/javascript"></script>
+		<script src="lib/jquery.cometd.js" type="text/javascript"></script>
+		<!-- Load our chat JS file --> 
+		<script src="chat.js" type="text/javascript"></script>
 		<script type="text/javascript" language="javascript">
 
-			$(document).ready(function() {
-				var name = window.prompt('Enter your nick name:');
+		    $(document).ready(function() {
 
-				$.comet.init('/comet.axd');
+    		    // Ensure we disconnect appropriately
+	    	    $(window).unload(chat.leave);
+		    
+		        // Get the users name	    
+		        var name = window.prompt('Enter your nick name:');
 
-				$.comet.subscribe('/chat', function(comet) {
-					$('<li>' + (comet.data.sender || 'System') + ': ' + comet.data.message + '</li>').
-						appendTo('#messages').css({ fontStyle: comet.data.sender ? 'none' : 'italic' });
-				});
+		        // Initialise the chat - this will take the jQuery comet object, 
+		        // handshake with the server
+		        // and then subscribe to the /chat channel
+		        chat.init($.cometd, name);
 
-				$.comet.publish('/chat', { message: name + ' has joined the chat!' });
+		        // Publish any messages the user enters
+		        $('#entry').submit(function() {
+		            $.cometd.publish('/chat', { sender: name, message: $('#message').val() });
+		            $('#message').focus().val('');
+		            return false;
+		        });
 
-				$('#entry').submit(function() {
-					$.comet.publish('/chat', { sender: name, message: $('#message').val() });
-					$('#message').focus().val('');
-					return false;
-				});
+		        // focus the entry box
+		        $('#message').focus();
 
-				$('#message').focus();
-			});
+		    });
+
+		    function handleIncomingMessage(comet) {
+                $('<li>' + (comet.data.sender || 'System') + ': ' + comet.data.message + '</li>').
+           				    appendTo('#messages').css({ fontStyle: comet.data.sender ? 'normal' : 'italic' });
+	        }
 
 		</script>
 		<style type="text/css">
