@@ -63,7 +63,8 @@ namespace AspComet
 
             if (sendingClient.CurrentAsyncResult != null)
             {
-                sendingClient.CurrentAsyncResult.Complete();
+                //sendingClient.CurrentAsyncResult.Complete();
+                sendingClient.FlushQueue();
             }
 
             sendingClient.CurrentAsyncResult = asyncResult;
