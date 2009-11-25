@@ -3,15 +3,15 @@
     /// <summary>
     ///     Raised when a client connects to the message bus
     /// </summary>
-    public class ConnectedEvent : IEvent
+    public class HandshakenEvent : IEvent
     {
         private readonly IClient client;
 
         /// <summary>
-        ///     Initialises a new instance of the <see cref="ConnectedEvent"/> class
+        ///     Initialises a new instance of the <see cref="HandshakenEvent"/> class
         /// </summary>
         /// <param name="client"></param>
-        public ConnectedEvent(IClient client)
+        public HandshakenEvent(IClient client)
         {
             this.client = client;
         }

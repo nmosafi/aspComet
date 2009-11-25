@@ -58,7 +58,8 @@
     <Compile Include="Eventing\CancellableEvent.cs" />
     <Compile Include="Eventing\DisconnectedEvent.cs" />
     <Compile Include="Eventing\EventHub.cs" />
-    <Compile Include="Eventing\ConnectedEvent.cs" />
+    <Compile Include="Eventing\HandshakenEvent.cs" />
+    <Compile Include="Eventing\HandshakingEvent.cs" />
     <Compile Include="Eventing\ICancellableEvent.cs" />
     <Compile Include="Eventing\IEvent.cs" />
     <Compile Include="Eventing\PublishingEvent.cs" />
