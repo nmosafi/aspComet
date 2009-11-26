@@ -15,7 +15,7 @@ namespace AspComet
         public string version { get; set; }
         public string minimumVersion { get; set; }
         public string[] supportedConnectionTypes { get; set; }
-        public string advice { get; set; }
+        public object advice { get; set; }
         public string connectionType { get; set; }
         public string id { get; set; }
         public string timestamp { get; set; }

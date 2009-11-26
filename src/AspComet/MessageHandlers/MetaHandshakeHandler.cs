@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
@@ -22,7 +24,7 @@ namespace AspComet.MessageHandlers
             if( e1.Cancel ) 
             {
                 source.RemoveClient(client.ID);
-                return GetHandshakeFailedResponse(request, client, e1.CancellationReason);
+                return GetHandshakeFailedResponse(request, client, e1.CancellationReason, e1.Retry);
             }
 
             var e2 = new HandshakenEvent(client);
@@ -47,10 +49,16 @@ namespace AspComet.MessageHandlers
             };
         }
 
-        private Message GetHandshakeFailedResponse(Message request, IClient client, string cancellationReason)
+        private Message GetHandshakeFailedResponse(Message request, IClient client, string cancellationReason, bool retry)
         {
             // The handshake failed response is documented at
             // http://svn.cometd.org/trunk/bayeux/bayeux.html#toc_50
+
+            Dictionary<string, string> handshakeAdvice = new Dictionary<string,string>();
+            if (!retry)
+            {
+                handshakeAdvice["reconnect"] = "none";
+            }
 
             return new Message
             {
@@ -59,7 +67,8 @@ namespace AspComet.MessageHandlers
                 error = cancellationReason,
                 supportedConnectionTypes = new[] { "long-polling" },
                 version = "1.0",
-                id = request.id
+                id = request.id,
+                advice = handshakeAdvice
             };
         }
 

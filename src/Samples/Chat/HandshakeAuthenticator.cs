@@ -44,6 +44,7 @@ namespace AspComet.Samples.Chat
                 ev.CancellationReason = "Credentials not supplied";
             }
             ev.Cancel = true;
+            ev.Retry = false;
         }
     }
 }

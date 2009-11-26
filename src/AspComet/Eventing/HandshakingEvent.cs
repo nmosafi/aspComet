@@ -9,6 +9,11 @@
         private readonly Message handshake;
 
         /// <summary>
+        ///     Flag indicating if the client should reconnect or not. Defaults to false if the handshake is cancelled.
+        /// </summary>
+        public bool Retry { get; set; }
+
+        /// <summary>
         ///     Initialises a new instance of <see cref="HandshakingEvent"/> class
         /// </summary>
         /// <param name="client">The client which is handshaking</param>
