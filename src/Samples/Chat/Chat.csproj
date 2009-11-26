@@ -64,10 +64,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthenticatedClient.cs" />
+    <Compile Include="AuthenticatedClientFactory.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="BadLanguageBlocker.cs" />
+    <Compile Include="HandshakeAuthenticator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SubscriptionChecker.cs" />
   </ItemGroup>

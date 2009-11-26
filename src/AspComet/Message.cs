@@ -2,6 +2,7 @@
 // We use lower case property names because we are using the JSON serializer which doesn't
 // provide a way to attribute classes
 
+using System.Collections.Generic;
 namespace AspComet
 {
     /// <summary>
@@ -23,5 +24,6 @@ namespace AspComet
         public string subscription { get; set; }
         public string error { get; set; }
         public string ext { get; set; }
+        public Dictionary<string,string> authentication;
     }
 }

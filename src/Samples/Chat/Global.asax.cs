@@ -19,11 +19,19 @@ namespace AspComet.Samples.Chat
             // Configuration.InitialiseHttpHandler.WithTheDefaultConfiguration();
             //-------------------------------------------------------------------------------------------------
 
-            // Initialise everything ourselves as we need the client repository for our event handlers
+            // Create a client repo and an id generator
             IClientRepository clientRepository = new InMemoryClientRepository();
             IClientIDGenerator clientIDGenerator = new RngUniqueClientIDGenerator(clientRepository);
-            IClientFactory clientFactory = new ClientFactory();
-            Configuration.InitialiseHttpHandler.WithMessageBus(new MessageBus(clientRepository, clientIDGenerator, clientFactory));
+
+            // Create our own client factory
+            IClientFactory authClientFactory = new AuthenticatedClientFactory();
+
+            // And initialise AspComet
+            Configuration.InitialiseHttpHandler.WithMessageBus(new MessageBus(clientRepository, clientIDGenerator, authClientFactory));
+
+            // Create our handshake handler
+            HandshakeAuthenticator handshakeAuthenticator = new HandshakeAuthenticator();
+            EventHub.Subscribe<HandshakingEvent>(handshakeAuthenticator.CheckHandshake);
 
             // Now create our bad language blocker
             BadLanguageBlocker badLanguageBlocker = new BadLanguageBlocker(clientRepository);

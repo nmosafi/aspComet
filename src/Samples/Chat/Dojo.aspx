@@ -21,11 +21,12 @@
 
 			    // Get the users name	    
 			    var name = window.prompt('Enter your nick name:');
+			    var password = window.prompt('Enter your password ("password" will work!):');
 
 				// Initialise the chat - this will take the Dojo comet object, 
 				// handshake with the server
 				// and then subscribe to the /chat channel
-				chat.init(dojox.cometd, name);
+				chat.init(dojox.cometd, name, password);
 
 				// Publish any messages the user enters
 				dojo.byId('entry').onsubmit = function() {

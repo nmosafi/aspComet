@@ -13,7 +13,7 @@ var chat = function() {
     var _username;
 
     return {
-        init: function(cometd, username) {
+        init: function(cometd, username, password ) {
 
             // Store the initialisation parameters    
             _cometd = cometd;
@@ -22,8 +22,17 @@ var chat = function() {
             // Subscribe to the meta channels
             _metaSubscribe();
 
-            // And finally, initialise the connection
-            _cometd.init('/comet.axd');
+            // Configure the connection
+            _cometd.configure({ url: '/comet.axd' });
+
+            // And handshake - with authentication, as described at
+            // http://cometd.org/documentation/cometd/howtos/authentication
+            _cometd.handshake({
+                                authentication: {
+                                    user: username,
+                                    credentials: password
+                                }
+                            });
 
         }
     }
@@ -49,6 +58,7 @@ var chat = function() {
         _metaUnsubscribe();
         _metaSubscriptions.push(_cometd.addListener('/meta/handshake', this, _metaHandshake));
         _metaSubscriptions.push(_cometd.addListener('/meta/connect', this, _metaConnect));
+        _metaSubscriptions.push(_cometd.addListener('/meta/unsuccessful', this, _metaUnsuccessful));
     }
 
     function _metaHandshake(message) {
@@ -85,6 +95,11 @@ var chat = function() {
                 handleIncomingMessage({ data: { message: "Unable to connect"} });
             }
         }
+    }
+
+    function _metaUnsuccessful(message) {
+        _connected = false;
+        handleIncomingMessage({ data: { message: "Request on channel " + message.channel + " failed: " + message.error } });
     }
 
     function leave() {
