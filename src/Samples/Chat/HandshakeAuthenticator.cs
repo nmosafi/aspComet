@@ -1,4 +1,6 @@
-﻿using AspComet.Eventing;
+﻿using System.Collections.Generic;
+
+using AspComet.Eventing;
 
 namespace AspComet.Samples.Chat
 {
@@ -6,22 +8,42 @@ namespace AspComet.Samples.Chat
     {
         public void CheckHandshake(HandshakingEvent ev)
         {
-            if (ev.Handshake.authentication == null)
+            // Based on the (client side) authentication Howto at http://cometd.org/documentation/howtos/authentication
+            // If we have credentials, then they are transferred via "ext"
+            // ext will be a Dictionary<string,object> with a key, "authentication"
+            // authentication will be a Dictionary<string,object> with two keys, "user" and "credentials"            
+
+            // Note, the following lines could be collapsed in to one giant if() statement, but they are expanded for clarity
+            if (ev.Handshake.ext is Dictionary<string, object>)
             {
-                ev.Cancel = true;
-                ev.CancellationReason = "Authentication failed; no credentials were supplied";
-            } 
-            else if( ev.Handshake.authentication["credentials"] != "password" ) 
-            {
-                ev.Cancel = true;
-                ev.CancellationReason = "Authentication failed; incorrect username or password";
-            } 
-            else 
-            {
-                AuthenticatedClient authClient = (AuthenticatedClient)ev.Client;
-                authClient.username = ev.Handshake.authentication["user"];
-                authClient.password = ev.Handshake.authentication["credentials"];
+                Dictionary<string, object> dictExt = (Dictionary<string, object>)ev.Handshake.ext;
+                if (dictExt.ContainsKey("authentication")
+                    && dictExt["authentication"] is Dictionary<string, object>)
+                {
+                    Dictionary<string, object> dictAuth = (Dictionary<string, object>)dictExt["authentication"];
+                    // Authenticate the client
+                    if (dictAuth["user"] is string
+                            && dictAuth["credentials"] is string
+                            && (string)dictAuth["credentials"] == "password")
+                    {
+                        AuthenticatedClient authClient = (AuthenticatedClient)ev.Client;
+                        authClient.username = (string)dictAuth["user"];
+                        authClient.password = (string)dictAuth["credentials"];
+                        return;
+                    }
+                    else
+                    {
+                        ev.CancellationReason = "Incorrect username or password";
+                    }
+                }
             }
+
+            // If we got this far, we couldn't authenticate 
+            if (ev.CancellationReason == null)
+            {
+                ev.CancellationReason = "Credentials not supplied";
+            }
+            ev.Cancel = true;
         }
     }
 }

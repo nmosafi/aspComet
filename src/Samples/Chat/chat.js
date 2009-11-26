@@ -26,14 +26,15 @@ var chat = function() {
             _cometd.configure({ url: '/comet.axd' });
 
             // And handshake - with authentication, as described at
-            // http://cometd.org/documentation/cometd/howtos/authentication
+            // http://cometd.org/documentation/howtos/authentication
             _cometd.handshake({
-                                authentication: {
-                                    user: username,
-                                    credentials: password
+                                ext: {
+                                    authentication: {
+                                        user: username,
+                                        credentials: password
+                                    }
                                 }
                             });
-
         }
     }
 
@@ -99,7 +100,7 @@ var chat = function() {
 
     function _metaUnsuccessful(message) {
         _connected = false;
-        handleIncomingMessage({ data: { message: "Request on channel " + message.channel + " failed: " + message.error } });
+        handleIncomingMessage({ data: { message: "Request on channel " + message.channel + " failed: " + (message.error == undefined ? "No message" : message.error)} });
     }
 
     function leave() {
