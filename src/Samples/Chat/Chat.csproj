@@ -60,7 +60,7 @@
     <Content Include="lib\cometd.js" />
     <Content Include="lib\dojox.cometd.js" />
     <Content Include="lib\jquery.cometd.js" />
-    <Content Include="lib\jquery.json-1.3.js" />
+    <Content Include="lib\jquery.json-2.2.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

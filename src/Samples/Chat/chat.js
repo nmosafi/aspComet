@@ -1,19 +1,20 @@
 ﻿/*
-    This is based on the example from the examples-jquery from Cometd
+    This uses the libraries from cometd-javascript 1.0.0
+    It is based on the example from the examples-jquery from Cometd
     http://downloads.dojotoolkit.org/cometd/
     However, it's been altered 
     (a) for the simpler chat program we're using, and
-    (b) to (hopefulyl) work with both the jQuery and Dojo toolkits
+    (b) to work with both the jQuery and Dojo toolkits
 */
 var chat = function() {
     var _chatSubscription;
     var _metaSubscriptions = [];
-    var _connected = false;
     var _cometd;
     var _username;
+    var _disconnecting;
 
     return {
-        init: function(cometd, username, password ) {
+        init: function(cometd, username, password) {
 
             // Store the initialisation parameters    
             _cometd = cometd;
@@ -23,28 +24,28 @@ var chat = function() {
             _metaSubscribe();
 
             // Configure the connection
-            _cometd.configure({ url: '/comet.axd' });
+            _cometd.configure({ url: 'comet.axd', maxNetworkDelay: 20000 });
 
             // And handshake - with authentication, as described at
             // http://cometd.org/documentation/howtos/authentication
             _cometd.handshake({
-                                ext: {
-                                    authentication: {
-                                        user: username,
-                                        credentials: password
-                                    }
-                                }
-                            });
+                ext: {
+                    authentication: {
+                        user: username,
+                        credentials: password
+                    }
+                }
+            });
         }
     }
 
-    function _chatUnsubscribe() {
+    function _unsubscribe() {
         if (_chatSubscription) _cometd.unsubscribe(_chatSubscription);
         _chatSubscription = null;
     }
 
-    function _chatSubscribe() {
-        _chatUnsubscribe();
+    function _subscribe() {
+        _unsubscribe();
         _chatSubscription = _cometd.subscribe('/chat', this, handleIncomingMessage);
     }
 
@@ -67,33 +68,53 @@ var chat = function() {
         handleIncomingMessage({ data: { message: "Handshake complete. Successful? " + message.successful} });
     }
 
+    function _connectionEstablished() {
+        handleIncomingMessage({
+            data: {
+                message: 'Connection to Server Opened'
+            }
+        });
+        _cometd.startBatch();
+        _unsubscribe();
+        _subscribe();
+        _cometd.publish('/chat', {
+            sender: _username,
+            message: _username + ' has joined'
+        });
+        _cometd.endBatch();
+    }
+
+    function _connectionBroken() {
+        handleIncomingMessage({
+            data: {
+                message: 'Connection to Server Broken'
+            }
+        });
+    }
+
+    function _connectionClosed() {
+        handleIncomingMessage({
+            data: {
+                message: 'Connection to Server Closed'
+            }
+        });
+    }
+
+    var _connected = false;
     function _metaConnect(message) {
-        var wasConnected = _connected;
-        _connected = message.successful;
-        if (wasConnected) {
-            if (_connected) {
-                // Normal operation, a long poll that reconnects
+        //alert("metaConnect. _connected=" + _connected + ", _disconnecting=" + _disconnecting + ", message.successful=" + message.successful);
+        if (_disconnecting) {
+            _connected = false;
+            _connectionClosed();
+        }
+        else {
+            var wasConnected = _connected;
+            _connected = message.successful === true;
+            if (!wasConnected && _connected) {
+                _connectionEstablished();
             }
-            else {
-                // Disconnected
-                handleIncomingMessage({ data: { message: "Disconnected"} });
-            }
-        } else {
-            // We weren't connected
-            if (_connected) {
-                // But now we are
-                handleIncomingMessage({ data: { message: "Connected"} });
-                // Subscribe to the /chat channel and send a message
-                _cometd.startBatch();
-                _chatSubscribe();
-                _cometd.publish('/chat', {
-                    message: _username + ' has joined'
-                });
-                _cometd.endBatch();
-            }
-            else {
-                // Could not connect
-                handleIncomingMessage({ data: { message: "Unable to connect"} });
+            else if (wasConnected && !_connected) {
+                _connectionBroken();
             }
         }
     }

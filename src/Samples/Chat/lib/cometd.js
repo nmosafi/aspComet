@@ -1,6 +1,6 @@
 /**
  * Dual licensed under the Apache License 2.0 and the MIT license.
- * $Revision$ $Date: 2009-08-25 03:17:14 +1000 (Tue, 25 Aug 2009) $
+ * $Revision$ $Date: 2009-11-27 10:36:03 +0000 (Fri, 27 Nov 2009) $
  */
 
 // Dojo loader support
@@ -17,10 +17,109 @@ else
 
 // Abstract APIs
 org.cometd.JSON = {};
-org.cometd.AJAX = {};
-org.cometd.JSON.toJSON = org.cometd.JSON.fromJSON = org.cometd.AJAX.send = function(object)
+org.cometd.JSON.toJSON = org.cometd.JSON.fromJSON = function(object)
 {
     throw 'Abstract';
+};
+
+
+/**
+ * A registry for transports used by the Cometd object.
+ */
+org.cometd.TransportRegistry = function()
+{
+    var _types = [];
+    var _transports = {};
+
+    this.getTransportTypes = function()
+    {
+        return _types.slice(0);
+    };
+
+    this.findTransportTypes = function(version, crossDomain)
+    {
+        var result = [];
+        for (var i = 0; i < _types.length; ++i)
+        {
+            var type = _types[i];
+            if (_transports[type].accept(version, crossDomain))
+            {
+                result.push(type);
+            }
+        }
+        return result;
+    };
+
+    this.negotiateTransport = function(types, version, crossDomain)
+    {
+        for (var i = 0; i < _types.length; ++i)
+        {
+            var type = _types[i];
+            for (var j = 0; j < types.length; ++j)
+            {
+                if (type == types[j])
+                {
+                    var transport = _transports[type];
+                    if (transport.accept(version, crossDomain) === true)
+                    {
+                        return transport;
+                    }
+                }
+            }
+        }
+        return null;
+    };
+
+    this.add = function(type, transport, index)
+    {
+        var existing = false;
+        for (var i = 0; i < _types.length; ++i)
+        {
+            if (_types[i] == type)
+            {
+                existing = true;
+                break;
+            }
+        }
+
+        if (!existing)
+        {
+            if (typeof index !== 'number')
+            {
+                _types.push(type);
+            }
+            else
+            {
+                _types.splice(index, 0, type);
+            }
+            _transports[type] = transport;
+        }
+
+        return !existing;
+    };
+
+    this.remove = function(type)
+    {
+        for (var i = 0; i < _types.length; ++i)
+        {
+            if (_types[i] == type)
+            {
+                _types.splice(i, 1);
+                var transport = _transports[type];
+                delete _transports[type];
+                return transport;
+            }
+        }
+        return null;
+    };
+
+    this.reset = function()
+    {
+        for (var i = 0; i < _types.length; ++i)
+        {
+            _transports[_types[i]].reset();
+        }
+    };
 };
 
 
@@ -49,14 +148,17 @@ org.cometd.Cometd = function(name)
     var _backoffIncrement;
     var _maxBackoff;
     var _reverseIncomingExtensions;
-    var _jsonpFailureDelay;
+    var _maxNetworkDelay;
+    var _requestHeaders;
     var _crossDomain = false;
+    var _transports = new org.cometd.TransportRegistry();
     var _transport;
     var _status = 'disconnected';
     var _messageId = 0;
     var _clientId = null;
     var _batch = 0;
     var _messageQueue = [];
+    var _internalBatch = false;
     var _listeners = {};
     var _backoff = 0;
     var _scheduledSend = null;
@@ -139,12 +241,39 @@ org.cometd.Cometd = function(name)
         return -1;
     }
 
+    function _isString(value)
+    {
+        if (value === undefined || value === null)
+        {
+            return false;
+        }
+        return typeof value === 'string' ||  value instanceof String;
+    }
+
+    function _isArray(value)
+    {
+        if (value === undefined || value === null)
+        {
+            return false;
+        }
+        return value instanceof Array;
+    }
+
+    function _isFunction(value)
+    {
+        if (value === undefined || value === null)
+        {
+            return false;
+        }
+        return typeof value === 'function';
+    }
+
     function _log(level, args)
     {
         if (window.console)
         {
             var logger = window.console[level];
-            if (typeof logger === 'function')
+            if (_isFunction(logger))
             {
                 logger.apply(window.console, args);
             }
@@ -175,49 +304,11 @@ org.cometd.Cometd = function(name)
     }
     this._debug = _debug;
 
-    function _newTransport(type)
-    {
-        switch (type)
-        {
-            case 'long-polling':
-                return _mixin(false, {}, new org.cometd.Transport(type), new org.cometd.LongPollingTransport());
-            case 'callback-polling':
-                return _mixin(false, {}, new org.cometd.Transport(type), new org.cometd.CallbackPollingTransport());
-            default:
-                return null;
-        }
-    }
-
-    function _findTransport(handshakeResponse)
-    {
-        var transportTypes = handshakeResponse.supportedConnectionTypes;
-
-        // Check if the server supports the current transport
-        if (_inArray(_transport.getType(), transportTypes) >= 0)
-        {
-            return _transport;
-        }
-        else
-        {
-            // Make a copy in order to not modify the message
-            var serverTransports = transportTypes.slice(0);
-            var clientTransports = ['long-polling', 'callback-polling'];
-            // Remove the current transport, which we know it's not supported
-            clientTransports.splice(_inArray(_transport.getType(), clientTransports), 1);
-            // Check the remaining option
-            if (_inArray(clientTransports[0], serverTransports) >= 0)
-            {
-                return _newTransport(clientTransports[0]);
-            }
-        }
-        return null;
-    }
-
     function _configure(configuration)
     {
         _debug('Configuring cometd object with', configuration);
         // Support old style param, where only the Bayeux server URL was passed
-        if (typeof configuration === 'string')
+        if (_isString(configuration))
         {
             configuration = { url: configuration };
         }
@@ -236,7 +327,8 @@ org.cometd.Cometd = function(name)
         _maxBackoff = configuration.maxBackoff || 60000;
         _logLevel = configuration.logLevel || 'info';
         _reverseIncomingExtensions = configuration.reverseIncomingExtensions !== false;
-        _jsonpFailureDelay = configuration.jsonpFailureDelay || 5000;
+        _maxNetworkDelay = configuration.maxNetworkDelay || 10000;
+        _requestHeaders = configuration.requestHeaders || {};
 
         // Check if we're cross domain
         var urlParts = /(^https?:)?(\/\/(([^:\/\?#]+)(:(\d+))?))?([^\?#]*)/.exec(_url);
@@ -301,7 +393,7 @@ org.cometd.Cometd = function(name)
             var index = _reverseIncomingExtensions ? _extensions.length - 1 - i : i;
             var extension = _extensions[index];
             var callback = extension.extension.incoming;
-            if (callback && typeof callback === 'function')
+            if (_isFunction(callback))
             {
                 var result = _applyExtension(extension.name, callback, message);
                 message = result === undefined ? message : result;
@@ -321,7 +413,7 @@ org.cometd.Cometd = function(name)
 
             var extension = _extensions[i];
             var callback = extension.extension.outgoing;
-            if (callback && typeof callback === 'function')
+            if (_isFunction(callback))
             {
                 var result = _applyExtension(extension.name, callback, message);
                 message = result === undefined ? message : result;
@@ -337,17 +429,25 @@ org.cometd.Cometd = function(name)
      */
     function _convertToMessages(response)
     {
-        if (response === undefined)
+        if (_isString(response))
         {
-            return [];
+            try
+            {
+                return org.cometd.JSON.fromJSON(response);
+            }
+            catch(x)
+            {
+                _debug('Could not convert to JSON the following string', '"' + response + '"');
+                throw x;
+            }
         }
-        if (response instanceof Array)
+        if (_isArray(response))
         {
             return response;
         }
-        if (response instanceof String || typeof response == 'string')
+        if (response === undefined || response === null)
         {
-            return org.cometd.JSON.fromJSON(response);
+            return [];
         }
         if (response instanceof Object)
         {
@@ -447,7 +547,7 @@ org.cometd.Cometd = function(name)
      * @param messages the array of messages to send
      * @param longpoll true if this send is a long poll
      */
-    function _send(messages, longpoll)
+    function _send(messages, longpoll, extraPath)
     {
         // We must be sure that the messages have a clientId.
         // This is not guaranteed since the handshake may take time to return
@@ -476,9 +576,20 @@ org.cometd.Cometd = function(name)
             return;
         }
 
+        // Prepare the URL to send the message to
+        var url = _url;
+        if (!url.match(/\/$/)) // url.endsWith('/') ?
+        {
+            url = url + '/';
+        }
+        if (extraPath)
+        {
+            url = url + extraPath;
+        }
+
         var self = this;
         var envelope = {
-            url: _url,
+            url: url,
             messages: messages,
             onSuccess: function(request, response)
             {
@@ -509,7 +620,7 @@ org.cometd.Cometd = function(name)
 
     function _queueSend(message)
     {
-        if (_batch > 0)
+        if (_batch > 0 || _internalBatch === true)
         {
             _messageQueue.push(message);
         }
@@ -543,35 +654,40 @@ org.cometd.Cometd = function(name)
 
     /**
      * Starts a the batch of messages to be sent in a single request.
-     * @see _endBatch(sendMessages)
+     * @see #_endBatch(sendMessages)
      */
     function _startBatch()
     {
         ++_batch;
     }
 
+    function _flushBatch()
+    {
+        var messages = _messageQueue;
+        _messageQueue = [];
+        if (messages.length > 0)
+        {
+            _send(messages, false);
+        }
+    }
+
     /**
      * Ends the batch of messages to be sent in a single request,
      * optionally sending messages present in the message queue depending
      * on the given argument.
-     * @param sendMessages whether to send the messages in the queue or not
-     * @see _startBatch()
+     * @see #_startBatch()
      */
-    function _endBatch(sendMessages)
+    function _endBatch()
     {
         --_batch;
         if (_batch < 0)
         {
-            _batch = 0;
+            throw 'Calls to startBatch() and endBatch() are not paired';
         }
-        if (sendMessages && _batch === 0 && !_isDisconnected())
+
+        if (_batch === 0 && !_isDisconnected() && !_internalBatch)
         {
-            var messages = _messageQueue;
-            _messageQueue = [];
-            if (messages.length > 0)
-            {
-                _send(messages, false);
-            }
+            _flushBatch();
         }
     }
 
@@ -586,7 +702,7 @@ org.cometd.Cometd = function(name)
         };
         _setStatus('connecting');
         _debug('Connect sent', message);
-        _send([message], true);
+        _send([message], true, 'connect');
         _setStatus('connected');
     }
 
@@ -608,73 +724,63 @@ org.cometd.Cometd = function(name)
 
         _clearSubscriptions();
 
-        // Reset the transport to support disconnect() followed by handshake()
+        // Reset the transports if we're not retrying the handshake
         if (_isDisconnected())
         {
-            _transport = null;
+            _transports.reset();
         }
 
-        // Start a batch.
+        _batch = 0;
+
+        // Mark the start of an internal batch.
         // This is needed because handshake and connect are async.
         // It may happen that the application calls init() then subscribe()
         // and the subscribe message is sent before the connect message, if
         // the subscribe message is not held until the connect message is sent.
         // So here we start a batch to hold temporarly any message until
         // the connection is fully established.
-        _batch = 0;
-        _startBatch();
+        _internalBatch = true;
 
-        // Save the original properties provided by the user
-        // Deep copy to avoid the user to be able to change them later
-        _handshakeProps = _mixin(true, {}, handshakeProps);
+        // Save the properties provided by the user, so that
+        // we can reuse them during automatic re-handshake
+        _handshakeProps = handshakeProps;
 
-        // Figure out what is the transport that we must use
-        var connectionTypes = [];
-        if (_crossDomain)
-        {
-            if (!_transport)
-            {
-                // First time we try to handshake, try cross-origin request
-                connectionTypes.push('long-polling');
-            }
-            else
-            {
-                connectionTypes.push(_transport.getType());
-            }
-        }
-        else
-        {
-            connectionTypes.push('long-polling');
-        }
+        var version = '1.0';
+
+        // Figure out the transports to send to the server
+        var transportTypes = _transports.findTransportTypes(version, _crossDomain);
 
         var bayeuxMessage = {
-            version: '1.0',
+            version: version,
             minimumVersion: '0.9',
             channel: '/meta/handshake',
-            supportedConnectionTypes: connectionTypes
+            supportedConnectionTypes: transportTypes
         };
         // Do not allow the user to mess with the required properties,
         // so merge first the user properties and *then* the bayeux message
         var message = _mixin(false, {}, _handshakeProps, bayeuxMessage);
 
-        if (!_transport)
-        {
-            // Always use long polling as the initial transport.
-            // In this way we check if cross-origin requests are supported
-            _transport = _newTransport('long-polling');
-            _debug('Initial transport is', _transport);
-        }
+        // Pick up the first available transport as initial transport
+        // since we don't know if the server supports it
+        _transport = _transports.negotiateTransport(transportTypes, version, _crossDomain);
+        _debug('Initial transport is', _transport);
 
         // We started a batch to hold the application messages,
         // so here we must bypass it and send immediately.
         _setStatus('handshaking');
         _debug('Handshake sent', message);
-        _send([message], false);
+        _send([message], false, 'handshake');
     }
 
     function _delayedHandshake()
     {
         _setStatus('handshaking');
+
+        // We will call _handshake() which will reset _clientId, but we want to avoid
+        // that between the end of this method and the call to _handshake() someone may
+        // call publish() (or other methods that call _queueSend()).
+        _internalBatch = true;
+
         _delayedSend(function()
         {
             _handshake(_handshakeProps);
@@ -688,18 +794,18 @@ org.cometd.Cometd = function(name)
             // Save clientId, figure out transport, then follow the advice to connect
             _clientId = message.clientId;
 
-            var newTransport = _findTransport(message);
+            var newTransport = _transports.negotiateTransport(message.supportedConnectionTypes, message.version, _crossDomain);
             if (newTransport === null)
             {
-                throw 'Could not agree on transport with server';
+                throw 'Could not negotiate transport with server; client ' +
+                      _transports.findTransportTypes(message.version, _crossDomain) +
+                      ", server " +
+                      message.supportedConnectionTypes;
             }
             else
             {
-                if (_transport.getType() != newTransport.getType())
-                {
-                    _debug('Transport', _transport, '->', newTransport);
-                    _transport = newTransport;
-                }
+                _debug('Transport', _transport, '->', newTransport);
+                _transport = newTransport;
             }
 
             // Notify the listeners
@@ -769,13 +875,6 @@ org.cometd.Cometd = function(name)
         // advice permits us to try again
         if (retry)
         {
-            if (_crossDomain && _transport.getType() === 'long-polling')
-            {
-                // We tried a cross origin request, but it failed,
-                // so now try using the jsonp transport
-                _transport = _newTransport('callback-polling');
-            }
-
             _increaseBackoff();
             _delayedHandshake();
         }
@@ -791,11 +890,12 @@ org.cometd.Cometd = function(name)
 
         if (message.successful)
         {
-            // End the batch and allow held messages from the application
-            // to go to the server (see _handshake() where we start the batch).
-            // The batch is ended before notifying the listeners, so that
+            // End the internal batch and allow held messages from the application
+            // to go to the server (see _handshake() where we start the internal batch).
+            // The internal batch is ended before notifying the listeners, so that
             // listeners can batch other cometd operations
-            _endBatch(true);
+            _internalBatch = false;
+            _flushBatch();
 
             // Notify the listeners after the status change but before the next connect
             _notifyListeners('/meta/connect', message);
@@ -832,8 +932,6 @@ org.cometd.Cometd = function(name)
                     _delayedConnect();
                     break;
                 case 'handshake':
-                    // End the batch but do not send the messages until we connect successfully
-                    _endBatch(false);
                     _resetBackoff();
                     _delayedHandshake();
                     break;
@@ -1150,36 +1248,50 @@ org.cometd.Cometd = function(name)
         return false;
     }
 
+    function _resolveScopedCallback(scope, callback)
+    {
+        var delegate = {
+            scope: scope,
+            method: callback
+        };
+        if (_isFunction(scope))
+        {
+            delegate.scope = undefined;
+            delegate.method = scope;
+        }
+        else
+        {
+            if (_isString(callback))
+            {
+                if (!scope)
+                {
+                    throw 'Invalid scope ' + scope;
+                }
+                delegate.method = scope[callback];
+                if (!_isFunction(delegate.method))
+                {
+                    throw 'Invalid callback ' + callback + ' for scope ' + scope;
+                }
+            }
+            else if (!_isFunction(callback))
+            {
+                throw 'Invalid callback ' + callback;
+            }
+        }
+        return delegate;
+    }
+
     function _addListener(channel, scope, callback, isSubscription)
     {
         // The data structure is a map<channel, subscription[]>, where each subscription
         // holds the callback to be called and its scope.
 
-        var thiz = scope;
-        var method = callback;
-        // Normalize arguments
-        if (typeof scope === 'function')
-        {
-            thiz = undefined;
-            method = scope;
-        }
-        else if (typeof callback === 'string')
-        {
-            if (!scope)
-            {
-                throw 'Invalid scope ' + scope;
-            }
-            method = scope[callback];
-            if (!method)
-            {
-                throw 'Invalid callback ' + callback + ' for scope ' + scope;
-            }
-        }
-        _debug('Listener scope', thiz, 'and callback', method);
+        var delegate = _resolveScopedCallback(scope, callback);
+        _debug('Listener scope', delegate.scope, 'and callback', delegate.method);
 
         var subscription = {
-            scope: thiz,
-            callback: method,
+            scope: delegate.scope,
+            callback: delegate.method,
             subscription: isSubscription === true
         };
 
@@ -1217,6 +1329,62 @@ org.cometd.Cometd = function(name)
     //
 
     /**
+     * Registers the given transport under the given transport type.
+     * The optional index parameter specifies the "priority" at which the
+     * transport is registered (where 0 is the max priority).
+     * If a transport with the same type is already registered, this function
+     * does nothing and returns false.
+     * @param type the transport type
+     * @param transport the transport object
+     * @param index the index at which this transport is to be registered
+     * @return true if the transport has been registered, false otherwise
+     * @see #unregisterTransport(type)
+     */
+    this.registerTransport = function(type, transport, index)
+    {
+        var result = _transports.add(type, transport, index);
+        if (result)
+        {
+            _debug('Registered transport', type);
+
+            if (_isFunction(transport.registered))
+            {
+                transport.registered(type, this);
+            }
+        }
+        return result;
+    };
+
+    /**
+     * @return an array of all registered transport types
+     */
+    this.getTransportTypes = function()
+    {
+        return _transports.getTransportTypes();
+    };
+
+    /**
+     * Unregisters the transport with the given transport type.
+     * @param type the transport type to unregister
+     * @return the transport that has been unregistered,
+     * or null if no transport was previously registered under the given transport type
+     */
+    this.unregisterTransport = function(type)
+    {
+        var transport = _transports.remove(type);
+        if (transport !== null)
+        {
+            _debug('Unregistered transport', type);
+
+            if (_isFunction(transport.unregistered))
+            {
+                transport.unregistered();
+            }
+        }
+        return transport;
+    };
+
+    /**
      * Configures the initial Bayeux communication with the Bayeux server.
      * Configuration is passed via an object that must contain a mandatory field <code>url</code>
      * of type string containing the URL of the Bayeux server.
@@ -1224,7 +1392,7 @@ org.cometd.Cometd = function(name)
      */
     this.configure = function(configuration)
     {
-        _configure(configuration);
+        _configure.call(this, configuration);
     };
 
     /**
@@ -1237,8 +1405,8 @@ org.cometd.Cometd = function(name)
      */
     this.init = function(configuration, handshakeProps)
     {
-        _configure(configuration);
-        _handshake(handshakeProps);
+        this.configure(configuration);
+        this.handshake(handshakeProps);
     };
 
     /**
@@ -1248,6 +1416,7 @@ org.cometd.Cometd = function(name)
      */
     this.handshake = function(handshakeProps)
     {
+        _setStatus('disconnected');
         _reestablish = false;
         _handshake(handshakeProps);
     };
@@ -1258,16 +1427,16 @@ org.cometd.Cometd = function(name)
      */
     this.disconnect = function(disconnectProps)
     {
-        if (!_transport)
+        if (_isDisconnected())
         {
             return;
         }
         var bayeuxMessage = {
             channel: '/meta/disconnect'
         };
-        var message = _mixin(false, {}, _mixin(true, {}, disconnectProps), bayeuxMessage);
+        var message = _mixin(false, {}, disconnectProps, bayeuxMessage);
         _setStatus('disconnecting');
-        _send([message], false);
+        _send([message], false, 'disconnect');
     };
 
     /**
@@ -1291,7 +1460,30 @@ org.cometd.Cometd = function(name)
      */
     this.endBatch = function()
     {
-        _endBatch(true);
+        _endBatch();
+    };
+
+    /**
+     * Executes the given callback in the given scope, surrounded by a {@link #startBatch()}
+     * and {@link #endBatch()} calls.
+     * @param scope the scope of the callback, may be omitted
+     * @param callback the callback to be executed within {@link #startBatch()} and {@link #endBatch()} calls
+     */
+    this.batch = function(scope, callback)
+    {
+        var delegate = _resolveScopedCallback(scope, callback);
+        this.startBatch();
+        try
+        {
+            delegate.method.call(delegate.scope);
+            this.endBatch();
+        }
+        catch (x)
+        {
+            _debug('Exception during execution of batch', x);
+            this.endBatch();
+            throw x;
+        }
     };
 
     /**
@@ -1301,19 +1493,28 @@ org.cometd.Cometd = function(name)
      * @param scope the scope of the callback, may be omitted
      * @param callback the callback to call when a message is sent to the channel
      * @returns the subscription handle to be passed to {@link #removeListener(object)}
-     * @see #removeListener(object)
+     * @see #removeListener(subscription)
      */
     this.addListener = function(channel, scope, callback)
     {
+        if (arguments.length < 2)
+            throw 'Illegal arguments number: required 2, got ' + arguments.length;
+        if (!_isString(channel))
+            throw 'Illegal argument type: channel must be a string';
+
         return _addListener(channel, scope, callback, false);
     };
 
     /**
      * Removes the subscription obtained with a call to {@link #addListener(string, object, function)}.
      * @param subscription the subscription to unsubscribe.
+     * @see #addListener(channel, scope, callback)
      */
     this.removeListener = function(subscription)
     {
+        if (!_isArray(subscription))
+            throw 'Invalid argument: expected subscription, not ' + subscription;
+
         _removeListener(subscription);
     };
 
@@ -1337,8 +1538,13 @@ org.cometd.Cometd = function(name)
      */
     this.subscribe = function(channel, scope, callback, subscribeProps)
     {
+        if (arguments.length < 2)
+            throw 'Illegal arguments number: required 2, got ' + arguments.length;
+        if (!_isString(channel))
+            throw 'Illegal argument type: channel must be a string';
+
         // Normalize arguments
-        if (typeof scope === 'function')
+        if (_isFunction(scope))
         {
             subscribeProps = callback;
             callback = scope;
@@ -1359,7 +1565,7 @@ org.cometd.Cometd = function(name)
                 channel: '/meta/subscribe',
                 subscription: channel
             };
-            var message = _mixin(false, {}, _mixin(true, {}, subscribeProps), bayeuxMessage);
+            var message = _mixin(false, {}, subscribeProps, bayeuxMessage);
             _queueSend(message);
         }
 
@@ -1384,7 +1590,7 @@ org.cometd.Cometd = function(name)
                 channel: '/meta/unsubscribe',
                 subscription: channel
             };
-            var message = _mixin(false, {}, _mixin(true, {}, unsubscribeProps), bayeuxMessage);
+            var message = _mixin(false, {}, unsubscribeProps, bayeuxMessage);
             _queueSend(message);
         }
     };
@@ -1406,11 +1612,16 @@ org.cometd.Cometd = function(name)
      */
     this.publish = function(channel, content, publishProps)
     {
+        if (arguments.length < 1)
+            throw 'Illegal arguments number: required 1, got ' + arguments.length;
+        if (!_isString(channel))
+            throw 'Illegal argument type: channel must be a string';
+
         var bayeuxMessage = {
             channel: channel,
             data: content
         };
-        var message = _mixin(false, {}, _mixin(true, {}, publishProps), bayeuxMessage);
+        var message = _mixin(false, {}, publishProps, bayeuxMessage);
         _queueSend(message);
     };
 
@@ -1484,6 +1695,11 @@ org.cometd.Cometd = function(name)
      */
     this.registerExtension = function(name, extension)
     {
+        if (arguments.length < 2)
+            throw 'Illegal arguments number: required 2, got ' + arguments.length;
+        if (!_isString(name))
+            throw 'Illegal argument type: extension name must be a string';
+
         var existing = false;
         for (var i = 0; i < _extensions.length; ++i)
         {
@@ -1503,9 +1719,9 @@ org.cometd.Cometd = function(name)
             _debug('Registered extension', name);
 
             // Callback for extensions
-            if (typeof extension.registered === 'function')
+            if (_isFunction(extension.registered))
             {
-                extension.registered.call(extension, name, this);
+                extension.registered(name, this);
             }
 
             return true;
@@ -1525,6 +1741,9 @@ org.cometd.Cometd = function(name)
      */
     this.unregisterExtension = function(name)
     {
+        if (!_isString(name))
+            throw 'Illegal argument type: extension name must be a string';
+
         var unregistered = false;
         for (var i = 0; i < _extensions.length; ++i)
         {
@@ -1537,9 +1756,9 @@ org.cometd.Cometd = function(name)
 
                 // Callback for extensions
                 var ext = extension.extension;
-                if (typeof ext.unregistered === 'function')
+                if (_isFunction(ext.unregistered))
                 {
-                    ext.unregistered.call(ext);
+                    ext.unregistered();
                 }
 
                 break;
@@ -1591,6 +1810,11 @@ org.cometd.Cometd = function(name)
         return _url;
     };
 
+    this.getTransport = function()
+    {
+        return _transport;
+    };
+
     /**
      * Base object with the common functionality for transports.
      * The key responsibility is to allow at most 2 outstanding requests to the server,
@@ -1598,14 +1822,101 @@ org.cometd.Cometd = function(name)
      * To achieve this, we have one reserved request for the long poll, and all other
      * requests are serialized one after the other.
      */
-    org.cometd.Transport = function(type)
+    org.cometd.Transport = function()
     {
+        var _type;
         var _requestIds = 0;
         var _longpollRequest = null;
         var _requests = [];
         var _envelopes = [];
 
-        function _longpollSend(self, envelope)
+        /**
+         * Function invoked just after a transport has been successfully registered.
+         * @param type the type of transport (for example 'long-polling')
+         * @param cometd the cometd object this transport has been registered to
+         * @see #unregistered()
+         */
+        this.registered = function(type, cometd)
+        {
+            _type = type;
+        };
+
+        /**
+         * Function invoked just after a transport has been successfully unregistered.
+         * @see #registered(type, cometd)
+         */
+        this.unregistered = function()
+        {
+            _type = null;
+        };
+
+        /**
+         * Returns whether this transport can work for the given version and cross domain communication case.
+         * @param version a string indicating the transport version
+         * @param crossDomain a boolean indicating whether the communication is cross domain
+         * @return true if this transport can work for the given version and cross domain communication case,
+         * false otherwise
+         */
+        this.accept = function(version, crossDomain)
+        {
+            throw 'Abstract';
+        };
+
+        /**
+         * Performs the actual send depending on the transport type details.
+         * @param envelope the envelope to send
+         * @param request the request information
+         */
+        this.transportSend = function(envelope, request)
+        {
+            throw 'Abstract';
+        };
+
+        this.transportSuccess = function(envelope, request, response)
+        {
+            if (!request.expired)
+            {
+                clearTimeout(request.timeout);
+                envelope.onSuccess(request, response);
+            }
+        };
+
+        this.transportFailure = function(envelope, request, reason, exception)
+        {
+            if (!request.expired)
+            {
+                clearTimeout(request.timeout);
+                envelope.onFailure(request, reason, exception);
+            }
+        };
+
+        function _transportSend(envelope, request)
+        {
+            var self = this;
+
+            this.transportSend(envelope, request);
+
+            request.expired = false;
+
+            var delay = _maxNetworkDelay;
+            if (request.longpoll === true)
+            {
+                delay +=_advice && typeof _advice.timeout === 'number' ? _advice.timeout : 0;
+            }
+            request.timeout = _setTimeout(function()
+            {
+                request.expired = true;
+                if (request.xhr)
+                {
+                    request.xhr.abort();
+                }
+                var errorMessage = 'Transport ' + self.getType() + ' exceeded ' + delay + ' ms max network delay';
+                _debug(errorMessage);
+                envelope.onFailure(request, 'timeout', errorMessage);
+            }, delay);
+        }
+
+        function _longpollSend(envelope)
         {
             if (_longpollRequest !== null)
             {
@@ -1617,11 +1928,11 @@ org.cometd.Cometd = function(name)
                 id: requestId,
                 longpoll: true
             };
-            self._send(envelope, request);
+            _transportSend.call(this, envelope, request);
             _longpollRequest = request;
         }
 
-        function _queueSend(self, envelope)
+        function _queueSend(envelope)
         {
             var requestId = ++_requestIds;
             var request = {
@@ -1631,7 +1942,7 @@ org.cometd.Cometd = function(name)
             // Consider the longpoll requests which should always be present
             if (_requests.length < _maxConnections - 1)
             {
-                self._send(envelope, request);
+                _transportSend.call(this, envelope, request);
                 _requests.push(request);
             }
             else
@@ -1652,7 +1963,7 @@ org.cometd.Cometd = function(name)
             _longpollRequest = null;
         }
 
-        function _complete(self, request, success)
+        function _complete(request, success)
         {
             var index = _inArray(request, _requests);
             // The index can be negative the request has been aborted
@@ -1666,7 +1977,7 @@ org.cometd.Cometd = function(name)
                 var envelope = _envelopes.shift();
                 if (success)
                 {
-                    _queueSend(self, envelope[0]);
+                    _queueSend.call(this, envelope[0]);
                 }
                 else
                 {
@@ -1676,25 +1987,24 @@ org.cometd.Cometd = function(name)
             }
         }
 
-        this._send = function(envelope, request)
-        {
-            throw 'Abstract';
-        };
-
+        /**
+         * Returns the type of this transport.
+         * @see #registered(type, cometd)
+         */
         this.getType = function()
         {
-            return type;
+            return _type;
         };
 
         this.send = function(envelope, longpoll)
         {
             if (longpoll)
             {
-                _longpollSend(this, envelope);
+                _longpollSend.call(this, envelope);
             }
             else
             {
-                _queueSend(this, envelope);
+                _queueSend.call(this, envelope);
             }
         };
 
@@ -1702,11 +2012,11 @@ org.cometd.Cometd = function(name)
         {
             if (longpoll)
             {
-                _longpollComplete(request);
+                _longpollComplete.call(this, request);
             }
             else
             {
-                _complete(this, request, success);
+                _complete.call(this, request, success);
             }
         };
 
@@ -1729,6 +2039,11 @@ org.cometd.Cometd = function(name)
                     _longpollRequest.xhr.abort();
                 }
             }
+            this.reset();
+        };
+
+        this.reset = function()
+        {
             _longpollRequest = null;
             _requests = [];
             _envelopes = [];
@@ -1737,34 +2052,78 @@ org.cometd.Cometd = function(name)
 
     org.cometd.LongPollingTransport = function()
     {
-        this._send = function(envelope, request)
+        // By default, support cross domain
+        var _supportsCrossDomain = true;
+
+        this.accept = function(version, crossDomain)
         {
+            return _supportsCrossDomain || !crossDomain;
+        };
+
+        this.xhrSend = function(packet)
+        {
+            throw 'Abstract';
+        };
+
+        this.transportSend = function(envelope, request)
+        {
+            var self = this;
             try
             {
-                request.xhr = org.cometd.AJAX.send({
+                request.xhr = this.xhrSend({
                     transport: this,
                     url: envelope.url,
-                    headers: {
-                        Connection: 'Keep-Alive'
-                    },
+                    headers: _requestHeaders,
                     body: org.cometd.JSON.toJSON(envelope.messages),
-                    onSuccess: function(response) { envelope.onSuccess(request, response); },
-                    onError: function(reason, exception) { envelope.onFailure(request, reason, exception); }
+                    onSuccess: function(response)
+                    {
+                        self.transportSuccess(envelope, request, response);
+                    },
+                    onError: function(reason, exception)
+                    {
+                        _supportsCrossDomain = false;
+                        self.transportFailure(envelope, request, reason, exception);
+                    }
                 });
             }
             catch (x)
             {
+                _supportsCrossDomain = false;
                 // Keep the semantic of calling response callbacks asynchronously after the request
-                _setTimeout(function() { envelope.onFailure(request, 'error', x); }, 0);
+                _setTimeout(function()
+                {
+                    self.transportFailure(envelope, request, 'error', x);
+                }, 0);
             }
         };
+
+        this.reset = function()
+        {
+            org.cometd.LongPollingTransport.prototype.reset();
+            _supportsCrossDomain = true;
+        };
     };
+    org.cometd.LongPollingTransport.prototype = new org.cometd.Transport();
+    org.cometd.LongPollingTransport.prototype.constructor = org.cometd.LongPollingTransport;
 
     org.cometd.CallbackPollingTransport = function()
     {
         var _maxLength = 2000;
-        this._send = function(envelope, request)
+
+        this.accept = function(version, crossDomain)
         {
+            return crossDomain;
+        };
+
+        this.jsonpSend = function(packet)
+        {
+            throw 'Abstract';
+        };
+
+        this.transportSend = function(envelope, request)
+        {
+            var self = this;
+
             // Microsoft Internet Explorer has a 2083 URL max length
             // We must ensure that we stay within that length
             var messages = org.cometd.JSON.toJSON(envelope.messages);
@@ -1784,58 +2143,41 @@ org.cometd.Cometd = function(name)
                         'Bayeux message too big (' + urlLength + ' bytes, max is ' + _maxLength + ') ' +
                         'for transport ' + this.getType();
                 // Keep the semantic of calling response callbacks asynchronously after the request
-                _setTimeout(function() { envelope.onFailure(request, 'error', x); }, 0);
+                _setTimeout(function()
+                {
+                    self.transportFailure(envelope, request, 'error', x);
+                }, 0);
             }
             else
             {
                 try
                 {
-                    var expired = false;
-                    var timeout;
-                    org.cometd.AJAX.send({
+                    this.jsonpSend({
                         transport: this,
                         url: envelope.url,
-                        headers: {
-                            Connection: 'Keep-Alive'
-                        },
+                        headers: _requestHeaders,
                         body: messages,
                         onSuccess: function(response)
                         {
-                            if (!expired)
-                            {
-                                clearTimeout(timeout);
-                                envelope.onSuccess(request, response);
-                            }
+                            self.transportSuccess(envelope, request, response);
                         },
                         onError: function(reason, exception)
                         {
-                            if (!expired)
-                            {
-                                clearTimeout(timeout);
-                                envelope.onFailure(request, reason, exception);
-                            }
+                            self.transportFailure(envelope, request, reason, exception);
                         }
                     });
-                    var self = this;
-                    var delay = _jsonpFailureDelay;
-                    if (request.longpoll === true)
-                    {
-                        delay +=_advice && typeof _advice.timeout === 'number' ? _advice.timeout : 0;
-                    }
-                    timeout = _setTimeout(function()
-                    {
-                        expired = true;
-                        var errorMessage = 'Transport ' + self.getType() + ' exceeded ' + delay + ' ms failure delay';
-                        _debug(errorMessage);
-                        envelope.onFailure(request, 'timeout', errorMessage);
-                    }, delay);
                 }
                 catch (xx)
                 {
                     // Keep the semantic of calling response callbacks asynchronously after the request
-                    _setTimeout(function() { envelope.onFailure(request, 'error', xx); }, 0);
+                    _setTimeout(function()
+                    {
+                        self.transportFailure(envelope, request, 'error', xx);
+                    }, 0);
                 }
             }
         };
     };
+    org.cometd.CallbackPollingTransport.prototype = new org.cometd.Transport();
+    org.cometd.CallbackPollingTransport.prototype.constructor = org.cometd.CallbackPollingTransport;
 };
