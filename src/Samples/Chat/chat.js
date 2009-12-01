@@ -37,6 +37,22 @@ var chat = function() {
                 }
             });
         }
+
+        , leave: function() {
+            if (!_username) return;
+
+            _cometd.startBatch();
+            _cometd.publish('/chat', {
+                message: _username + ' has left'
+            });
+            _unsubscribe();
+            _cometd.disconnect();
+            _cometd.endBatch();
+
+            _metaUnsubscribe();
+            _disconnecting = true;
+        }
+
     }
 
     function _unsubscribe() {
@@ -75,10 +91,8 @@ var chat = function() {
             }
         });
         _cometd.startBatch();
-        _unsubscribe();
         _subscribe();
         _cometd.publish('/chat', {
-            sender: _username,
             message: _username + ' has joined'
         });
         _cometd.endBatch();
@@ -123,21 +137,5 @@ var chat = function() {
         _connected = false;
         handleIncomingMessage({ data: { message: "Request on channel " + message.channel + " failed: " + (message.error == undefined ? "No message" : message.error)} });
     }
-
-    function leave() {
-        if (!_username) return;
-
-        _cometd.startBatch();
-        _cometd.publish('/chat', {
-            sender: _username,
-            message: _username + ' has left'
-        });
-        _chatUnsubscribe();
-        _cometd.endBatch();
-
-        _metaUnsubscribe();
-
-    }
-
 
 } ();
