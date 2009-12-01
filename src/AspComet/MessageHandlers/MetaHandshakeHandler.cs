@@ -24,20 +24,22 @@ namespace AspComet.MessageHandlers
             if( e1.Cancel ) 
             {
                 source.RemoveClient(client.ID);
-                return GetHandshakeFailedResponse(request, client, e1.CancellationReason, e1.Retry);
+                return GetHandshakeResponseFailed(request, client, e1.CancellationReason, e1.Retry);
             }
 
             var e2 = new HandshakenEvent(client);
             EventHub.Publish(e2);
 
-            return GetHandshakeSucceededResponse(request, client);
+            return GetHandshakeResponseSucceeded(request, client);
         }
 
-        private Message GetHandshakeSucceededResponse(Message request, IClient client)
+        private Message GetHandshakeResponseSucceeded(Message request, IClient client)
         {
             // The handshaks success response is documented at
             // http://svn.cometd.org/trunk/bayeux/bayeux.html#toc_50
 
+            Dictionary<string, string> handshakeAdvice = new Dictionary<string, string>();
+            handshakeAdvice["reconnect"] = "retry";
             return new Message
             {
                 channel = this.ChannelName,
@@ -46,17 +48,19 @@ namespace AspComet.MessageHandlers
                 clientId = client.ID,
                 successful = true,
                 id = request.id,
+                advice = handshakeAdvice,
             };
         }
 
-        private Message GetHandshakeFailedResponse(Message request, IClient client, string cancellationReason, bool retry)
+        private Message GetHandshakeResponseFailed(Message request, IClient client, string cancellationReason, bool retry)
         {
             // The handshake failed response is documented at
             // http://svn.cometd.org/trunk/bayeux/bayeux.html#toc_50
 
-            Dictionary<string, string> handshakeAdvice = new Dictionary<string,string>();
+            Dictionary<string, string> handshakeAdvice = null;
             if (!retry)
             {
+                handshakeAdvice = new Dictionary<string,string>();
                 handshakeAdvice["reconnect"] = "none";
             }
 
@@ -68,7 +72,7 @@ namespace AspComet.MessageHandlers
                 supportedConnectionTypes = new[] { "long-polling" },
                 version = "1.0",
                 id = request.id,
-                advice = handshakeAdvice
+                advice = handshakeAdvice,
             };
         }
 

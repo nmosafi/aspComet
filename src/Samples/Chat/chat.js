@@ -81,6 +81,7 @@ var chat = function() {
 
     function _metaHandshake(message) {
         _connected = false;
+        _chatSubscription = null;
         handleIncomingMessage({ data: { message: "Handshake complete. Successful? " + message.successful} });
     }
 

@@ -19,6 +19,11 @@ namespace AspComet
             this.clientFactory = clientFactory;
         }
 
+        public bool ContainsClient(string clientID)
+        {
+            return this.clientRepository.ContainsID(clientID);
+        }
+
         public Client GetClient(string clientID)
         {
             return this.clientRepository.GetByID(clientID);
@@ -79,22 +84,26 @@ namespace AspComet
 
         private Client GetSenderOf(IEnumerable<Message> messages)
         {
-            Client sendingClient = null;
+            string sendingClientId = null;
             foreach (Message message in messages)
             {
-                if (message.clientId == null)
-                {
-                    return null;
-                }
-
-                Client client = this.clientRepository.GetByID(message.clientId);
-                if (sendingClient != null && sendingClient != client)
+                if( sendingClientId != null 
+                    && message.clientId != null 
+                    && sendingClientId != message.clientId)
                 {
                     throw new Exception("All messages must have the same client");
                 }
-                sendingClient = client;
+                if (message.clientId != null)
+                {
+                    sendingClientId = message.clientId;
+                }
             }
 
+            Client sendingClient = null;
+            if (sendingClientId != null && this.clientRepository.ContainsID( sendingClientId ) )
+            {
+                sendingClient = this.clientRepository.GetByID(sendingClientId);
+            }
             return sendingClient;
         }
 
