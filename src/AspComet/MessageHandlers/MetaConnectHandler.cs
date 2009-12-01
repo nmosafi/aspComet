@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace AspComet.MessageHandlers
 {
     public class MetaConnectHandler : IMessageHandler
@@ -23,13 +25,17 @@ namespace AspComet.MessageHandlers
 
             client.NotifyConnected();
 
+            Dictionary<string, object> advice = new Dictionary<string, object>();
+            advice["timeout"] = 10000;
+
             return new Message
                        {
                            id = request.id,
                            channel = this.ChannelName,
                            successful = true,
                            clientId = client.ID,
-                           connectionType = "long-polling"
+                           connectionType = "long-polling",
+                           advice = advice
                        };
         }
     }

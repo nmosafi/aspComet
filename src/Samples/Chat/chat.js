@@ -24,7 +24,7 @@ var chat = function() {
             _metaSubscribe();
 
             // Configure the connection
-            _cometd.configure({ url: 'comet.axd', maxNetworkDelay: 20000 });
+            _cometd.configure({ url: 'comet.axd' });
 
             // And handshake - with authentication, as described at
             // http://cometd.org/documentation/howtos/authentication
@@ -116,7 +116,6 @@ var chat = function() {
 
     var _connected = false;
     function _metaConnect(message) {
-        //alert("metaConnect. _connected=" + _connected + ", _disconnecting=" + _disconnecting + ", message.successful=" + message.successful);
         if (_disconnecting) {
             _connected = false;
             _connectionClosed();
