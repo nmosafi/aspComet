@@ -46,6 +46,9 @@ namespace AspComet
             List<Message> response = new List<Message>();
             bool shouldSendResultStraightBackToClient = false;
 
+            // Get the client who sent this before we process
+            // the messages - in case it's a disconnect
+            Client sendingClient = this.GetSenderOf(messages);
             foreach (Message msg in messages)
             {
                 IMessageHandler handler = GetMessageHandler(msg.channel);
@@ -53,7 +56,6 @@ namespace AspComet
                 shouldSendResultStraightBackToClient |= !handler.ShouldWait;
             }
 
-            Client sendingClient = this.GetSenderOf(messages);
             if (sendingClient == null)
             {
                 asyncResult.ResponseMessages = response;

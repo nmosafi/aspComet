@@ -66,8 +66,8 @@ var chat = function() {
     }
 
     function _metaUnsubscribe() {
-        for (var subscription in _metaSubscriptions) {
-            _cometd.removeListener(subscription);
+        for (var subNumber in _metaSubscriptions) {
+            _cometd.removeListener(_metaSubscriptions[subNumber]);
         }
         _metaSubscriptions = [];
     }
