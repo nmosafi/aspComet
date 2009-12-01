@@ -9,7 +9,7 @@ namespace AspComet
         private readonly List<string> subscriptions = new List<string>();
         private readonly Queue<Message> messages = new Queue<Message>();
         private readonly object syncRoot = new object();
-        private readonly Timer timer = new Timer { AutoReset = false, Enabled = false, Interval = 10000 };
+        private readonly Timer timer = new Timer { AutoReset = false, Enabled = false, Interval = CometHttpHandler.LongPollDuration };
 
         public Client(string id)
         {

@@ -26,7 +26,7 @@ namespace AspComet.MessageHandlers
             client.NotifyConnected();
 
             Dictionary<string, object> advice = new Dictionary<string, object>();
-            advice["timeout"] = 10000;
+            advice["timeout"] = CometHttpHandler.LongPollDuration;
 
             return new Message
                        {

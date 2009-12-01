@@ -7,6 +7,7 @@ namespace AspComet
     {
         private IMessageBus messageBus;
         private readonly object messageBusCheckingSyncRoot = new object();
+        public const int LongPollDuration = 10000;
 
         public bool IsReusable
         {
