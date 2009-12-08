@@ -1,0 +1,16 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSpecPath>..\lib\Machine.Specifications\mspec.exe</MSpecPath>
+    <MSpecAssembly>..\src\AspComet.Specifications\bin\Debug\AspComet.Specifications.dll</MSpecAssembly>
+  </PropertyGroup>
+  <Target Name="Build">
+    <MSBuild Projects="../src/AspComet.sln"  />    
+  </Target>
+  <Target Name="RunSpecs" DependsOnTargets="Build">
+    <PropertyGroup>
+      <MSpecCommand>$(MSpecPath) $(AdditionalMSpecSettings) $(MSpecAssembly)</MSpecCommand>
+    </PropertyGroup>
+    <Message Importance="high" Text="Running Specs with this command: $(MSpecCommand)"/>
+    <Exec Command="$(MSpecCommand)" />
+  </Target>
+</Project>
