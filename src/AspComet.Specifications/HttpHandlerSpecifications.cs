@@ -20,7 +20,7 @@ namespace AspComet.Specifications
 
         Because of =()=>
         {
-            exception = GetException.From(() => cometHttpHandler.ProcessRequest(null));
+            exception = Catch.Exception(() => cometHttpHandler.ProcessRequest(null));
         };
 
         It should_fail_to_process_the_request =()=> exception.ShouldNotBeNull();

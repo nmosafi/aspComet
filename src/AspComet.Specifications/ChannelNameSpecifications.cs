@@ -14,7 +14,7 @@ namespace AspComet.Specifications
     {
         static Exception exception;
 
-        Because of =()=> exception = GetException.From(() => ChannelName.From("foo"));
+        Because of =()=> exception = Catch.Exception(() => ChannelName.From("foo"));
 
         It should_fail_due_to_invalid_argument =()=> exception.ShouldBeOfType(typeof(ArgumentException));
     }
@@ -24,7 +24,7 @@ namespace AspComet.Specifications
     {
         static Exception exception;
 
-        Because of =()=> exception = GetException.From(() => ChannelName.From("/foo/*"));
+        Because of =()=> exception = Catch.Exception(() => ChannelName.From("/foo/*"));
 
         It should_fail_due_to_invalid_argument =()=> exception.ShouldBeOfType(typeof(ArgumentException));
     }
@@ -37,7 +37,7 @@ namespace AspComet.Specifications
 
         Establish context =()=> channelName = ChannelName.From("/foo");
 
-        Because of =()=> exception = GetException.From(() => channelName.Matches("/*/bar"));
+        Because of =()=> exception = Catch.Exception(() => channelName.Matches("/*/bar"));
 
         It should_fail_due_to_invalid_argument =()=> exception.ShouldBeOfType(typeof(ArgumentException));
     }

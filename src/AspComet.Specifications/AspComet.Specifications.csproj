@@ -59,7 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChannelNameSpecifications.cs" />
-    <Compile Include="GetException.cs" />
     <Compile Include="HttpHandlerSpecifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
