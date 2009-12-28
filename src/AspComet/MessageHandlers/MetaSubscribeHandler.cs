@@ -4,6 +4,13 @@ namespace AspComet.MessageHandlers
 {
     public class MetaSubscribeHandler : IMessageHandler
     {
+        private readonly IClientRepository clientRepository;
+
+        public MetaSubscribeHandler(IClientRepository clientRepository)
+        {
+            this.clientRepository = clientRepository;
+        }
+
         public string ChannelName
         {
             get { return "/meta/subscribe"; }
@@ -14,9 +21,9 @@ namespace AspComet.MessageHandlers
             get { return false; }
         }
 
-        public Message HandleMessage(MessageBus source, Message request)
+        public Message HandleMessage(Message request)
         {
-            Client client = source.GetClient(request.clientId);
+            Client client = clientRepository.GetByID(request.clientId);
 
             ICancellableEvent subscribingEvent = PubishSubscribingEvent(request, client);
 

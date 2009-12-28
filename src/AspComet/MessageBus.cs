@@ -19,33 +19,6 @@ namespace AspComet
             this.clientFactory = clientFactory;
         }
 
-        public bool ContainsClient(string clientID)
-        {
-            return this.clientRepository.ContainsID(clientID);
-        }
-
-        public Client GetClient(string clientID)
-        {
-            return this.clientRepository.GetByID(clientID);
-        }
-
-        public void RemoveClient(string clientID)
-        {
-            this.clientRepository.RemoveByID(clientID);
-        }
-
-        public Client CreateClient()
-        {
-            string clientID = this.clientIDGenerator.GenerateClientID();
-            Client client = this.clientFactory.CreateClient(clientID);
-
-            lock (this.clientRepositorySyncRoot)
-            {
-                this.clientRepository.Add(client);
-            }
-            return client;
-        }
-
         public void HandleMessages(Message[] messages, CometAsyncResult asyncResult)
         {
             List<Message> response = new List<Message>();
@@ -57,7 +30,7 @@ namespace AspComet
             foreach (Message msg in messages)
             {
                 IMessageHandler handler = GetMessageHandler(msg.channel);
-                response.Add(handler.HandleMessage(this, msg));
+                response.Add(handler.HandleMessage(msg));
                 shouldSendResultStraightBackToClient |= !handler.ShouldWait;
             }
 
@@ -100,7 +73,7 @@ namespace AspComet
             }
 
             Client sendingClient = null;
-            if (sendingClientId != null && this.clientRepository.ContainsID( sendingClientId ) )
+            if (sendingClientId != null && this.clientRepository.Exists( sendingClientId ) )
             {
                 sendingClient = this.clientRepository.GetByID(sendingClientId);
             }
@@ -110,18 +83,19 @@ namespace AspComet
         private IMessageHandler GetMessageHandler(string channelName)
         {
             // If no channel name is given, no handler can be found.
-            if (channelName == null) new ExceptionHandler("Empty channel field in request.");
+            if (channelName == null) 
+                return new ExceptionHandler("Empty channel field in request.");
 
             // Use switch statement to identify known meta channels.
             if (channelName.StartsWith("/meta/"))
             {
                 switch (channelName.Substring(6))
                 {
-                    case "connect": return new MetaConnectHandler();
-                    case "disconnect": return new MetaDisconnectHandler();
-                    case "handshake": return new MetaHandshakeHandler();
-                    case "subscribe": return new MetaSubscribeHandler();
-                    case "unsubscribe": return new MetaUnsubscribeHandler();
+                    case "connect": return new MetaConnectHandler(clientRepository);
+                    case "disconnect": return new MetaDisconnectHandler(clientRepository);
+                    case "handshake": return new MetaHandshakeHandler(clientIDGenerator, clientFactory, clientRepository);
+                    case "subscribe": return new MetaSubscribeHandler(clientRepository);
+                    case "unsubscribe": return new MetaUnsubscribeHandler(clientRepository);
                     default: return new ExceptionHandler("Unknown meta channel.");
                 }
             }

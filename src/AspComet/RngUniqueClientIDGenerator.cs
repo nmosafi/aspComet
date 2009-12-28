@@ -25,7 +25,7 @@ namespace AspComet
                 this.rngCryptoServiceProvider.GetBytes(bytes);
                 clientID = NonAlphanumericRegex.Replace(Convert.ToBase64String(bytes), "");
             }
-            while (this.clientRepository.ContainsID(clientID));
+            while (this.clientRepository.Exists(clientID));
             return clientID;
         }
     }

@@ -1,10 +1,16 @@
-using System;
 using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
 {
     public class MetaDisconnectHandler : IMessageHandler
     {
+        private readonly IClientRepository clientRepository;
+
+        public MetaDisconnectHandler(IClientRepository clientRepository)
+        {
+            this.clientRepository = clientRepository;
+        }
+
         public string ChannelName
         {
             get { return "/meta/disconnect"; }
@@ -15,13 +21,13 @@ namespace AspComet.MessageHandlers
             get { return false; }
         }
 
-        public Message HandleMessage(MessageBus source, Message request)
+        public Message HandleMessage(Message request)
         {
-            Client client = source.GetClient(request.clientId);
+            Client client = clientRepository.GetByID(request.clientId);
             var e = new DisconnectedEvent(client);
             EventHub.Publish(e);
 
-            source.RemoveClient(client.ID);
+            clientRepository.RemoveByID(client.ID);
 
             return new Message
                        {

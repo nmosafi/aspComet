@@ -4,6 +4,6 @@ namespace AspComet
     {
         string ChannelName { get; }
         bool ShouldWait { get; }
-        Message HandleMessage(MessageBus source, Message request);
+        Message HandleMessage(Message request);
     }
 }

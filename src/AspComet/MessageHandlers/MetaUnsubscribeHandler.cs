@@ -5,6 +5,13 @@ namespace AspComet.MessageHandlers
 {
     public class MetaUnsubscribeHandler : IMessageHandler
     {
+        private readonly IClientRepository clientRepository;
+
+        public MetaUnsubscribeHandler(IClientRepository clientRepository)
+        {
+            this.clientRepository = clientRepository;
+        }
+
         public string ChannelName
         {
             get { return "/meta/unsubscribe"; }
@@ -15,9 +22,9 @@ namespace AspComet.MessageHandlers
             get { return false; }
         }
 
-        public Message HandleMessage(MessageBus source, Message request)
+        public Message HandleMessage(Message request)
         {
-            Client client = source.GetClient(request.clientId);
+            Client client = clientRepository.GetByID(request.clientId);
             var e = new UnsubscribedEvent(client, this.ChannelName);
             EventHub.Publish(e);
             client.UnsubscribeFrom(request.subscription);

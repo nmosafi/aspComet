@@ -6,6 +6,17 @@ namespace AspComet.MessageHandlers
 {
     public class MetaHandshakeHandler : IMessageHandler
     {
+        private readonly IClientIDGenerator clientIDGenerator;
+        private readonly IClientFactory clientFactory;
+        private readonly IClientRepository clientRepository;
+
+        public MetaHandshakeHandler(IClientIDGenerator clientIDGenerator, IClientFactory clientFactory, IClientRepository clientRepository)
+        {
+            this.clientIDGenerator = clientIDGenerator;
+            this.clientFactory = clientFactory;
+            this.clientRepository = clientRepository;
+        }
+
         public string ChannelName
         {
             get { return "/meta/handshake"; }
@@ -16,30 +27,37 @@ namespace AspComet.MessageHandlers
             get { return false; }
         }
 
-        public Message HandleMessage(MessageBus source, Message request)
+        public Message HandleMessage(Message request)
         {
-            Client client = source.CreateClient();
-            var e1 = new HandshakingEvent(client, request);
-            EventHub.Publish(e1);
-            if( e1.Cancel ) 
+            Client client = CreateClient();
+
+            var handshakingEvent = new HandshakingEvent(client, request);
+            EventHub.Publish(handshakingEvent);
+            if (handshakingEvent.Cancel) 
             {
-                source.RemoveClient(client.ID);
-                return GetHandshakeResponseFailed(request, client, e1.CancellationReason, e1.Retry);
+                clientRepository.RemoveByID(client.ID);
+                return GetFailedHandshakeResponse(request, handshakingEvent.CancellationReason, handshakingEvent.Retry);
             }
 
             var e2 = new HandshakenEvent(client);
             EventHub.Publish(e2);
 
-            return GetHandshakeResponseSucceeded(request, client);
+            return GetSucceededHandshakeResponse(request, client);
         }
 
-        private Message GetHandshakeResponseSucceeded(Message request, IClient client)
+        private Client CreateClient()
+        {
+            string clientID = clientIDGenerator.GenerateClientID();
+            Client client = clientFactory.CreateClient(clientID);
+            this.clientRepository.Add(client);
+            return client;
+        }
+
+        private Message GetSucceededHandshakeResponse(Message request, IClient client)
         {
             // The handshaks success response is documented at
             // http://svn.cometd.org/trunk/bayeux/bayeux.html#toc_50
 
-            Dictionary<string, string> handshakeAdvice = new Dictionary<string, string>();
-            handshakeAdvice["reconnect"] = "retry";
             return new Message
             {
                 channel = this.ChannelName,
@@ -48,11 +66,14 @@ namespace AspComet.MessageHandlers
                 clientId = client.ID,
                 successful = true,
                 id = request.id,
-                advice = handshakeAdvice,
+                advice = new Dictionary<string, string>
+                {
+                    { "reconnect", "retry" }
+                },
             };
         }
 
-        private Message GetHandshakeResponseFailed(Message request, IClient client, string cancellationReason, bool retry)
+        private Message GetFailedHandshakeResponse(Message request, string cancellationReason, bool retry)
         {
             // The handshake failed response is documented at
             // http://svn.cometd.org/trunk/bayeux/bayeux.html#toc_50

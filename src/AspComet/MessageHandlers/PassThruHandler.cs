@@ -23,7 +23,7 @@ namespace AspComet.MessageHandlers
             this.Recipients = recipients;
         }
 
-        public Message HandleMessage(MessageBus source, Message request)
+        public Message HandleMessage(Message request)
         {
             bool sendToSelf = false;
 

@@ -4,7 +4,7 @@ namespace AspComet
 {
     public interface IClientRepository
     {
-        bool ContainsID(string clientID);
+        bool Exists(string clientID);
         Client GetByID(string clientID);
         void RemoveByID(string clientID);
         void Add(Client client);

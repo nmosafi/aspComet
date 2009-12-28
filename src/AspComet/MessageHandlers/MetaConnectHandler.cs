@@ -5,6 +5,12 @@ namespace AspComet.MessageHandlers
     public class MetaConnectHandler : IMessageHandler
     {
         private bool shouldWait = true;
+        private readonly IClientRepository clientRepository;
+
+        public MetaConnectHandler(IClientRepository clientRepository)
+        {
+            this.clientRepository = clientRepository;
+        }
 
         public string ChannelName
         {
@@ -16,15 +22,15 @@ namespace AspComet.MessageHandlers
             get { return shouldWait; }
         }
 
-        public Message HandleMessage(MessageBus source, Message request)
+        public Message HandleMessage(Message request)
         {
             // First, check we have a client
-            if (request.clientId == null || !source.ContainsClient(request.clientId))
+            if (request.clientId == null || !clientRepository.Exists(request.clientId))
             {
                 return GetConnectResponseUnrecognisedClient(request);
             }
 
-            Client client = source.GetClient(request.clientId);
+            Client client = clientRepository.GetByID(request.clientId);
 
             if (!client.IsConnected)
                 shouldWait = false;

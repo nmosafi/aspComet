@@ -17,7 +17,7 @@ namespace AspComet.MessageHandlers
             this.ErrorMessage = errorMessage;
         }
 
-        public Message HandleMessage(MessageBus source, Message request)
+        public Message HandleMessage(Message request)
         {
             return new Message
             {

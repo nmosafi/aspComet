@@ -6,32 +6,38 @@ namespace AspComet
     public class InMemoryClientRepository : IClientRepository
     {
         private static readonly KeyedClientCollection Clients = new KeyedClientCollection();
+        private readonly object syncRoot = new object();
 
-        public bool ContainsID(string clientID)
+        public bool Exists(string clientID)
         {
-            return Clients.Contains(clientID);
+            lock (syncRoot)
+                return Clients.Contains(clientID);
         }
 
         public Client GetByID(string clientID)
         {
-            return Clients[clientID];
+            lock (syncRoot)
+                return Clients[clientID];
         }
 
         public void RemoveByID(string clientID)
         {
-            Clients.Remove(clientID);
+            lock (syncRoot)
+                Clients.Remove(clientID);
         }
 
         public void Add(Client client)
         {
-            Clients.Add(client);
+            lock (syncRoot)
+                Clients.Add(client);
         }
 
         public IEnumerable<Client> WhereSubscribedTo(string channel)
         {
-            foreach (var client in Clients)
-                if (client.IsSubscribedTo(channel))
-                    yield return client;
+            lock (syncRoot)
+                foreach (var client in Clients)
+                    if (client.IsSubscribedTo(channel))
+                        yield return client;
         }
 
         private class KeyedClientCollection : KeyedCollection<string, Client>

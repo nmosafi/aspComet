@@ -21,7 +21,7 @@ namespace AspComet.MessageHandlers
             this.ChannelName = channelName;
         }
 
-        public Message HandleMessage(MessageBus source, Message request)
+        public Message HandleMessage(Message request)
         {
             var e = new PublishingEvent(request);
             EventHub.Publish(e);
