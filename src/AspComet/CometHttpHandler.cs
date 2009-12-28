@@ -39,10 +39,7 @@ namespace AspComet
         public void EndProcessRequest(IAsyncResult result)
         {
             CometAsyncResult cometAsyncResult = (CometAsyncResult) result;
-
-            // TODO Find some way to determine the correct transport. Possibly earlier, saving it in the CometAsyncResult.
-            ITransport transport = new Transports.LongPollingTransport();
-            transport.SendMessages(cometAsyncResult.HttpContext.Response, cometAsyncResult.ResponseMessages);
+            cometAsyncResult.SendAwaitingMessages();
         }
 
         private void EnsureMessageBus()

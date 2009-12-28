@@ -66,8 +66,8 @@ namespace AspComet
                 {
                     if (this.messages.Count > 0 && this.CurrentAsyncResult != null)
                     {
-                        this.CurrentAsyncResult.ResponseMessages = this.GetMessages();
-                        this.CurrentAsyncResult.Complete();
+                        IEnumerable<Message> response = this.GetMessages();
+                        this.CurrentAsyncResult.CompleteRequestWithMessages(response);
                         this.CurrentAsyncResult = null;
                     }
                 }
@@ -76,6 +76,7 @@ namespace AspComet
 
         public bool IsSubscribedTo(string channel)
         {
+            // TODO: Change to use ChannelName class which supports wild cards
             return this.subscriptions.Contains(channel);
         }
 

@@ -49,8 +49,7 @@ namespace AspComet
 
             if (sendingClient == null)
             {
-                asyncResult.ResponseMessages = response;
-                asyncResult.Complete();
+                asyncResult.CompleteRequestWithMessages(response);
                 return;
             }
 
@@ -95,7 +94,6 @@ namespace AspComet
 
         private IMessageHandler GetMessageHandler(string channelName)
         {
-            // If no channel name is given, no handler can be found.
             if (channelName == null)
             {
                 return new ExceptionHandler("Empty channel field in request.");

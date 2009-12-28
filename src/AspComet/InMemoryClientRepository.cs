@@ -3,6 +3,9 @@ using System.Collections.ObjectModel;
 
 namespace AspComet
 {
+    /// <summary>
+    ///     Stores clients in memory.  All operations are locked and therefore thread safe when used independently.
+    /// </summary>
     public class InMemoryClientRepository : IClientRepository
     {
         private static readonly KeyedClientCollection Clients = new KeyedClientCollection();

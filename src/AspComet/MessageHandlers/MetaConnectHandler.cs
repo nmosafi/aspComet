@@ -21,9 +21,10 @@ namespace AspComet.MessageHandlers
 
             Client client = clientRepository.GetByID(request.clientId);
 
+            bool shouldWait = client.IsConnected;
             client.NotifyConnected();
 
-            return new MessageHandlerResult { Message = GetSuccessfulResponse(request), ShouldWait = client.IsConnected };
+            return new MessageHandlerResult { Message = GetSuccessfulResponse(request), ShouldWait = shouldWait };
         }
 
         private static Message GetSuccessfulResponse(Message request)
