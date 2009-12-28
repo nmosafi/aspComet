@@ -13,18 +13,22 @@ namespace AspComet.MessageHandlers
 
         public MessageHandlerResult HandleMessage(Message request)
         {
-            // First, check we have a client
-            if (request.clientId == null || !clientRepository.Exists(request.clientId))
+            if (!ClientExistsFor(request))
             {
                 return new MessageHandlerResult { Message = GetUnrecognisedClientResponse(request), ShouldWait = false };
             }
 
             Client client = clientRepository.GetByID(request.clientId);
 
-            bool shouldWait = client.IsConnected;
+            bool isFirstConnectRequest = !client.IsConnected;
             client.NotifyConnected();
 
-            return new MessageHandlerResult { Message = GetSuccessfulResponse(request), ShouldWait = shouldWait };
+            return new MessageHandlerResult { Message = GetSuccessfulResponse(request), ShouldWait = !isFirstConnectRequest };
+        }
+
+        private bool ClientExistsFor(Message request)
+        {
+            return request.clientId != null && clientRepository.Exists(request.clientId);
         }
 
         private static Message GetSuccessfulResponse(Message request)
