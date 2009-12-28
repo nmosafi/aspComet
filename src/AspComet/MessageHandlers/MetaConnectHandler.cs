@@ -4,7 +4,6 @@ namespace AspComet.MessageHandlers
 {
     public class MetaConnectHandler : IMessageHandler
     {
-        private bool shouldWait = true;
         private readonly IClientRepository clientRepository;
 
         public MetaConnectHandler(IClientRepository clientRepository)
@@ -12,34 +11,22 @@ namespace AspComet.MessageHandlers
             this.clientRepository = clientRepository;
         }
 
-        public string ChannelName
-        {
-            get { return "/meta/connect"; }
-        }
-
-        public bool ShouldWait
-        {
-            get { return shouldWait; }
-        }
-
-        public Message HandleMessage(Message request)
+        public MessageHandlerResult HandleMessage(Message request)
         {
             // First, check we have a client
             if (request.clientId == null || !clientRepository.Exists(request.clientId))
             {
-                return GetConnectResponseUnrecognisedClient(request);
+                return new MessageHandlerResult { Message = GetUnrecognisedClientResponse(request), ShouldWait = false };
             }
 
             Client client = clientRepository.GetByID(request.clientId);
 
-            if (!client.IsConnected)
-                shouldWait = false;
-
             client.NotifyConnected();
-            return GetConnectResponseSucceeded(request);
+
+            return new MessageHandlerResult { Message = GetSuccessfulResponse(request), ShouldWait = client.IsConnected };
         }
 
-        private Message GetConnectResponseSucceeded(Message request)
+        private static Message GetSuccessfulResponse(Message request)
         {
             // The connect response is documented at
             // http://svn.cometd.com/trunk/bayeux/bayeux.html#toc_53 and
@@ -49,7 +36,7 @@ namespace AspComet.MessageHandlers
             return new Message
             {
                 id = request.id,
-                channel = this.ChannelName,
+                channel = request.channel,
                 successful = true,
                 clientId = request.clientId,
                 connectionType = "long-polling",
@@ -57,7 +44,7 @@ namespace AspComet.MessageHandlers
             };
         }
 
-        private Message GetConnectResponseUnrecognisedClient(Message request)
+        private static Message GetUnrecognisedClientResponse(Message request)
         {
             // The connect failed response is documented at
             // http://svn.cometd.com/trunk/bayeux/bayeux.html#toc_53 and
@@ -68,7 +55,7 @@ namespace AspComet.MessageHandlers
             return new Message
             {
                 id = request.id,
-                channel = this.ChannelName,
+                channel = request.channel,
                 successful = false,
                 clientId = request.clientId,
                 connectionType = "long-polling",

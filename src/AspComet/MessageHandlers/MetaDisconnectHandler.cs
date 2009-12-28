@@ -16,12 +16,7 @@ namespace AspComet.MessageHandlers
             get { return "/meta/disconnect"; }
         }
 
-        public bool ShouldWait
-        {
-            get { return false; }
-        }
-
-        public Message HandleMessage(Message request)
+        public MessageHandlerResult HandleMessage(Message request)
         {
             Client client = clientRepository.GetByID(request.clientId);
             var e = new DisconnectedEvent(client);
@@ -29,13 +24,17 @@ namespace AspComet.MessageHandlers
 
             clientRepository.RemoveByID(client.ID);
 
-            return new Message
-                       {
-                           id = request.id,
-                           channel = this.ChannelName,
-                           successful = true,
-                           clientId = request.clientId
-                       };
+            return new MessageHandlerResult
+            {
+                Message = new Message
+                {
+                    id = request.id,
+                    channel = this.ChannelName,
+                    successful = true,
+                    clientId = request.clientId
+                },
+                ShouldWait = false
+            };
         }
     }
 }

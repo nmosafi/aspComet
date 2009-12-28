@@ -12,31 +12,27 @@ namespace AspComet.MessageHandlers
             this.clientRepository = clientRepository;
         }
 
-        public string ChannelName
-        {
-            get { return "/meta/unsubscribe"; }
-        }
-
-        public bool ShouldWait
-        {
-            get { return false; }
-        }
-
-        public Message HandleMessage(Message request)
+        public MessageHandlerResult HandleMessage(Message request)
         {
             Client client = clientRepository.GetByID(request.clientId);
-            var e = new UnsubscribedEvent(client, this.ChannelName);
-            EventHub.Publish(e);
+
             client.UnsubscribeFrom(request.subscription);
 
-            return new Message
-                       {
-                           id = request.id,
-                           channel = this.ChannelName,
-                           successful = true,
-                           clientId = client.ID,
-                           subscription = request.subscription
-                       };
+            var e = new UnsubscribedEvent(client, request.subscription);
+            EventHub.Publish(e);
+
+            return new MessageHandlerResult
+            {
+                Message = new Message
+                {
+                    id = request.id,
+                    channel = request.channel,
+                    successful = true,
+                    clientId = client.ID,
+                    subscription = request.subscription
+                },
+                ShouldWait = false
+            };
         }
     }
 }

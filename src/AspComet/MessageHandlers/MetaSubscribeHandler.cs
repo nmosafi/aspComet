@@ -16,12 +16,7 @@ namespace AspComet.MessageHandlers
             get { return "/meta/subscribe"; }
         }
 
-        public bool ShouldWait
-        {
-            get { return false; }
-        }
-
-        public Message HandleMessage(Message request)
+        public MessageHandlerResult HandleMessage(Message request)
         {
             Client client = clientRepository.GetByID(request.clientId);
 
@@ -29,14 +24,18 @@ namespace AspComet.MessageHandlers
 
             if (subscribingEvent.Cancel)
             {
-                return this.GetSubscriptionFailedResponse(request, client, subscribingEvent.CancellationReason);
+                return new MessageHandlerResult
+                {
+                    Message = GetSubscriptionFailedResponse(request, client, subscribingEvent.CancellationReason),
+                    ShouldWait = false
+                };
             }
 
             client.SubscribeTo(request.subscription);
 
             PublishSubscribedEvent(request, client);
 
-            return this.GetSubscriptionSucceededResponse(request, client);
+            return new MessageHandlerResult { Message = GetSubscriptionSucceededResponse(request, client), ShouldWait = false };
         }
 
         private static void PublishSubscribedEvent(Message request, IClient client)

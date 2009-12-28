@@ -12,18 +12,13 @@ namespace AspComet.MessageHandlers
         public string ChannelName { get; private set; }
         public IEnumerable<Client> Recipients { get; private set; }
 
-        public bool ShouldWait
-        {
-            get { return false; }
-        }
-
         public PassThruHandler(string channelName, IEnumerable<Client> recipients)
         {
             this.ChannelName = channelName;
             this.Recipients = recipients;
         }
 
-        public Message HandleMessage(Message request)
+        public MessageHandlerResult HandleMessage(Message request)
         {
             bool sendToSelf = false;
 
@@ -52,7 +47,7 @@ namespace AspComet.MessageHandlers
                     }
                 }
 
-                return sendToSelf ? forward : null;
+                return new MessageHandlerResult { Message = sendToSelf ? forward : null, ShouldWait = false };
             }
 
             return null; // TODO should we return some error?

@@ -10,7 +10,6 @@ namespace AspComet
         private readonly IClientRepository clientRepository;
         private readonly IClientIDGenerator clientIDGenerator;
         private readonly IClientFactory clientFactory;
-        private readonly object clientRepositorySyncRoot = new object();
 
         public MessageBus(IClientRepository clientRepository, IClientIDGenerator clientIDGenerator, IClientFactory clientFactory)
         {
@@ -30,8 +29,9 @@ namespace AspComet
             foreach (Message msg in messages)
             {
                 IMessageHandler handler = GetMessageHandler(msg.channel);
-                response.Add(handler.HandleMessage(msg));
-                shouldSendResultStraightBackToClient |= !handler.ShouldWait;
+                MessageHandlerResult handlerResult = handler.HandleMessage(msg);
+                response.Add(handlerResult.Message);
+                shouldSendResultStraightBackToClient |= !handlerResult.ShouldWait;
             }
 
             if (sendingClient == null)
@@ -73,7 +73,7 @@ namespace AspComet
             }
 
             Client sendingClient = null;
-            if (sendingClientId != null && this.clientRepository.Exists( sendingClientId ) )
+            if (sendingClientId != null && this.clientRepository.Exists(sendingClientId))
             {
                 sendingClient = this.clientRepository.GetByID(sendingClientId);
             }

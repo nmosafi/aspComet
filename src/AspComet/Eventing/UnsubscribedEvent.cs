@@ -11,7 +11,6 @@ namespace AspComet.Eventing
         /// <summary>
         ///     Initialises a new instance of the <see cref="UnsubscribedEvent"/> class
         /// </summary>
-        /// <param name="client"></param>
         public UnsubscribedEvent(IClient client, string channel)
         {
             this.client = client;

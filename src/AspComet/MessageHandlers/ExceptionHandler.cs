@@ -4,26 +4,24 @@ namespace AspComet.MessageHandlers
 {
     public class ExceptionHandler : IMessageHandler
     {
-        public string ChannelName { get; private set; }
         public string ErrorMessage { get; private set; }
-
-        public bool ShouldWait
-        {
-            get { return false; }
-        }
 
         public ExceptionHandler(string errorMessage)
         {
             this.ErrorMessage = errorMessage;
         }
 
-        public Message HandleMessage(Message request)
+        public MessageHandlerResult HandleMessage(Message request)
         {
-            return new Message
+            return new MessageHandlerResult
             {
-                id = request.id,
-                channel = this.ChannelName,
-                error = this.ErrorMessage
+                Message = new Message
+                {
+                    id = request.id,
+                    channel = request.channel,
+                    error = this.ErrorMessage
+                },
+                ShouldWait = false
             };
         }
     }

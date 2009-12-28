@@ -22,12 +22,7 @@ namespace AspComet.MessageHandlers
             get { return "/meta/handshake"; }
         }
 
-        public bool ShouldWait
-        {
-            get { return false; }
-        }
-
-        public Message HandleMessage(Message request)
+        public MessageHandlerResult HandleMessage(Message request)
         {
             Client client = CreateClient();
 
@@ -36,13 +31,17 @@ namespace AspComet.MessageHandlers
             if (handshakingEvent.Cancel) 
             {
                 clientRepository.RemoveByID(client.ID);
-                return GetFailedHandshakeResponse(request, handshakingEvent.CancellationReason, handshakingEvent.Retry);
+                return new MessageHandlerResult
+                {
+                    Message = GetFailedHandshakeResponse(request, handshakingEvent.CancellationReason, handshakingEvent.Retry),
+                    ShouldWait = false
+                };
             }
 
-            var e2 = new HandshakenEvent(client);
-            EventHub.Publish(e2);
+            var handshakenEvent = new HandshakenEvent(client);
+            EventHub.Publish(handshakenEvent);
 
-            return GetSucceededHandshakeResponse(request, client);
+            return new MessageHandlerResult { Message = GetSuccessfulResponse(request, client), ShouldWait = false };
         }
 
         private Client CreateClient()
@@ -53,7 +52,7 @@ namespace AspComet.MessageHandlers
             return client;
         }
 
-        private Message GetSucceededHandshakeResponse(Message request, IClient client)
+        private Message GetSuccessfulResponse(Message request, IClient client)
         {
             // The handshaks success response is documented at
             // http://svn.cometd.org/trunk/bayeux/bayeux.html#toc_50

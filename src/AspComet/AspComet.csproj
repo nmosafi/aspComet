@@ -79,6 +79,7 @@
     <Compile Include="MessageBus.cs" />
     <Compile Include="MessageConverter.cs" />
     <Compile Include="MessageExtensions.cs" />
+    <Compile Include="MessageHandlerResult.cs" />
     <Compile Include="MessageHandlers\ExceptionHandler.cs" />
     <Compile Include="MessageHandlers\MetaConnectHandler.cs" />
     <Compile Include="MessageHandlers\MetaDisconnectHandler.cs" />
