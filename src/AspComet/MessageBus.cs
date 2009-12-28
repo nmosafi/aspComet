@@ -10,12 +10,25 @@ namespace AspComet
         private readonly IClientRepository clientRepository;
         private readonly IClientIDGenerator clientIDGenerator;
         private readonly IClientFactory clientFactory;
+        private readonly IMessageHandler metaConnectHandler;
+        private readonly IMessageHandler metaDisconnectHandler;
+        private readonly IMessageHandler metaHandshakeHandler;
+        private readonly IMessageHandler metaSubscribeHandler;
+        private readonly IMessageHandler metaUnsubscribeHandler;
+        private readonly IMessageHandler swallowHandler;
 
         public MessageBus(IClientRepository clientRepository, IClientIDGenerator clientIDGenerator, IClientFactory clientFactory)
         {
             this.clientRepository = clientRepository;
             this.clientIDGenerator = clientIDGenerator;
             this.clientFactory = clientFactory;
+
+            this.metaConnectHandler = new MetaConnectHandler(this.clientRepository);
+            this.metaDisconnectHandler = new MetaDisconnectHandler(this.clientRepository);
+            this.metaHandshakeHandler = new MetaHandshakeHandler(this.clientIDGenerator, this.clientFactory, this.clientRepository);
+            this.metaSubscribeHandler = new MetaSubscribeHandler(this.clientRepository);
+            this.metaUnsubscribeHandler = new MetaUnsubscribeHandler(this.clientRepository);
+            this.swallowHandler = new SwallowHandler();
         }
 
         public void HandleMessages(Message[] messages, CometAsyncResult asyncResult)
@@ -83,30 +96,35 @@ namespace AspComet
         private IMessageHandler GetMessageHandler(string channelName)
         {
             // If no channel name is given, no handler can be found.
-            if (channelName == null) 
+            if (channelName == null)
+            {
                 return new ExceptionHandler("Empty channel field in request.");
+            }
 
-            // Use switch statement to identify known meta channels.
             if (channelName.StartsWith("/meta/"))
             {
-                switch (channelName.Substring(6))
-                {
-                    case "connect": return new MetaConnectHandler(clientRepository);
-                    case "disconnect": return new MetaDisconnectHandler(clientRepository);
-                    case "handshake": return new MetaHandshakeHandler(clientIDGenerator, clientFactory, clientRepository);
-                    case "subscribe": return new MetaSubscribeHandler(clientRepository);
-                    case "unsubscribe": return new MetaUnsubscribeHandler(clientRepository);
-                    default: return new ExceptionHandler("Unknown meta channel.");
-                }
+                return GetMetaHandler(channelName);
             }
             
             if (channelName.StartsWith("/service/"))
             {
-                return new SwallowHandler(channelName);
+                return swallowHandler;
             }
 
-            // If neither meta nor service, pass-thru as ordinary publish.
             return new PassThruHandler(channelName, clientRepository.WhereSubscribedTo(channelName));
+        }
+
+        private IMessageHandler GetMetaHandler(string channelName)
+        {
+            switch (channelName.Substring(6))
+            {
+                case "connect": return this.metaConnectHandler;
+                case "disconnect": return this.metaDisconnectHandler;
+                case "handshake": return this.metaHandshakeHandler;
+                case "subscribe": return this.metaSubscribeHandler;
+                case "unsubscribe": return this.metaUnsubscribeHandler;
+                default: return new ExceptionHandler("Unknown meta channel.");
+            }
         }
     }
 }

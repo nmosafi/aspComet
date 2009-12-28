@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using AspComet.Eventing;
+﻿using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
 {
@@ -8,14 +7,6 @@ namespace AspComet.MessageHandlers
     /// </summary>
     public class SwallowHandler : IMessageHandler
     {
-        public string ChannelName { get; private set; }
-        public IEnumerable<Client> Recipients { get; private set; }
-
-        public SwallowHandler(string channelName)
-        {
-            this.ChannelName = channelName;
-        }
-
         public MessageHandlerResult HandleMessage(Message request)
         {
             var e = new PublishingEvent(request);
