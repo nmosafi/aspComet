@@ -7,7 +7,7 @@ namespace AspComet
     public class Client : IClient
     {
         private readonly List<string> subscriptions = new List<string>();
-        private readonly Queue<Message> messages = new Queue<Message>();
+        private readonly Queue<Message> messageQueue = new Queue<Message>();
         private readonly object syncRoot = new object();
         private readonly Timer timer = new Timer { AutoReset = false, Enabled = false, Interval = CometHttpHandler.LongPollDuration };
 
@@ -45,11 +45,16 @@ namespace AspComet
 
         public void Enqueue(params Message[] messages)
         {
+            this.Enqueue((IEnumerable<Message>) messages);
+        }
+
+        public void Enqueue(IEnumerable<Message> messages)
+        {
             lock (this.syncRoot)
             {
                 foreach (Message message in messages)
                 {
-                    this.messages.Enqueue(message);
+                    this.messageQueue.Enqueue(message);
                 }
             }
 
@@ -60,11 +65,11 @@ namespace AspComet
         {
             this.timer.Stop();
 
-            if (this.messages.Count > 0 && this.CurrentAsyncResult != null)
+            if (this.messageQueue.Count > 0 && this.CurrentAsyncResult != null)
             {
                 lock (syncRoot) // double checked lock
                 {
-                    if (this.messages.Count > 0 && this.CurrentAsyncResult != null)
+                    if (this.messageQueue.Count > 0 && this.CurrentAsyncResult != null)
                     {
                         IEnumerable<Message> response = this.GetMessages();
                         this.CurrentAsyncResult.CompleteRequestWithMessages(response);
@@ -87,9 +92,9 @@ namespace AspComet
 
         private IEnumerable<Message> GetMessages()
         {
-            while (this.messages.Count > 0)
+            while (this.messageQueue.Count > 0)
             {
-                yield return this.messages.Dequeue();
+                yield return this.messageQueue.Dequeue();
             }
         }
 

@@ -21,6 +21,7 @@ namespace AspComet.MessageHandlers
             Client client = clientRepository.GetByID(request.clientId);
 
             bool isFirstConnectRequest = !client.IsConnected;
+
             client.NotifyConnected();
 
             return new MessageHandlerResult { Message = GetSuccessfulResponse(request), ShouldWait = !isFirstConnectRequest };
@@ -36,8 +37,6 @@ namespace AspComet.MessageHandlers
             // The connect response is documented at
             // http://svn.cometd.com/trunk/bayeux/bayeux.html#toc_53 and
 
-            Dictionary<string, int> connectAdvice = new Dictionary<string, int>();
-            connectAdvice["timeout"] = CometHttpHandler.LongPollDuration;
             return new Message
             {
                 id = request.id,
@@ -45,7 +44,10 @@ namespace AspComet.MessageHandlers
                 successful = true,
                 clientId = request.clientId,
                 connectionType = "long-polling",
-                advice = connectAdvice,
+                advice = new Dictionary<string, int>
+                { 
+                    { "timeout", CometHttpHandler.LongPollDuration}
+                }
             };
         }
 
@@ -55,8 +57,6 @@ namespace AspComet.MessageHandlers
             // http://svn.cometd.com/trunk/bayeux/bayeux.html#toc_53 and
             // http://svn.cometd.com/trunk/bayeux/bayeux.html#toc_71
 
-            Dictionary<string, string> connectAdvice = new Dictionary<string, string>();
-            connectAdvice["reconnect"] = "handshake";
             return new Message
             {
                 id = request.id,
@@ -65,7 +65,10 @@ namespace AspComet.MessageHandlers
                 clientId = request.clientId,
                 connectionType = "long-polling",
                 error = "clientId not recognised",
-                advice = connectAdvice,
+                advice = new Dictionary<string, string>
+                { 
+                    { "reconnect", "handshake" }
+                }
             };
         }
 

@@ -19,15 +19,13 @@ namespace AspComet.Specifications
         static Exception exception;
 
         Because of =()=>
-        {
             exception = Catch.Exception(() => cometHttpHandler.ProcessRequest(null));
-        };
 
         It should_fail_to_process_the_request =()=> exception.ShouldNotBeNull();
     }
 
     [Subject("Handling HTTP requests")]
-    public class aynchronously : with_http_handler
+    public class asynchronously : with_http_handler
     {
         static IAsyncResult asyncResult;
 
@@ -41,12 +39,10 @@ namespace AspComet.Specifications
     }
    
     [Subject("Handling HTTP requests")]
-    public class aynchronously_with_a_message_field_which_is_an_object : with_http_handler
+    public class asynchronously_with_a_message_field_which_is_an_object : with_http_handler
     {
         Establish context =()=>
-        {
             httpRequest.Form["message"] = "{ }";
-        };
 
         Because of =()=> 
             cometHttpHandler.BeginProcessRequest(httpContext, null, null);
@@ -57,7 +53,7 @@ namespace AspComet.Specifications
     }
 
     [Subject("Handling HTTP requests")]
-    public class aynchronously_with_a_message_field_which_is_an_array_of_3_objects : with_http_handler
+    public class asynchronously_with_a_message_field_which_is_an_array_of_3_objects : with_http_handler
     {
         Establish context =()=>
             httpRequest.Form["message"] = "[ {}, {}, {} ]";
@@ -70,7 +66,7 @@ namespace AspComet.Specifications
     }
 
     [Subject("Handling HTTP requests")]
-    public class aynchronously_with_a_body_which_is_an_array_of_3_objects : with_http_handler
+    public class asynchronously_with_a_body_which_is_an_array_of_3_objects : with_http_handler
     {
         Establish context =()=>
         {

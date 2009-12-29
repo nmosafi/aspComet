@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using AspComet.MessageHandlers;
 
@@ -33,23 +34,15 @@ namespace AspComet
 
         public void HandleMessages(Message[] messages, CometAsyncResult asyncResult)
         {
-            List<Message> response = new List<Message>();
-            bool shouldSendResultStraightBackToClient = false;
+            // Do this before we process the messages in case it's a disconnect
+            Client sendingClient = GetSenderOf(messages);
 
-            // Get the client who sent this before we process
-            // the messages - in case it's a disconnect
-            Client sendingClient = this.GetSenderOf(messages);
-            foreach (Message msg in messages)
-            {
-                IMessageHandler handler = GetMessageHandler(msg.channel);
-                MessageHandlerResult handlerResult = handler.HandleMessage(msg);
-                response.Add(handlerResult.Message);
-                shouldSendResultStraightBackToClient |= !handlerResult.ShouldWait;
-            }
+            MessagesProcessor processor = new MessagesProcessor(this);
+            processor.Process(messages);
 
             if (sendingClient == null)
             {
-                asyncResult.CompleteRequestWithMessages(response);
+                asyncResult.CompleteRequestWithMessages(processor.Response);
                 return;
             }
 
@@ -59,9 +52,9 @@ namespace AspComet
             }
 
             sendingClient.CurrentAsyncResult = asyncResult;
-            sendingClient.Enqueue(response.ToArray());
+            sendingClient.Enqueue(processor.Response);
 
-            if (shouldSendResultStraightBackToClient)
+            if (processor.ShouldSendResultStraightBackToClient)
             {
                 sendingClient.FlushQueue();
             }
@@ -72,8 +65,8 @@ namespace AspComet
             string sendingClientId = null;
             foreach (Message message in messages)
             {
-                if( sendingClientId != null 
-                    && message.clientId != null 
+                if (sendingClientId != null
+                    && message.clientId != null
                     && sendingClientId != message.clientId)
                 {
                     throw new Exception("All messages must have the same client");
@@ -103,7 +96,7 @@ namespace AspComet
             {
                 return GetMetaHandler(channelName);
             }
-            
+
             if (channelName.StartsWith("/service/"))
             {
                 return swallowHandler;
@@ -116,12 +109,42 @@ namespace AspComet
         {
             switch (channelName.Substring(6))
             {
-                case "connect": return this.metaConnectHandler;
-                case "disconnect": return this.metaDisconnectHandler;
-                case "handshake": return this.metaHandshakeHandler;
-                case "subscribe": return this.metaSubscribeHandler;
-                case "unsubscribe": return this.metaUnsubscribeHandler;
+                case "connect": return metaConnectHandler;
+                case "disconnect": return metaDisconnectHandler;
+                case "handshake": return metaHandshakeHandler;
+                case "subscribe": return metaSubscribeHandler;
+                case "unsubscribe": return metaUnsubscribeHandler;
                 default: return new ExceptionHandler("Unknown meta channel.");
+            }
+        }
+
+        private class MessagesProcessor
+        {
+            private readonly MessageBus messageBus;
+            private readonly List<Message> response = new List<Message>();
+
+            public MessagesProcessor(MessageBus messageBus)
+            {
+                this.messageBus = messageBus;
+            }
+
+            public bool ShouldSendResultStraightBackToClient { get; private set; }
+            public IEnumerable<Message> Response { get { return response; } }
+
+            public void Process(IEnumerable<Message> messages)
+            {
+                foreach (Message message in messages)
+                {
+                    this.Process(message);
+                }
+            }
+
+            private void Process(Message message)
+            {
+                IMessageHandler handler = this.messageBus.GetMessageHandler(message.channel);
+                MessageHandlerResult handlerResult = handler.HandleMessage(message);
+                this.response.Add(handlerResult.Message);
+                this.ShouldSendResultStraightBackToClient |= !handlerResult.ShouldWait;
             }
         }
     }
