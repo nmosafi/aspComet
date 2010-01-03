@@ -7,7 +7,7 @@ using AspComet.Transports;
 
 namespace AspComet
 {
-    public class CometAsyncResult : IAsyncResult
+    public class CometAsyncResult : ICometAsyncResult
     {
         private readonly HttpContextBase httpContext;
         private readonly AsyncCallback callback;

@@ -38,7 +38,7 @@ namespace AspComet
 
         public void EndProcessRequest(IAsyncResult result)
         {
-            CometAsyncResult cometAsyncResult = (CometAsyncResult) result;
+            ICometAsyncResult cometAsyncResult = (ICometAsyncResult) result;
             cometAsyncResult.SendAwaitingMessages();
         }
 

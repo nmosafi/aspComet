@@ -68,6 +68,7 @@
     <Compile Include="Eventing\UnsubscribedEvent.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="IClientFactory.cs" />
+    <Compile Include="ICometAsyncResult.cs" />
     <Compile Include="Lookup.cs" />
     <Compile Include="IClientIDGenerator.cs" />
     <Compile Include="IMessageBus.cs" />
