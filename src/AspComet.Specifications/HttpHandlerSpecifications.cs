@@ -9,7 +9,6 @@ using System.Web;
 using Machine.Specifications;
 
 using Rhino.Mocks;
-using Rhino.Mocks.Constraints;
 
 namespace AspComet.Specifications
 {
@@ -39,7 +38,7 @@ namespace AspComet.Specifications
     }
    
     [Subject("Handling HTTP requests")]
-    public class asynchronously_with_a_message_field_which_is_an_object : HttpHandlerScenario
+    public class asynchronously_with_a_message_field_which_is_a_single_object : HttpHandlerScenario
     {
         Establish context =()=>
             httpRequest.Form["message"] = "{ }";
@@ -47,9 +46,8 @@ namespace AspComet.Specifications
         Because of =()=> 
             cometHttpHandler.BeginProcessRequest(httpContext, null, null);
 
-        It should_pass_a_single_message_to_the_message_bus =()=>
-            messageBus.AssertWasCalled(x => x.HandleMessages(null, null), 
-                                       x => x.Constraints(Property.Value("Length", 1), Is.Anything()));
+        It should_pass_a_single_message_to_the_message_bus = () =>
+            messageBus.AssertWasCalled(x => x.HandleMessages(Arg<Message[]>.Matches(m => m.Length == 1), Arg<CometAsyncResult>.Is.Anything));
     }
 
     [Subject("Handling HTTP requests")]
@@ -64,7 +62,7 @@ namespace AspComet.Specifications
             asyncResult = cometHttpHandler.BeginProcessRequest(httpContext, null, null);
 
         It should_pass_3_messages_to_the_message_bus =()=> messageBus.AssertWasCalled(x => 
-            x.HandleMessages((Arg<Message[]>.Matches(Property.Value("Length", 3))), Arg<CometAsyncResult>.Is.Anything));
+            x.HandleMessages(Arg<Message[]>.Matches(m => m.Length == 3), Arg<CometAsyncResult>.Is.Anything));
 
         It should_pass_async_result_to_the_message_bus = () => messageBus.AssertWasCalled(x =>
             x.HandleMessages(Arg<Message[]>.Is.Anything, Arg<CometAsyncResult>.Is.Equal(asyncResult)));
@@ -91,7 +89,7 @@ namespace AspComet.Specifications
         It should_return_a_result_with_specified_state =()=> asyncResult.AsyncState.ShouldEqual(asyncState);
 
         It should_pass_3_messages_to_the_message_bus =()=> messageBus.AssertWasCalled(x => 
-            x.HandleMessages(Arg<Message[]>.Matches(Property.Value("Length", 3)), Arg<CometAsyncResult>.Is.Anything));
+            x.HandleMessages(Arg<Message[]>.Matches(m => m.Length ==  3), Arg<CometAsyncResult>.Is.Anything));
 
         It should_pass_async_result_to_the_message_bus =()=> messageBus.AssertWasCalled(x => 
             x.HandleMessages(Arg<Message[]>.Is.Anything, Arg<CometAsyncResult>.Is.Equal(asyncResult)));
