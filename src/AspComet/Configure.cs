@@ -16,8 +16,9 @@
                 IClientRepository clientRepository = new InMemoryClientRepository();
                 IClientIDGenerator clientIDGenerator = new RngUniqueClientIDGenerator(clientRepository);
                 IClientFactory clientFactory = new ClientFactory();
+                IMessageHandlerFactory messageHandlerFactory = new MessageHandlerFactory(clientRepository, clientIDGenerator, clientFactory);
 
-                MessageBus = new MessageBus(clientRepository, clientIDGenerator, clientFactory);
+                MessageBus = new MessageBus(clientRepository, () => new MessagesProcessor(messageHandlerFactory));
             }
         }
     }

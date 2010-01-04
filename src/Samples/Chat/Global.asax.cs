@@ -26,8 +26,14 @@ namespace AspComet.Samples.Chat
             // Create our own client factory
             IClientFactory authClientFactory = new AuthenticatedClientFactory();
 
+            // Creeate a message handler factory
+            IMessageHandlerFactory messageHandlerFactory = new MessageHandlerFactory(clientRepository, clientIDGenerator, authClientFactory);
+
+            // Create the message bus
+            MessageBus messageBus = new MessageBus(clientRepository, () => new MessagesProcessor(messageHandlerFactory));
+
             // And initialise AspComet
-            Configuration.InitialiseHttpHandler.WithMessageBus(new MessageBus(clientRepository, clientIDGenerator, authClientFactory));
+            Configuration.InitialiseHttpHandler.WithMessageBus(messageBus);
 
             // Create our handshake handler
             HandshakeAuthenticator handshakeAuthenticator = new HandshakeAuthenticator();

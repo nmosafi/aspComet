@@ -76,13 +76,11 @@ namespace AspComet.Specifications
         static IAsyncResult asyncResult;
         static readonly object asyncState = new object();
         static readonly AsyncCallback asyncCallback = delegate { };
-        static bool hasCallbackFired;
 
         Establish context =()=>
         {
             byte[] jsonAsByteArray = "[ {}, {}, {} ]".Select(c => (byte) c).ToArray();
             httpRequest.Stub(x => x.InputStream).Return(new MemoryStream(jsonAsByteArray));
-            hasCallbackFired = false;
         };
 
         Because of =()=>
