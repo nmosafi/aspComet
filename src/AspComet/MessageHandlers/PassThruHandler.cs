@@ -22,35 +22,35 @@ namespace AspComet.MessageHandlers
         {
             bool sendToSelf = false;
 
-            var e = new PublishingEvent(request);
+            PublishingEvent e = new PublishingEvent(request);
             EventHub.Publish(e);
 
-            if (!e.Cancel)
+            if (e.Cancel)
             {
-                Message forward = new Message
-                {
-                    channel = this.ChannelName,
-                    data = request.data
-                    // TODO What other fields should be forwarded?
-                };
-
-                foreach (Client client in this.Recipients)
-                {
-                    if (client.ID == request.clientId)
-                    {
-                        sendToSelf = true;
-                    }
-                    else
-                    {
-                        client.Enqueue(forward);
-                        client.FlushQueue();
-                    }
-                }
-
-                return new MessageHandlerResult { Message = sendToSelf ? forward : null, ShouldWait = false };
+                return null; // TODO should we return some error?
             }
 
-            return null; // TODO should we return some error?
+            Message forward = new Message
+              {
+                  channel = this.ChannelName,
+                  data = request.data
+                  // TODO What other fields should be forwarded?
+              };
+
+            foreach (Client client in this.Recipients)
+            {
+                if (client.ID == request.clientId)
+                {
+                    sendToSelf = true;
+                }
+                else
+                {
+                    client.Enqueue(forward);
+                    client.FlushQueue();
+                }
+            }
+
+            return new MessageHandlerResult { Message = sendToSelf ? forward : null, ShouldWait = false };
         }
     }
 }

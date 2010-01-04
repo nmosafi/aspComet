@@ -30,9 +30,9 @@ namespace AspComet
 
         public IMessageHandler GetMessageHandler(string channelName)
         {
-            if (channelName == null)
+            if (string.IsNullOrEmpty(channelName))
             {
-                return new ExceptionHandler("Empty channel field in request.");
+                return new ExceptionHandler("Empty channel field in request");
             }
 
             if (channelName.StartsWith("/meta/"))

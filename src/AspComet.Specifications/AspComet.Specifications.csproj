@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="ChannelNameSpecifications.cs" />
     <Compile Include="HttpHandlerSpecifications.cs" />
+    <Compile Include="MessageHandlerFactorySpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
