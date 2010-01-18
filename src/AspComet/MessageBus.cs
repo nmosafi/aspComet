@@ -41,7 +41,7 @@ namespace AspComet
             }
         }
 
-        private IMessagesProcessor CreateProcessorAndProcess(Message[] messages)
+        private IMessagesProcessor CreateProcessorAndProcess(IEnumerable<Message> messages)
         {
             IMessagesProcessor processor = this.messagesProcessorFactoryMethod();
             processor.Process(messages);

@@ -3,49 +3,67 @@ using System.Web;
 
 using AspComet.Eventing;
 
+using Autofac;
+
+using Microsoft.Practices.ServiceLocation;
+
 namespace AspComet.Samples.Chat
 {
     public class Global : HttpApplication
     {
+        private static IContainer container;
+
         protected void Application_Start(object sender, EventArgs e)
         {
             //-------------------------------------------------------------------------------------------------
-            //    There are two ways to initialise AspComet.  You may wish to configure the message bus and its
-            //    dependencies yourself, for example you might want to provide your own client ID generator. If
-            //    so then use this method:
+            //   There are two ways to initialise AspComet.  The simple way to do this is:
+            // Setup.AspComet.InANonExtensibleAndNonConfigurableManner();
+            //
+            //   However, in any application of any size, you will want to configure AspComet using the common
+            //   service locator backed onto your application's IoC container.
             // Configuration.InitialiseHttpHandler.WithMessageBus(messageBus);
             //
-            //    Otherwise, this is useful - it just gives a new message bus with the default configuration
-            // Configuration.InitialiseHttpHandler.WithTheDefaultConfiguration();
             //-------------------------------------------------------------------------------------------------
 
-            // Create a client repo and an id generator
-            IClientRepository clientRepository = new InMemoryClientRepository();
-            IClientIDGenerator clientIDGenerator = new RngUniqueClientIDGenerator(clientRepository);
+            SetupIoCContainer();
 
-            // Create our own client factory
-            IClientFactory authClientFactory = new AuthenticatedClientFactory();
+            ServiceLocator.SetLocatorProvider(() => new AutofacServiceLocator(container));
 
-            // Creeate a message handler factory
-            IMessageHandlerFactory messageHandlerFactory = new MessageHandlerFactory(clientRepository, clientIDGenerator, authClientFactory);
+            EventHub.Subscribe<HandshakingEvent>(container.Resolve<HandshakeAuthenticator>().CheckHandshake);
+            EventHub.Subscribe<PublishingEvent>(container.Resolve<BadLanguageBlocker>().CheckMessage);
+            EventHub.Subscribe<SubscribingEvent>(container.Resolve<SubscriptionChecker>().CheckSubscription);
+        }
 
-            // Create the message bus
-            MessageBus messageBus = new MessageBus(clientRepository, () => new MessagesProcessor(messageHandlerFactory));
+        protected void Application_End(object sender, EventArgs e)
+        {
+            if (container != null)
+            {
+                container.Dispose();
+                container = null;
+            }
+        }
 
-            // And initialise AspComet
-            Configuration.InitialiseHttpHandler.WithMessageBus(messageBus);
+        private static void SetupIoCContainer()
+        {
+            ContainerBuilder builder = new ContainerBuilder();
 
-            // Create our handshake handler
-            HandshakeAuthenticator handshakeAuthenticator = new HandshakeAuthenticator();
-            EventHub.Subscribe<HandshakingEvent>(handshakeAuthenticator.CheckHandshake);
+            // Let AspComet put its registrations into the container
+            foreach (ServiceMetadata metadata in ServiceMetadata.GetMinimumSet())
+            {
+                if (metadata.IsPerRequest) 
+                    builder.RegisterType(metadata.ActualType).As(metadata.ServiceType);
+                else 
+                    builder.RegisterType(metadata.ActualType).As(metadata.ServiceType).SingleInstance();
+            }
 
-            // Now create our bad language blocker
-            BadLanguageBlocker badLanguageBlocker = new BadLanguageBlocker(clientRepository);
-            EventHub.Subscribe<PublishingEvent>(badLanguageBlocker.CheckMessage);
+            // Add our own stuff to the container
+            builder.RegisterType<AuthenticatedClientFactory>().As<IClientFactory>().SingleInstance();
+            builder.RegisterType<HandshakeAuthenticator>().SingleInstance();
+            builder.RegisterType<BadLanguageBlocker>().SingleInstance();
+            builder.RegisterType<SubscriptionChecker>().SingleInstance();
 
-            // And our subscription checker
-            SubscriptionChecker subscriptionChecker = new SubscriptionChecker(clientRepository);
-            EventHub.Subscribe<SubscribingEvent>(subscriptionChecker.CheckSubscription);
+            // Set up the common service locator
+            container = builder.Build();
         }
     }
 }

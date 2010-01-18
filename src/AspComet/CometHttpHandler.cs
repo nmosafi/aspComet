@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Configuration;
 using System.Web;
+
+using Microsoft.Practices.ServiceLocation;
 
 namespace AspComet
 {
     public class CometHttpHandler : IHttpAsyncHandler
     {
-        private IMessageBus messageBus;
-        private readonly object messageBusCheckingSyncRoot = new object();
         public const int LongPollDuration = 10000;
 
         public bool IsReusable
@@ -16,8 +17,6 @@ namespace AspComet
 
         public void ProcessRequest(HttpContext context)
         {
-            EnsureMessageBus();
-
             throw new Exception("Cannot process synchronous requests");
         }
 
@@ -28,28 +27,27 @@ namespace AspComet
 
         public IAsyncResult BeginProcessRequest(HttpContextBase context, AsyncCallback callback, object asyncState)
         {
-            EnsureMessageBus();
-
             Message[] request = MessageConverter.FromJson(context.Request);
             CometAsyncResult asyncResult = new CometAsyncResult(context, callback, asyncState);
-            this.messageBus.HandleMessages(request, asyncResult);
+            GetMessageBus().HandleMessages(request, asyncResult);
             return asyncResult;
+        }
+
+        private static IMessageBus GetMessageBus()
+        {
+            IServiceLocator serviceLocator = ServiceLocator.Current;
+            if (serviceLocator == null)
+            {
+                throw new ConfigurationErrorsException("AspComet has not been configured. Either use the default configuration or set up a service locator");
+            }
+
+            return serviceLocator.GetInstance<IMessageBus>();
         }
 
         public void EndProcessRequest(IAsyncResult result)
         {
             ICometAsyncResult cometAsyncResult = (ICometAsyncResult) result;
             cometAsyncResult.SendAwaitingMessages();
-        }
-
-        private void EnsureMessageBus()
-        {
-            if (this.messageBus != null) return;
-            lock (this.messageBusCheckingSyncRoot)
-            {
-                if (this.messageBus != null) return;
-                this.messageBus = Configuration.MessageBus;
-            }
         }
     }
 }

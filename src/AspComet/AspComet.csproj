@@ -34,7 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -54,7 +59,8 @@
     <Compile Include="ClientFactory.cs" />
     <Compile Include="CometAsyncResult.cs" />
     <Compile Include="CometHttpHandler.cs" />
-    <Compile Include="Configure.cs" />
+    <Compile Include="ServiceMetadata.cs" />
+    <Compile Include="Setup.cs" />
     <Compile Include="Eventing\CancellableEvent.cs" />
     <Compile Include="Eventing\DisconnectedEvent.cs" />
     <Compile Include="Eventing\EventHub.cs" />

@@ -8,6 +8,8 @@ using System.Web;
 
 using Machine.Specifications;
 
+using Microsoft.Practices.ServiceLocation;
+
 using Rhino.Mocks;
 
 namespace AspComet.Specifications
@@ -111,6 +113,7 @@ namespace AspComet.Specifications
 
     public abstract class HttpHandlerScenario
     {
+        protected static IServiceLocator serviceLocator; 
         protected static CometHttpHandler cometHttpHandler;
         protected static IMessageBus messageBus;
         protected static HttpContextBase httpContext;
@@ -118,14 +121,17 @@ namespace AspComet.Specifications
 
         Establish context =()=>
         {
-            messageBus = MockRepository.GenerateMock<IMessageBus>();
             cometHttpHandler = new CometHttpHandler();
+            messageBus = MockRepository.GenerateMock<IMessageBus>();
             httpRequest = MockRepository.GenerateStub<HttpRequestBase>();
             httpContext = MockRepository.GenerateStub<HttpContextBase>();
+            serviceLocator = MockRepository.GenerateStub<IServiceLocator>();
 
             httpContext.Stub(x => x.Request).Return(httpRequest);
             httpRequest.Stub(x => x.Form).Return(new NameValueCollection());
-            Configuration.InitialiseHttpHandler.WithMessageBus(messageBus);
+            serviceLocator.Stub(x => x.GetInstance<IMessageBus>()).Return(messageBus);
+
+            ServiceLocator.SetLocatorProvider(() => serviceLocator);
         };
     }
 }
