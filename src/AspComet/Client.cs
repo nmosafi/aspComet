@@ -6,10 +6,12 @@ namespace AspComet
 {
     public class Client : IClient
     {
+        private static readonly TimeSpan ClientTimeout = TimeSpan.FromMilliseconds(CometHttpHandler.ClientTimeoutInMilliseconds);
+        private static readonly TimeSpan LongPollDuration = TimeSpan.FromMilliseconds(CometHttpHandler.LongPollDurationInMilliseconds);
         private readonly List<string> subscriptions = new List<string>();
         private readonly Queue<Message> messageQueue = new Queue<Message>();
         private readonly object syncRoot = new object();
-        private readonly Timer timer = new Timer { AutoReset = false, Enabled = false, Interval = CometHttpHandler.LongPollDuration };
+        private readonly Timer timer = new Timer { AutoReset = true, Enabled = false, Interval = 1000 };
 
         public Client(string id)
         {
@@ -20,6 +22,9 @@ namespace AspComet
         public string ID { get; private set; }
         public CometAsyncResult CurrentAsyncResult { get; set; }
         public bool IsConnected { get; private set; }
+        public DateTime LastConnectTime { get; private set; }
+        public DateTime LastMessageTime { get; private set; }
+        public event EventHandler Disconnected = delegate { };
 
         public void SubscribeTo(string subscription)
         {
@@ -58,13 +63,12 @@ namespace AspComet
                 }
             }
 
-            this.timer.Start();
+            this.LastMessageTime = SystemTime.Now();
+            this.timer.Enabled = true;
         }
 
         public void FlushQueue()
         {
-            this.timer.Stop();
-
             if (this.messageQueue.Count > 0 && this.CurrentAsyncResult != null)
             {
                 lock (syncRoot) // double checked lock
@@ -87,7 +91,16 @@ namespace AspComet
 
         public void NotifyConnected()
         {
+            this.LastConnectTime = SystemTime.Now();
             this.IsConnected = true;
+            this.timer.Enabled = true;
+        }
+
+        public void Disconnect()
+        {
+            this.timer.Enabled = false;
+            this.IsConnected = false;
+            this.Disconnected(this, EventArgs.Empty);
         }
 
         private IEnumerable<Message> GetMessages()
@@ -100,10 +113,16 @@ namespace AspComet
 
         private void HandleTimerCallback(object state, ElapsedEventArgs e)
         {
-            this.FlushQueue();
+            DateTime now = SystemTime.Now();
+            if ((now - this.LastMessageTime).TotalMilliseconds > CometHttpHandler.LongPollDurationInMilliseconds)
+            {
+                this.FlushQueue();
+            }
+            if ((now - this.LastConnectTime).TotalMilliseconds > CometHttpHandler.ClientTimeoutInMilliseconds)
+            {
+                this.Disconnect();
+            }
         }
-
-        #region Object Members
 
         public bool Equals(Client obj)
         {
@@ -124,7 +143,5 @@ namespace AspComet
         {
             return (this.ID != null ? this.ID.GetHashCode() : 0);
         }
-
-        #endregion
     }
 }

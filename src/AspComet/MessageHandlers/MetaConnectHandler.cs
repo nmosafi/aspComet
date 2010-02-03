@@ -46,7 +46,7 @@ namespace AspComet.MessageHandlers
                 connectionType = "long-polling",
                 advice = new Dictionary<string, int>
                 { 
-                    { "timeout", CometHttpHandler.LongPollDuration}
+                    { "timeout", CometHttpHandler.LongPollDurationInMilliseconds}
                 }
             };
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using AspComet.Eventing;
@@ -49,7 +50,19 @@ namespace AspComet.MessageHandlers
             string clientID = clientIDGenerator.GenerateClientID();
             Client client = clientFactory.CreateClient(clientID);
             this.clientRepository.Add(client);
+            client.Disconnected += HandleClientDisconnected;
             return client;
+        }
+
+        private void HandleClientDisconnected(object sender, EventArgs e)
+        {
+            Client client = (Client)sender;
+            client.Disconnected -= HandleClientDisconnected;
+
+            clientRepository.RemoveByID(client.ID);
+
+            DisconnectedEvent disconnectedEvent = new DisconnectedEvent(client);
+            EventHub.Publish(disconnectedEvent);
         }
 
         private Message GetSuccessfulResponse(Message request, IClient client)

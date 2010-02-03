@@ -19,10 +19,8 @@ namespace AspComet.MessageHandlers
         public MessageHandlerResult HandleMessage(Message request)
         {
             Client client = clientRepository.GetByID(request.clientId);
-            var e = new DisconnectedEvent(client);
-            EventHub.Publish(e);
-
-            clientRepository.RemoveByID(client.ID);
+            
+            client.Disconnect();
 
             return new MessageHandlerResult
             {

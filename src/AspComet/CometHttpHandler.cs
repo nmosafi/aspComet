@@ -8,7 +8,8 @@ namespace AspComet
 {
     public class CometHttpHandler : IHttpAsyncHandler
     {
-        public const int LongPollDuration = 10000;
+        public const int LongPollDurationInMilliseconds = 10000;
+        public const int ClientTimeoutInMilliseconds = 20000;
 
         public bool IsReusable
         {
