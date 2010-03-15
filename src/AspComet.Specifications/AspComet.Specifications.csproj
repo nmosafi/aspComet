@@ -70,7 +70,6 @@
     <Compile Include="MessagesProcessorSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AspComet\AspComet.csproj">
       <Project>{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}</Project>
