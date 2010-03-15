@@ -10,9 +10,9 @@ namespace AspComet.MessageHandlers
     public class PassThruHandler : IMessageHandler
     {
         public string ChannelName { get; private set; }
-        public IEnumerable<Client> Recipients { get; private set; }
+        public IEnumerable<IClient> Recipients { get; private set; }
 
-        public PassThruHandler(string channelName, IEnumerable<Client> recipients)
+        public PassThruHandler(string channelName, IEnumerable<IClient> recipients)
         {
             this.ChannelName = channelName;
             this.Recipients = recipients;
@@ -50,7 +50,7 @@ namespace AspComet.MessageHandlers
                 }
             }
 
-            return new MessageHandlerResult { Message = sendToSelf ? forward : null, ShouldWait = false };
+            return new MessageHandlerResult { Message = sendToSelf ? forward : null, CanTreatAsLongPoll = false };
         }
     }
 }

@@ -86,9 +86,11 @@ namespace AspComet.Specifications
         Because of =()=>
             asyncResult = cometHttpHandler.BeginProcessRequest(httpContext, asyncCallback, asyncState);
 
-        It should_return_a_comet_async_result =()=> asyncResult.ShouldBeOfType(typeof(CometAsyncResult));
+        It should_return_a_comet_async_result =()=> 
+            asyncResult.ShouldBeOfType<CometAsyncResult>();
 
-        It should_return_a_result_with_specified_state =()=> asyncResult.AsyncState.ShouldEqual(asyncState);
+        It should_return_a_result_with_specified_state =()=> 
+            asyncResult.AsyncState.ShouldEqual(asyncState);
 
         It should_pass_3_messages_to_the_message_bus =()=> messageBus.AssertWasCalled(x => 
             x.HandleMessages(Arg<Message[]>.Matches(m => m.Length ==  3), Arg<CometAsyncResult>.Is.Anything));
@@ -103,7 +105,7 @@ namespace AspComet.Specifications
         static ICometAsyncResult asyncResult;
 
         Establish context =()=>
-            asyncResult = MockRepository.GenerateMock<ICometAsyncResult>();
+            asyncResult = MockRepository.GenerateStub<ICometAsyncResult>();
 
         Because of =()=>
             cometHttpHandler.EndProcessRequest(asyncResult);
@@ -122,7 +124,7 @@ namespace AspComet.Specifications
         Establish context =()=>
         {
             cometHttpHandler = new CometHttpHandler();
-            messageBus = MockRepository.GenerateMock<IMessageBus>();
+            messageBus = MockRepository.GenerateStub<IMessageBus>();
             httpRequest = MockRepository.GenerateStub<HttpRequestBase>();
             httpContext = MockRepository.GenerateStub<HttpContextBase>();
             serviceLocator = MockRepository.GenerateStub<IServiceLocator>();

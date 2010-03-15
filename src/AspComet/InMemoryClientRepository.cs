@@ -17,7 +17,7 @@ namespace AspComet
                 return Clients.Contains(clientID);
         }
 
-        public Client GetByID(string clientID)
+        public IClient GetByID(string clientID)
         {
             lock (syncRoot)
                 return Clients[clientID];
@@ -35,7 +35,7 @@ namespace AspComet
                 Clients.Add(client);
         }
 
-        public IEnumerable<Client> WhereSubscribedTo(string channel)
+        public IEnumerable<IClient> WhereSubscribedTo(string channel)
         {
             lock (syncRoot)
                 foreach (var client in Clients)
@@ -43,9 +43,9 @@ namespace AspComet
                         yield return client;
         }
 
-        private class KeyedClientCollection : KeyedCollection<string, Client>
+        private class KeyedClientCollection : KeyedCollection<string, IClient>
         {
-            protected override string GetKeyForItem(Client client)
+            protected override string GetKeyForItem(IClient client)
             {
                 return client.ID;
             }

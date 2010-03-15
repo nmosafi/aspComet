@@ -35,14 +35,14 @@ namespace AspComet.MessageHandlers
                 return new MessageHandlerResult
                 {
                     Message = GetFailedHandshakeResponse(request, handshakingEvent.CancellationReason, handshakingEvent.Retry),
-                    ShouldWait = false
+                    CanTreatAsLongPoll = false
                 };
             }
 
             var handshakenEvent = new HandshakenEvent(client);
             EventHub.Publish(handshakenEvent);
 
-            return new MessageHandlerResult { Message = GetSuccessfulResponse(request, client), ShouldWait = false };
+            return new MessageHandlerResult { Message = GetSuccessfulResponse(request, client), CanTreatAsLongPoll = false };
         }
 
         private Client CreateClient()

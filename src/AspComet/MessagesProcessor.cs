@@ -28,7 +28,7 @@ namespace AspComet
             IMessageHandler handler = this.messageHandlerFactory.GetMessageHandler(message.channel);
             MessageHandlerResult handlerResult = handler.HandleMessage(message);
             this.response.Add(handlerResult.Message);
-            this.ShouldSendResultStraightBackToClient |= !handlerResult.ShouldWait;
+            this.ShouldSendResultStraightBackToClient |= !handlerResult.CanTreatAsLongPoll;
         }
     }
 }

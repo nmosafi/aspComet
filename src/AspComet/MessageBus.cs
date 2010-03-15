@@ -14,10 +14,10 @@ namespace AspComet
             this.messagesProcessorFactoryMethod = messagesProcessorFactoryMethod;
         }
 
-        public void HandleMessages(Message[] messages, CometAsyncResult asyncResult)
+        public void HandleMessages(Message[] messages, ICometAsyncResult asyncResult)
         {
             // Do this before we process the messages in case it's a disconnect
-            Client sendingClient = GetSenderOf(messages);
+            IClient sendingClient = GetSenderOf(messages);
 
             IMessagesProcessor processor = this.CreateProcessorAndProcess(messages);
 
@@ -48,7 +48,7 @@ namespace AspComet
             return processor;
         }
 
-        private Client GetSenderOf(IEnumerable<Message> messages)
+        private IClient GetSenderOf(IEnumerable<Message> messages)
         {
             string sendingClientId = null;
             foreach (Message message in messages)
@@ -65,8 +65,8 @@ namespace AspComet
                 }
             }
 
-            Client sendingClient = null;
-            if (sendingClientId != null && this.clientRepository.Exists(sendingClientId))
+            IClient sendingClient = null;
+            if (sendingClientId != null)
             {
                 sendingClient = this.clientRepository.GetByID(sendingClientId);
             }

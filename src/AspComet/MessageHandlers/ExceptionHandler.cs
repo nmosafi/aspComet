@@ -21,7 +21,7 @@ namespace AspComet.MessageHandlers
                     channel = request.channel,
                     error = this.ErrorMessage
                 },
-                ShouldWait = false
+                CanTreatAsLongPoll = false
             };
         }
     }

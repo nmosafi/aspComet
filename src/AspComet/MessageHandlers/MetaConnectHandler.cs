@@ -15,16 +15,16 @@ namespace AspComet.MessageHandlers
         {
             if (!ClientExistsFor(request))
             {
-                return new MessageHandlerResult { Message = GetUnrecognisedClientResponse(request), ShouldWait = false };
+                return new MessageHandlerResult { Message = GetUnrecognisedClientResponse(request), CanTreatAsLongPoll = false };
             }
 
-            Client client = clientRepository.GetByID(request.clientId);
+            IClient client = clientRepository.GetByID(request.clientId);
 
             bool isFirstConnectRequest = !client.IsConnected;
 
             client.NotifyConnected();
 
-            return new MessageHandlerResult { Message = GetSuccessfulResponse(request), ShouldWait = !isFirstConnectRequest };
+            return new MessageHandlerResult { Message = GetSuccessfulResponse(request), CanTreatAsLongPoll = !isFirstConnectRequest };
         }
 
         private bool ClientExistsFor(Message request)

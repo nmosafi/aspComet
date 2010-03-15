@@ -18,7 +18,7 @@ namespace AspComet.MessageHandlers
 
         public MessageHandlerResult HandleMessage(Message request)
         {
-            Client client = clientRepository.GetByID(request.clientId);
+            IClient client = clientRepository.GetByID(request.clientId);
             
             client.Disconnect();
 
@@ -31,7 +31,7 @@ namespace AspComet.MessageHandlers
                     successful = true,
                     clientId = request.clientId
                 },
-                ShouldWait = false
+                CanTreatAsLongPoll = false
             };
         }
     }

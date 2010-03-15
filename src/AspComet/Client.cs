@@ -20,7 +20,7 @@ namespace AspComet
         }
 
         public string ID { get; private set; }
-        public CometAsyncResult CurrentAsyncResult { get; set; }
+        public ICometAsyncResult CurrentAsyncResult { get; set; }
         public bool IsConnected { get; private set; }
         public DateTime LastConnectTime { get; private set; }
         public DateTime LastMessageTime { get; private set; }
@@ -47,12 +47,7 @@ namespace AspComet
                 this.subscriptions.Remove(subscription);
             }
         }
-
-        public void Enqueue(params Message[] messages)
-        {
-            this.Enqueue((IEnumerable<Message>) messages);
-        }
-
+        
         public void Enqueue(IEnumerable<Message> messages)
         {
             lock (this.syncRoot)

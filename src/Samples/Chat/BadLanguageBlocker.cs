@@ -22,7 +22,7 @@ namespace AspComet.Samples.Chat
         {
             if (!ev.Message.GetData<string>("message").Contains("pish")) return;
 
-            Client sender = this.clientRepository.GetByID(ev.Message.clientId);
+            IClient sender = this.clientRepository.GetByID(ev.Message.clientId);
 
             ev.Cancel = true;
 

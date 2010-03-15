@@ -18,7 +18,7 @@ namespace AspComet.MessageHandlers
 
         public MessageHandlerResult HandleMessage(Message request)
         {
-            Client client = clientRepository.GetByID(request.clientId);
+            IClient client = clientRepository.GetByID(request.clientId);
 
             ICancellableEvent subscribingEvent = PubishSubscribingEvent(request, client);
 
@@ -27,7 +27,7 @@ namespace AspComet.MessageHandlers
                 return new MessageHandlerResult
                 {
                     Message = GetSubscriptionFailedResponse(request, client, subscribingEvent.CancellationReason),
-                    ShouldWait = false
+                    CanTreatAsLongPoll = false
                 };
             }
 
@@ -35,7 +35,7 @@ namespace AspComet.MessageHandlers
 
             PublishSubscribedEvent(request, client);
 
-            return new MessageHandlerResult { Message = GetSubscriptionSucceededResponse(request, client), ShouldWait = false };
+            return new MessageHandlerResult { Message = GetSubscriptionSucceededResponse(request, client), CanTreatAsLongPoll = false };
         }
 
         private static void PublishSubscribedEvent(Message request, IClient client)
