@@ -54,6 +54,16 @@ namespace AspComet.Specifications
     }
 
     [Subject("Creating message handlers")]
+    public class for_an_unknown_meta_channel : MessageHandlerFactoryScenario
+    {
+        It should_create_an_exception_handler = () =>
+            messageHandlerFactory.GetMessageHandler("/meta/idonotexist").ShouldBeOfType<ExceptionHandler>();
+
+        It should_create_an_exception_handler_with_message_Unknwon_meta_channel = () =>
+            ((ExceptionHandler)messageHandlerFactory.GetMessageHandler("/meta/idonotexist")).ErrorMessage.ShouldEqual("Unknown meta channel.");
+    }
+
+    [Subject("Creating message handlers")]
     public class for_a_service_channel : MessageHandlerFactoryScenario
     {
         It should_create_a_SwallowHandler = () =>
