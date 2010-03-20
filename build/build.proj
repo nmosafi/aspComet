@@ -16,6 +16,6 @@
   </Target>
   <Target Name="RunSpecsWithCoverage" DependsOnTargets="Build">
     <Message Importance="high" Text="Running Specs with this command: $(MSpecCommand)"/>
-    <NCover ToolPath="$(NCoverPath)" TestRunnerExe="$(MSpecPath)" TestRunnerArgs="$(MSpecArgs)"/>
+    <NCover ToolPath="$(NCoverPath)" TestRunnerExe="$(MSpecPath)" TestRunnerArgs="$(MSpecArgs)" CoverageFile="coverage.xml"/>
   </Target>
 </Project>
