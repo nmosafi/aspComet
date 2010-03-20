@@ -1,16 +1,21 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask TaskName="NCover.MSBuildTasks.NCover" AssemblyFile="..\lib\NCover\Build Task Plugins\NCover.MSBuildTasks.dll" />
   <PropertyGroup>
     <MSpecPath>..\lib\Machine.Specifications\mspec.exe</MSpecPath>
     <MSpecAssembly>..\src\AspComet.Specifications\bin\Debug\AspComet.Specifications.dll</MSpecAssembly>
+    <MSpecArgs>$(AdditionalMSpecSettings) $(MSpecAssembly)</MSpecArgs>
+    <MSpecCommand>$(MSpecPath) $(MSpecArgs)</MSpecCommand>
+    <NCoverPath>..\lib\NCover\</NCoverPath>
   </PropertyGroup>
   <Target Name="Build">
-    <MSBuild Projects="../src/AspComet.sln"  />    
+    <MSBuild Projects="../src/AspComet.sln"  />
   </Target>
   <Target Name="RunSpecs" DependsOnTargets="Build">
-    <PropertyGroup>
-      <MSpecCommand>$(MSpecPath) $(AdditionalMSpecSettings) $(MSpecAssembly)</MSpecCommand>
-    </PropertyGroup>
     <Message Importance="high" Text="Running Specs with this command: $(MSpecCommand)"/>
     <Exec Command="$(MSpecCommand)" />
+  </Target>
+  <Target Name="RunSpecsWithCoverage" DependsOnTargets="Build">
+    <Message Importance="high" Text="Running Specs with this command: $(MSpecCommand)"/>
+    <NCover ToolPath="$(NCoverPath)" TestRunnerExe="$(MSpecPath)" TestRunnerArgs="$(MSpecArgs)"/>
   </Target>
 </Project>
