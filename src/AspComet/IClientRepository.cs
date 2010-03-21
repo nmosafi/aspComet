@@ -5,8 +5,8 @@ namespace AspComet
     public interface IClientRepository
     {
         IClient GetByID(string clientID);
-        void RemoveByID(string clientID);
-        void Add(Client client);
+        void DeleteByID(string clientID);
+        void Insert(IClient client);
         IEnumerable<IClient> WhereSubscribedTo(string channel);
     }
 }

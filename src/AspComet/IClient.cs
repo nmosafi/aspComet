@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace AspComet
@@ -16,6 +17,7 @@ namespace AspComet
         void NotifyConnected();
         void Disconnect();
         void SubscribeTo(string subscription);
+        event EventHandler<EventArgs> Disconnected;
     }
 
     public static class ClientExtensions

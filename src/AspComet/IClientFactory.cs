@@ -10,6 +10,6 @@ namespace AspComet
         /// </summary>
         /// <param name="id">The id of the client</param>
         /// <returns>The created client</returns>
-        Client CreateClient(string id);
+        IClient CreateClient(string id);
     }
 }

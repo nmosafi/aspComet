@@ -6,8 +6,7 @@ namespace AspComet
 {
     public class Client : IClient
     {
-        private static readonly TimeSpan ClientTimeout = TimeSpan.FromMilliseconds(CometHttpHandler.ClientTimeoutInMilliseconds);
-        private static readonly TimeSpan LongPollDuration = TimeSpan.FromMilliseconds(CometHttpHandler.LongPollDurationInMilliseconds);
+
         private readonly List<string> subscriptions = new List<string>();
         private readonly Queue<Message> messageQueue = new Queue<Message>();
         private readonly object syncRoot = new object();
@@ -24,7 +23,7 @@ namespace AspComet
         public bool IsConnected { get; private set; }
         public DateTime LastConnectTime { get; private set; }
         public DateTime LastMessageTime { get; private set; }
-        public event EventHandler Disconnected = delegate { };
+        public event EventHandler<EventArgs> Disconnected = delegate { };
 
         public void SubscribeTo(string subscription)
         {

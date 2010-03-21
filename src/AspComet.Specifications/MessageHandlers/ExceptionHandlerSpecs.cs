@@ -4,12 +4,10 @@ using AspComet.MessageHandlers;
 
 using Machine.Specifications;
 
-using Rhino.Mocks;
-
 namespace AspComet.Specifications.MessageHandlers
 {
-    [Subject("Exception handler")]
-    public class when_handling_a_message : MessageHandlerScenario
+    [Subject(Constants.MessageHandlingSubject)]
+    public class when_handling_a_message_which_has_generated_an_exception : MessageHandlerScenario
     {
         const string ErrorMessage = "This is the error message";
         static ExceptionHandler exceptionHandler;

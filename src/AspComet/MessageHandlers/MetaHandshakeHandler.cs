@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
@@ -9,29 +6,24 @@ namespace AspComet.MessageHandlers
     {
         private readonly IClientIDGenerator clientIDGenerator;
         private readonly IClientFactory clientFactory;
-        private readonly IClientRepository clientRepository;
+        private readonly IClientWorkflowManager clientWorkflowManager;
 
-        public MetaHandshakeHandler(IClientIDGenerator clientIDGenerator, IClientFactory clientFactory, IClientRepository clientRepository)
+        public MetaHandshakeHandler(IClientIDGenerator clientIDGenerator, IClientFactory clientFactory, IClientWorkflowManager clientWorkflowManager)
         {
             this.clientIDGenerator = clientIDGenerator;
             this.clientFactory = clientFactory;
-            this.clientRepository = clientRepository;
-        }
-
-        public string ChannelName
-        {
-            get { return "/meta/handshake"; }
+            this.clientWorkflowManager = clientWorkflowManager;
         }
 
         public MessageHandlerResult HandleMessage(Message request)
         {
-            Client client = CreateClient();
+            IClient client = CreateClient();
 
-            var handshakingEvent = new HandshakingEvent(client, request);
+            HandshakingEvent handshakingEvent = new HandshakingEvent(client, request);
             EventHub.Publish(handshakingEvent);
+
             if (handshakingEvent.Cancel) 
             {
-                clientRepository.RemoveByID(client.ID);
                 return new MessageHandlerResult
                 {
                     Message = GetFailedHandshakeResponse(request, handshakingEvent.CancellationReason, handshakingEvent.Retry),
@@ -39,74 +31,61 @@ namespace AspComet.MessageHandlers
                 };
             }
 
-            var handshakenEvent = new HandshakenEvent(client);
+            this.clientWorkflowManager.RegisterClient(client);
+
+            HandshakenEvent handshakenEvent = new HandshakenEvent(client);
             EventHub.Publish(handshakenEvent);
 
             return new MessageHandlerResult { Message = GetSuccessfulResponse(request, client), CanTreatAsLongPoll = false };
         }
 
-        private Client CreateClient()
+        private IClient CreateClient()
         {
             string clientID = clientIDGenerator.GenerateClientID();
-            Client client = clientFactory.CreateClient(clientID);
-            this.clientRepository.Add(client);
-            client.Disconnected += HandleClientDisconnected;
+            IClient client = clientFactory.CreateClient(clientID);
             return client;
         }
 
-        private void HandleClientDisconnected(object sender, EventArgs e)
-        {
-            Client client = (Client)sender;
-            client.Disconnected -= HandleClientDisconnected;
-
-            clientRepository.RemoveByID(client.ID);
-
-            DisconnectedEvent disconnectedEvent = new DisconnectedEvent(client);
-            EventHub.Publish(disconnectedEvent);
-        }
-
-        private Message GetSuccessfulResponse(Message request, IClient client)
+        private static Message GetSuccessfulResponse(Message request, IClient client)
         {
             // The handshaks success response is documented at
             // http://svn.cometd.org/trunk/bayeux/bayeux.html#toc_50
 
-            return new Message
+            Message message = new Message
             {
-                channel = this.ChannelName,
+                channel = request.channel,
                 version = "1.0",
                 supportedConnectionTypes = new[] { "long-polling" },
                 clientId = client.ID,
                 successful = true,
                 id = request.id,
-                advice = new Dictionary<string, string>
-                {
-                    { "reconnect", "retry" }
-                },
             };
+
+            message.SetAdvice("reconnect", "retry");
+            return message;
         }
 
-        private Message GetFailedHandshakeResponse(Message request, string cancellationReason, bool retry)
+        private static Message GetFailedHandshakeResponse(Message request, string cancellationReason, bool retry)
         {
             // The handshake failed response is documented at
             // http://svn.cometd.org/trunk/bayeux/bayeux.html#toc_50
 
-            Dictionary<string, string> handshakeAdvice = null;
-            if (!retry)
+            Message message = new Message
             {
-                handshakeAdvice = new Dictionary<string,string>();
-                handshakeAdvice["reconnect"] = "none";
-            }
-
-            return new Message
-            {
-                channel = this.ChannelName,
+                channel = request.channel,
                 successful = false,
                 error = cancellationReason,
                 supportedConnectionTypes = new[] { "long-polling" },
                 version = "1.0",
                 id = request.id,
-                advice = handshakeAdvice,
             };
+
+            if (!retry)
+            {
+                message.SetAdvice("reconnect", "none");
+            }
+
+            return message;
         }
 
     }

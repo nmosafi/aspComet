@@ -8,8 +8,8 @@ using Rhino.Mocks;
 
 namespace AspComet.Specifications.MessageHandlers
 {
-    [Subject("Meta connect handler")]
-    public class when_handling_a_message_for_an_unknown_client : MetaConnectMessageHandlerScenario
+    [Subject(Constants.MessageHandlingSubject)]
+    public class when_handling_a_connect_message_for_an_unknown_client : MetaConnectMessageHandlerScenario
     {
         Because of = () =>
             result = metaConnectHandler.HandleMessage(request);
@@ -32,8 +32,8 @@ namespace AspComet.Specifications.MessageHandlers
             result.CanTreatAsLongPoll.ShouldBeFalse();
     }
 
-    [Subject("Meta connect handler")]
-    public class when_handling_a_message_for_a_client_which_has_not_already_connected : MetaConnectMessageHandlerScenario
+    [Subject(Constants.MessageHandlingSubject)]
+    public class when_handling_a_connect_message_for_a_client_which_has_not_already_connected : MetaConnectMessageHandlerScenario
     {
         Establish context=()=>
             clientRepository.Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
@@ -51,8 +51,8 @@ namespace AspComet.Specifications.MessageHandlers
             result.CanTreatAsLongPoll.ShouldBeFalse();
     }
 
-    [Subject("Meta connect handler")]
-    public class when_handling_a_message_for_a_client_which_has_already_connected : MetaConnectMessageHandlerScenario
+    [Subject(Constants.MessageHandlingSubject)]
+    public class when_handling_a_connect_message_for_a_client_which_has_already_connected : MetaConnectMessageHandlerScenario
     {
         Establish context = () =>
         {

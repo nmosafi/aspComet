@@ -3,6 +3,11 @@ using Machine.Specifications;
 
 namespace AspComet.Specifications.MessageHandlers
 {
+    public static class Constants
+    {
+        public const string MessageHandlingSubject = "Message handling";
+    }
+
     [Behaviors]
     public class ItHasHandledAMessage : MessageHandlerScenario
     {

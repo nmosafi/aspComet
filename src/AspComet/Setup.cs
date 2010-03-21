@@ -15,7 +15,8 @@ namespace AspComet
                 IClientRepository clientRepository = new InMemoryClientRepository();
                 IClientIDGenerator clientIDGenerator = new RngUniqueClientIDGenerator(clientRepository);
                 IClientFactory clientFactory = new ClientFactory();
-                IMessageHandlerFactory messageHandlerFactory = new MessageHandlerFactory(clientRepository, clientIDGenerator, clientFactory);
+                IClientWorkflowManager clientWorkflowManager = new ClientWorkflowManager(clientRepository);
+                IMessageHandlerFactory messageHandlerFactory = new MessageHandlerFactory(clientRepository, clientIDGenerator, clientFactory, clientWorkflowManager);
                 IMessageBus messageBus = new MessageBus(clientRepository, () => new MessagesProcessor(messageHandlerFactory));
 
                 ServiceLocator.SetLocatorProvider(() => new DummyServiceLocator(messageBus));

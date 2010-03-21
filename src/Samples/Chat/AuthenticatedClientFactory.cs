@@ -2,7 +2,7 @@
 {
     public class AuthenticatedClientFactory : AspComet.IClientFactory 
     {
-        public Client CreateClient(string id)
+        public IClient CreateClient(string id)
         {
             return new AuthenticatedClient(id);
         }

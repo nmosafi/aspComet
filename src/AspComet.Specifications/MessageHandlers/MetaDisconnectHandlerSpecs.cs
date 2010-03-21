@@ -8,7 +8,7 @@ using Rhino.Mocks;
 
 namespace AspComet.Specifications.MessageHandlers
 {
-    [Subject("Meta disconnect handler")]
+    [Subject(Constants.MessageHandlingSubject)]
     public class when_handling_a_disconnect_message : MessageHandlerScenario
     {
         static IClient client;

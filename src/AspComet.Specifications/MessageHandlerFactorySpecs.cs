@@ -83,7 +83,7 @@ namespace AspComet.Specifications
 
         Establish context =()=>
         {
-            messageHandlerFactory = new MessageHandlerFactory(MockRepository.GenerateStub<IClientRepository>(), null, null);
+            messageHandlerFactory = new MessageHandlerFactory(MockRepository.GenerateStub<IClientRepository>(), null, null, null);
         };
     }
 }

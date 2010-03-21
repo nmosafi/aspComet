@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace AspComet
 {
@@ -19,7 +20,7 @@ namespace AspComet
             }
         }
 
-        public void RemoveByID(string clientID)
+        public void DeleteByID(string clientID)
         {
             lock (syncRoot)
             {
@@ -27,7 +28,7 @@ namespace AspComet
             }
         }
 
-        public void Add(Client client)
+        public void Insert(IClient client)
         {
             lock (syncRoot)
             {
@@ -38,9 +39,9 @@ namespace AspComet
         public IEnumerable<IClient> WhereSubscribedTo(string channel)
         {
             lock (syncRoot)
-                foreach (var client in Clients)
-                    if (client.IsSubscribedTo(channel))
-                        yield return client;
+            {
+                return Clients.Where(client => client.IsSubscribedTo(channel)).ToList(); // yield within a lock... urgh
+            }
         }
 
         private class KeyedClientCollection : KeyedCollection<string, IClient>

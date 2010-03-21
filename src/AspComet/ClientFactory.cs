@@ -6,7 +6,7 @@ namespace AspComet
     /// </summary>
     public class ClientFactory : IClientFactory
     {
-        public Client CreateClient(string id)
+        public IClient CreateClient(string id)
         {
             return new Client(id);
         }

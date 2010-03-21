@@ -4,27 +4,23 @@ namespace AspComet
 {
     public class MessageHandlerFactory : IMessageHandlerFactory
     {
-        private readonly IClientRepository clientRepository;
-        private readonly IClientIDGenerator clientIDGenerator;
-        private readonly IClientFactory clientFactory;
         private readonly IMessageHandler metaConnectHandler;
         private readonly IMessageHandler metaDisconnectHandler;
         private readonly IMessageHandler metaHandshakeHandler;
         private readonly IMessageHandler metaSubscribeHandler;
         private readonly IMessageHandler metaUnsubscribeHandler;
         private readonly IMessageHandler swallowHandler;
+        private readonly IClientRepository clientRepository;
 
-        public MessageHandlerFactory(IClientRepository clientRepository, IClientIDGenerator clientIDGenerator, IClientFactory clientFactory)
+        public MessageHandlerFactory(IClientRepository clientRepository, IClientIDGenerator clientIDGenerator, IClientFactory clientFactory, IClientWorkflowManager clientWorkflowManager)
         {
             this.clientRepository = clientRepository;
-            this.clientIDGenerator = clientIDGenerator;
-            this.clientFactory = clientFactory;
 
-            this.metaConnectHandler = new MetaConnectHandler(this.clientRepository);
-            this.metaDisconnectHandler = new MetaDisconnectHandler(this.clientRepository);
-            this.metaHandshakeHandler = new MetaHandshakeHandler(this.clientIDGenerator, this.clientFactory, this.clientRepository);
-            this.metaSubscribeHandler = new MetaSubscribeHandler(this.clientRepository);
-            this.metaUnsubscribeHandler = new MetaUnsubscribeHandler(this.clientRepository);
+            this.metaConnectHandler = new MetaConnectHandler(clientRepository);
+            this.metaDisconnectHandler = new MetaDisconnectHandler(clientRepository);
+            this.metaHandshakeHandler = new MetaHandshakeHandler(clientIDGenerator, clientFactory, clientWorkflowManager);
+            this.metaSubscribeHandler = new MetaSubscribeHandler(clientRepository);
+            this.metaUnsubscribeHandler = new MetaUnsubscribeHandler(clientRepository);
             this.swallowHandler = new SwallowHandler();
         }
 
