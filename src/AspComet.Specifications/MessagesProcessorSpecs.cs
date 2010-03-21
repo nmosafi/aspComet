@@ -40,10 +40,10 @@ namespace AspComet.Specifications
             messagesProcessor.Result.ShouldContainOnly(responseMessage1, responseMessage2);
 
         It should_create_a_message_handler_for_the_first_specified_channel = () =>
-            messageHandlerFactory.AssertWasCalled(x => x.GetMessageHandler(SpecifiedChannel1));
+            messageHandlerFactory.ShouldHaveHadCalled(x => x.GetMessageHandler(SpecifiedChannel1));
 
         It should_create_a_message_handler_for_the_second_specified_channel = () =>
-            messageHandlerFactory.AssertWasCalled(x => x.GetMessageHandler(SpecifiedChannel2));        
+            messageHandlerFactory.ShouldHaveHadCalled(x => x.GetMessageHandler(SpecifiedChannel2));        
     }
 
     public abstract class MessagesProcessorScenario

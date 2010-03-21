@@ -11,23 +11,21 @@ namespace AspComet.MessageHandlers
             this.clientRepository = clientRepository;
         }
 
-        public string ChannelName
-        {
-            get { return "/meta/disconnect"; }
-        }
-
         public MessageHandlerResult HandleMessage(Message request)
         {
             IClient client = clientRepository.GetByID(request.clientId);
-            
-            client.Disconnect();
+
+            if (client != null)
+            {
+                client.Disconnect();
+            }
 
             return new MessageHandlerResult
             {
                 Message = new Message
                 {
                     id = request.id,
-                    channel = this.ChannelName,
+                    channel = request.channel,
                     successful = true,
                     clientId = request.clientId
                 },

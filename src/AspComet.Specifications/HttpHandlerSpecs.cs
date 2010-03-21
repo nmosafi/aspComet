@@ -49,7 +49,7 @@ namespace AspComet.Specifications
             cometHttpHandler.BeginProcessRequest(httpContext, null, null);
 
         It should_pass_a_single_message_to_the_message_bus = () =>
-            messageBus.AssertWasCalled(x => x.HandleMessages(Arg<Message[]>.Matches(m => m.Length == 1), Arg<CometAsyncResult>.Is.Anything));
+            messageBus.ShouldHaveHadCalled(x => x.HandleMessages(Arg<Message[]>.Matches(m => m.Length == 1), Arg<CometAsyncResult>.Is.Anything));
     }
 
     [Subject("Handling HTTP requests")]
@@ -63,10 +63,10 @@ namespace AspComet.Specifications
         Because of =()=>
             asyncResult = cometHttpHandler.BeginProcessRequest(httpContext, null, null);
 
-        It should_pass_3_messages_to_the_message_bus =()=> messageBus.AssertWasCalled(x => 
+        It should_pass_3_messages_to_the_message_bus =()=> messageBus.ShouldHaveHadCalled(x => 
             x.HandleMessages(Arg<Message[]>.Matches(m => m.Length == 3), Arg<CometAsyncResult>.Is.Anything));
 
-        It should_pass_async_result_to_the_message_bus = () => messageBus.AssertWasCalled(x =>
+        It should_pass_async_result_to_the_message_bus = () => messageBus.ShouldHaveHadCalled(x =>
             x.HandleMessages(Arg<Message[]>.Is.Anything, Arg<CometAsyncResult>.Is.Equal(asyncResult)));
     }
 
@@ -92,10 +92,10 @@ namespace AspComet.Specifications
         It should_return_a_result_with_specified_state =()=> 
             asyncResult.AsyncState.ShouldEqual(asyncState);
 
-        It should_pass_3_messages_to_the_message_bus =()=> messageBus.AssertWasCalled(x => 
+        It should_pass_3_messages_to_the_message_bus =()=> messageBus.ShouldHaveHadCalled(x => 
             x.HandleMessages(Arg<Message[]>.Matches(m => m.Length ==  3), Arg<CometAsyncResult>.Is.Anything));
 
-        It should_pass_async_result_to_the_message_bus =()=> messageBus.AssertWasCalled(x => 
+        It should_pass_async_result_to_the_message_bus =()=> messageBus.ShouldHaveHadCalled(x => 
             x.HandleMessages(Arg<Message[]>.Is.Anything, Arg<CometAsyncResult>.Is.Equal(asyncResult)));
     }
 
@@ -110,7 +110,8 @@ namespace AspComet.Specifications
         Because of =()=>
             cometHttpHandler.EndProcessRequest(asyncResult);
 
-        It should_send_awaiting_messages =()=> asyncResult.AssertWasCalled(x => x.SendAwaitingMessages());
+        It should_send_awaiting_messages = () => 
+            asyncResult.ShouldHaveHadCalled(x => x.SendAwaitingMessages());
     }
 
     public abstract class HttpHandlerScenario

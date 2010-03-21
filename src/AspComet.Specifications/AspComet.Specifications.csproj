@@ -67,8 +67,14 @@
     <Compile Include="HttpHandlerSpecs.cs" />
     <Compile Include="MessageBusSpecs.cs" />
     <Compile Include="MessageHandlerFactorySpecs.cs" />
+    <Compile Include="MessageHandlers\Common.cs" />
+    <Compile Include="MessageHandlers\ExceptionHandlerSpecs.cs" />
+    <Compile Include="MessageHandlers\MessageBuilder.cs" />
+    <Compile Include="MessageHandlers\MetaConnectHandlerSpecs.cs" />
+    <Compile Include="MessageHandlers\MetaDisconnectHandlerSpecs.cs" />
     <Compile Include="MessagesProcessorSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShouldExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AspComet\AspComet.csproj">

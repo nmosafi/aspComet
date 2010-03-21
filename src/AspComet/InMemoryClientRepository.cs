@@ -11,28 +11,28 @@ namespace AspComet
         private static readonly KeyedClientCollection Clients = new KeyedClientCollection();
         private readonly object syncRoot = new object();
 
-        public bool Exists(string clientID)
-        {
-            lock (syncRoot)
-                return Clients.Contains(clientID);
-        }
-
         public IClient GetByID(string clientID)
         {
             lock (syncRoot)
-                return Clients[clientID];
+            {
+                return Clients.Contains(clientID) ? Clients[clientID] : null;
+            }
         }
 
         public void RemoveByID(string clientID)
         {
             lock (syncRoot)
+            {
                 Clients.Remove(clientID);
+            }
         }
 
         public void Add(Client client)
         {
             lock (syncRoot)
+            {
                 Clients.Add(client);
+            }
         }
 
         public IEnumerable<IClient> WhereSubscribedTo(string channel)

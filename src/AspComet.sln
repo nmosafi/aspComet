@@ -1,18 +1,18 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet", "AspComet\AspComet.csproj", "{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet.Specifications", "AspComet.Specifications\AspComet.Specifications.csproj", "{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{F672F752-37B9-43AD-B89E-9F0517083F44}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat", "Samples\Chat\Chat.csproj", "{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{90E9DDF9-61E4-4BC2-AE26-E99ADF12F183}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\build.proj = ..\build\build.proj
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet", "AspComet\AspComet.csproj", "{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet.Specifications", "AspComet.Specifications\AspComet.Specifications.csproj", "{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat", "Samples\Chat\Chat.csproj", "{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

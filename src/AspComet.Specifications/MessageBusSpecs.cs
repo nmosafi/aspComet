@@ -84,20 +84,20 @@ namespace AspComet.Specifications
         Behaves_like<ItHasHandledTheMessages> has_handled_the_messages;
 
         It should_flush_the_queue_on_the_client_twice = () =>
-            client.AssertWasCalled(x => x.FlushQueue(), x => x.Repeat.Twice());
+            client.ShouldHaveHadCalled(x => x.FlushQueue(), x => x.Repeat.Twice());
     }
 
     [Behaviors]
     public class ItHasHandledTheMessages : MessageBusScenario
     {
         It should_retrieve_the_client_with_the_specified_id = () =>
-            clientRepository.AssertWasCalled(x => x.GetByID(SpecifiedClientId));
+            clientRepository.ShouldHaveHadCalled(x => x.GetByID(SpecifiedClientId));
 
         It should_set_the_async_result_on_the_client_to_the_specified_one = () =>
             client.CurrentAsyncResult.ShouldEqual(specifiedAsyncResult);
 
         It should_enqueue_the_response_messages_to_the_client = () =>
-            client.AssertWasCalled(x => x.Enqueue(messagesProcessor.Result));
+            client.ShouldHaveHadCalled(x => x.Enqueue(messagesProcessor.Result));
     }
 
 

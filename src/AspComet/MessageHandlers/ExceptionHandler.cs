@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AspComet.MessageHandlers
+﻿namespace AspComet.MessageHandlers
 {
     public class ExceptionHandler : IMessageHandler
     {
@@ -19,6 +17,7 @@ namespace AspComet.MessageHandlers
                 {
                     id = request.id,
                     channel = request.channel,
+                    clientId = request.clientId,
                     error = this.ErrorMessage
                 },
                 CanTreatAsLongPoll = false
