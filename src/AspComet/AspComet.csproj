@@ -57,8 +57,10 @@
     <Compile Include="ChannelName.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="ClientFactory.cs" />
+    <Compile Include="ClientWorkflowManager.cs" />
     <Compile Include="CometAsyncResult.cs" />
     <Compile Include="CometHttpHandler.cs" />
+    <Compile Include="IClientWorkflowManager.cs" />
     <Compile Include="ServiceMetadata.cs" />
     <Compile Include="Setup.cs" />
     <Compile Include="Eventing\CancellableEvent.cs" />
