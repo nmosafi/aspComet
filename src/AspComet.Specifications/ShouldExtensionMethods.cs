@@ -16,5 +16,10 @@ namespace AspComet.Specifications
         {
             mock.AssertWasCalled(action, setupConstraints);
         }
+
+        public static void ShouldNotHaveHadCalled<T>(this T mock, Action<T> action)
+        {
+            mock.AssertWasNotCalled(action);
+        }
     }
 }

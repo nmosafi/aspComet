@@ -62,6 +62,7 @@ namespace AspComet.MessageHandlers
             };
 
             message.SetAdvice("reconnect", "retry");
+
             return message;
         }
 
@@ -73,10 +74,10 @@ namespace AspComet.MessageHandlers
             Message message = new Message
             {
                 channel = request.channel,
-                successful = false,
                 error = cancellationReason,
                 supportedConnectionTypes = new[] { "long-polling" },
                 version = "1.0",
+                successful = false,
                 id = request.id,
             };
 
