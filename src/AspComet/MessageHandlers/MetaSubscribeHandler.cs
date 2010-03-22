@@ -11,11 +11,6 @@ namespace AspComet.MessageHandlers
             this.clientRepository = clientRepository;
         }
 
-        public string ChannelName
-        {
-            get { return "/meta/subscribe"; }
-        }
-
         public MessageHandlerResult HandleMessage(Message request)
         {
             IClient client = clientRepository.GetByID(request.clientId);
@@ -26,7 +21,7 @@ namespace AspComet.MessageHandlers
             {
                 return new MessageHandlerResult
                 {
-                    Message = GetSubscriptionFailedResponse(request, client, subscribingEvent.CancellationReason),
+                    Message = GetSubscriptionFailedResponse(request, subscribingEvent.CancellationReason),
                     CanTreatAsLongPoll = false
                 };
             }
@@ -35,7 +30,7 @@ namespace AspComet.MessageHandlers
 
             PublishSubscribedEvent(request, client);
 
-            return new MessageHandlerResult { Message = GetSubscriptionSucceededResponse(request, client), CanTreatAsLongPoll = false };
+            return new MessageHandlerResult { Message = GetSubscriptionSucceededResponse(request), CanTreatAsLongPoll = false };
         }
 
         private static void PublishSubscribedEvent(Message request, IClient client)
@@ -46,24 +41,24 @@ namespace AspComet.MessageHandlers
 
         private static ICancellableEvent PubishSubscribingEvent(Message request, IClient client)
         {
-            ICancellableEvent subscribingEvent = new SubscribingEvent(client, request.subscription);
+            SubscribingEvent subscribingEvent = new SubscribingEvent(client, request.subscription);
             EventHub.Publish(subscribingEvent);
             return subscribingEvent;
         }
 
-        private Message GetSubscriptionSucceededResponse(Message request, IClient client)
+        private static Message GetSubscriptionSucceededResponse(Message request)
         {
             return new Message
-                       {
-                           id = request.id,
-                           channel = this.ChannelName,
-                           successful =  true,
-                           clientId = client.ID,
-                           subscription = request.subscription
-                       };
+            {
+                id = request.id,
+                channel = request.channel,
+                successful =  true,
+                clientId = request.clientId,
+                subscription = request.subscription
+            };
         }
 
-        private Message GetSubscriptionFailedResponse(Message request, IClient client, string cancellationReason)
+        private static Message GetSubscriptionFailedResponse(Message request, string cancellationReason)
         {
             // The subscription failed response is documented at
             // http://svn.cometd.org/trunk/bayeux/bayeux.html#toc_44
@@ -71,11 +66,11 @@ namespace AspComet.MessageHandlers
             return new Message
                        {
                            id = request.id,
-                           channel = this.ChannelName,
+                           channel = request.channel,
                            successful = false,
-                           clientId = client.ID,
+                           clientId = request.clientId,
                            subscription = request.subscription,
-                           error = string.Format("403:{0},{1}:{2}", client.ID, this.ChannelName, cancellationReason)
+                           error = string.Format("403:{0},{1}:{2}", request.clientId, request.channel, cancellationReason)
                        };
         }
     }

@@ -10,7 +10,7 @@ using Rhino.Mocks;
 namespace AspComet.Specifications.MessageHandlers
 {
     [Subject(Constants.MessageHandlingSubject)]
-    public class when_handling_a_handhake_message : MetaHandshakeMessageHandlerScenario
+    public class when_handling_a_meta_handshake_message : MetaHandshakeMessageHandlerScenario
     {
         Because of =()=>
             result = metaHandshakeHandler.HandleMessage(request);
@@ -34,7 +34,7 @@ namespace AspComet.Specifications.MessageHandlers
     }
 
     [Subject(Constants.MessageHandlingSubject)]
-    public class when_handling_a_handshake_message_which_has_been_cancelled : MetaHandshakeMessageHandlerScenario
+    public class when_handling_a_meta_handshake_message_which_has_been_cancelled : MetaHandshakeMessageHandlerScenario
     {
         const string CancellationReason = "This is the cancellation reason";
 

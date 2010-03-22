@@ -25,6 +25,7 @@ namespace AspComet.Samples.Chat
             IClient sender = this.clientRepository.GetByID(ev.Message.clientId);
 
             ev.Cancel = true;
+        	ev.CancellationReason = "Bad Language";
 
             SendBadLanguageWarningToSender(ev.Message, sender);
             InformChannelOfBadLanguage(ev.Message, sender);
@@ -36,11 +37,9 @@ namespace AspComet.Samples.Chat
             Message message = new Message
             {
                 channel = incomingMessage.channel,
-                data = new Dictionary<string, string>
-                {
-                    { "message", warning }
-                }
             };
+
+            message.SetData("message", warning);
 
             foreach (Client subscriber in this.clientRepository.WhereSubscribedTo(incomingMessage.channel).Where(c => c.ID != sender.ID))
             {
@@ -54,13 +53,11 @@ namespace AspComet.Samples.Chat
             Message message = new Message 
             {
                 channel = incomingMessage.channel,
-                data = new Dictionary<string, string>
-                {
-                    { "message", "Please don't use such fowl language" }
-                }
             };
+            message.SetData("message", string.Format("Please don't use such fowl language, {0}.", incomingMessage.GetData<string>("sender"));
 
             sender.Enqueue(message);
+            sender.FlushQueue();
         }
     }
 }

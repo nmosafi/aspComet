@@ -9,35 +9,43 @@ namespace AspComet.MessageHandlers
     /// </summary>
     public class PassThruHandler : IMessageHandler
     {
-        public string ChannelName { get; private set; }
-        public IEnumerable<IClient> Recipients { get; private set; }
+        private string channelName;
+        private IEnumerable<IClient> recipients;
 
         public PassThruHandler(string channelName, IEnumerable<IClient> recipients)
         {
-            this.ChannelName = channelName;
-            this.Recipients = recipients;
+            this.channelName = channelName;
+            this.recipients = recipients;
         }
 
         public MessageHandlerResult HandleMessage(Message request)
         {
-            bool sendToSelf = false;
-
             PublishingEvent e = new PublishingEvent(request);
             EventHub.Publish(e);
 
             if (e.Cancel)
             {
-                return null; // TODO should we return some error?
+            	return new MessageHandlerResult
+    	       	{
+    	       		Message = new Message
+   		          	{
+   		          		successful = false,
+   		          		channel = this.channelName,
+   		          		error = e.CancellationReason
+   		          	},
+    	       		CanTreatAsLongPoll = false
+    	       	};
             }
 
             Message forward = new Message
-              {
-                  channel = this.ChannelName,
-                  data = request.data
-                  // TODO What other fields should be forwarded?
-              };
+            {
+                channel = this.channelName,
+                data = request.data
+                // TODO What other fields should be forwarded?
+            };
 
-            foreach (Client client in this.Recipients)
+            bool sendToSelf = false;
+            foreach (Client client in this.recipients)
             {
                 if (client.ID == request.clientId)
                 {

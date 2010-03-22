@@ -9,17 +9,15 @@ namespace AspComet.Specifications.MessageHandlers
         public static Message BuildRandomRequest()
         {
             return new Message
-                       {
-                           advice = new object(),
-                           channel = RandomString(),
-                           clientId = RandomString(),
-                           connectionType = RandomString(),
-                           error = RandomString(),
-                           ext = new object(),
-                           id = RandomString(),
-                           minimumVersion = RandomString(),
-                           subscription = RandomString()
-                       };
+            {
+                channel = RandomString(),
+                clientId = RandomString(),
+                connectionType = RandomString(),
+                error = RandomString(),
+                id = RandomString(),
+                minimumVersion = RandomString(),
+                subscription = RandomString()
+            };
         }
 
         private static string RandomString()

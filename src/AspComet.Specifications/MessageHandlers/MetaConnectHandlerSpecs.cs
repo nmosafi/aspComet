@@ -9,7 +9,7 @@ using Rhino.Mocks;
 namespace AspComet.Specifications.MessageHandlers
 {
     [Subject(Constants.MessageHandlingSubject)]
-    public class when_handling_a_connect_message_for_an_unknown_client : MetaConnectMessageHandlerScenario
+    public class when_handling_a_meta_connect_message_for_an_unknown_client : MetaConnectMessageHandlerScenario
     {
         Because of = () =>
             result = metaConnectHandler.HandleMessage(request);
@@ -33,7 +33,7 @@ namespace AspComet.Specifications.MessageHandlers
     }
 
     [Subject(Constants.MessageHandlingSubject)]
-    public class when_handling_a_connect_message_for_a_client_which_has_not_already_connected : MetaConnectMessageHandlerScenario
+    public class when_handling_a_meta_connect_message_for_a_client_which_has_not_connected_before : MetaConnectMessageHandlerScenario
     {
         Establish context=()=>
             clientRepository.Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
@@ -52,7 +52,7 @@ namespace AspComet.Specifications.MessageHandlers
     }
 
     [Subject(Constants.MessageHandlingSubject)]
-    public class when_handling_a_connect_message_for_a_client_which_has_already_connected : MetaConnectMessageHandlerScenario
+    public class when_handling_a_meta_connect_message_for_a_client_which_has_already_connected : MetaConnectMessageHandlerScenario
     {
         Establish context = () =>
         {

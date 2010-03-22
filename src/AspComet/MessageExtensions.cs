@@ -16,8 +16,26 @@ namespace AspComet
         /// <returns>The data item</returns>
         public static T GetData<T>(this Message message, string key)
         {
-            Dictionary<string, object> dictionary = (Dictionary<string, object>) message.data;
-            return (T) dictionary[key];
+            Dictionary<string, object> data = (Dictionary<string, object>) message.data;
+            return (T) data[key];
+        }
+
+        /// <summary>
+        ///     Sets the specified data item in the message
+        /// </summary>
+        /// <param name="message">The message to set the data on</param>
+        /// <param name="key">The data key</param>
+        /// <param name="value">The data item</param>
+        public static void SetData(this Message message, string key, object value)
+        {
+            Dictionary<string, object> data = (Dictionary<string, object>) message.data;
+            if (data == null)
+            {
+                data = new Dictionary<string, object>();
+                message.data = data;
+            }
+
+            data[key] = value;
         }
 
         /// <summary>

@@ -134,7 +134,6 @@ var chat = function() {
     }
 
     function _metaUnsuccessful(message) {
-        _connected = false;
         handleIncomingMessage({ data: { message: "Request on channel " + message.channel + " failed: " + (message.error == undefined ? "No message" : message.error)} });
     }
 
