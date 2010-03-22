@@ -54,7 +54,10 @@ namespace AspComet.Samples.Chat
             {
                 channel = incomingMessage.channel,
             };
-            message.SetData("message", string.Format("Please don't use such fowl language, {0}.", incomingMessage.GetData<string>("sender"));
+
+            string senderName = incomingMessage.GetData<string>("sender");
+
+            message.SetData("message", string.Format("Please don't use such fowl language, {0}.", senderName));
 
             sender.Enqueue(message);
             sender.FlushQueue();
