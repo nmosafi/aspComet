@@ -15,7 +15,7 @@ namespace AspComet.Specifications
         static TSut sut;
 
         Establish context = () =>
-                            dependencies = new Dictionary<Type, object>();
+            dependencies = new Dictionary<Type, object>();
 
         Cleanup stuff = () =>
         {
