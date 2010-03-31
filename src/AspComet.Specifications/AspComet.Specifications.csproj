@@ -62,6 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoStubbingScenario.cs" />
     <Compile Include="ChannelNameSpecs.cs" />
     <Compile Include="ClientFactorySpecs.cs" />
     <Compile Include="HttpHandlerSpecs.cs" />

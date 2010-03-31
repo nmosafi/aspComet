@@ -15,7 +15,7 @@ namespace AspComet.Specifications
         static readonly Message[] messages = new[] { new Message { clientId = "Id1" }, new Message { clientId = "Id2" } };
 
         Because of = () =>
-            exceptionWhichWasThrown = Catch.Exception(() => messageBus.HandleMessages(messages, specifiedAsyncResult));
+            exceptionWhichWasThrown = Catch.Exception(() => SUT.HandleMessages(messages, specifiedAsyncResult));
 
         It should_fail = () =>
             exceptionWhichWasThrown.ShouldNotBeNull();
@@ -30,7 +30,7 @@ namespace AspComet.Specifications
         static readonly Message[] messages = new[] { new Message(), new Message() };
 
         Because of = () =>
-            messageBus.HandleMessages(messages, specifiedAsyncResult);
+            SUT.HandleMessages(messages, specifiedAsyncResult);
 
         It should_just_complete_the_async_result_sending_back_the_processed_messages =()=>
             specifiedAsyncResult.AssertWasCalled(x => x.CompleteRequestWithMessages(responseMessages));
@@ -42,7 +42,7 @@ namespace AspComet.Specifications
         static readonly Message[] messages = new[] { new Message { clientId = SpecifiedClientId }, new Message { clientId = SpecifiedClientId } };
 
         Because of = () =>
-            messageBus.HandleMessages(messages, specifiedAsyncResult);
+            SUT.HandleMessages(messages, specifiedAsyncResult);
 
         Behaves_like<ItHasHandledTheMessages> has_handled_the_messages;
 
@@ -59,7 +59,7 @@ namespace AspComet.Specifications
             messagesProcessor.Stub(x => x.ShouldSendResultStraightBackToClient).Return(true);
 
         Because of = () =>
-            messageBus.HandleMessages(messages, specifiedAsyncResult);
+            SUT.HandleMessages(messages, specifiedAsyncResult);
 
         Behaves_like<ItHasHandledTheMessages> has_handled_the_messages;
 
@@ -79,7 +79,7 @@ namespace AspComet.Specifications
         };
 
         Because of = () =>
-            messageBus.HandleMessages(messages, specifiedAsyncResult);
+            SUT.HandleMessages(messages, specifiedAsyncResult);
 
         Behaves_like<ItHasHandledTheMessages> has_handled_the_messages;
 
@@ -91,7 +91,7 @@ namespace AspComet.Specifications
     public class ItHasHandledTheMessages : MessageBusScenario
     {
         It should_retrieve_the_client_with_the_specified_id = () =>
-            clientRepository.ShouldHaveHadCalled(x => x.GetByID(SpecifiedClientId));
+            Dependency<IClientRepository>().ShouldHaveHadCalled(x => x.GetByID(SpecifiedClientId));
 
         It should_set_the_async_result_on_the_client_to_the_specified_one = () =>
             client.CurrentAsyncResult.ShouldEqual(specifiedAsyncResult);
@@ -101,28 +101,23 @@ namespace AspComet.Specifications
     }
 
 
-    public abstract class MessageBusScenario
+    public abstract class MessageBusScenario : AutoStubbingScenario<MessageBus>
     {
         protected static readonly string SpecifiedClientId = "SpecClientID";
-        protected static MessageBus messageBus;
+        protected static readonly IEnumerable<Message> responseMessages = new Message[0];
         protected static IMessagesProcessor messagesProcessor;
-        protected static IClientRepository clientRepository;
         protected static ICometAsyncResult specifiedAsyncResult;
         protected static Exception exceptionWhichWasThrown;
         protected static IClient client;
-        protected static readonly IEnumerable<Message> responseMessages = new Message[0];
 
         Establish context = () =>
         {
             client = MockRepository.GenerateStub<IClient>();
-            
-            clientRepository = MockRepository.GenerateStub<IClientRepository>();
-            clientRepository.Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
+            Dependency<IClientRepository>().Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
 
             messagesProcessor = MockRepository.GenerateStub<IMessagesProcessor>();
             messagesProcessor.Stub(x => x.Result).Return(responseMessages);
-
-            messageBus = new MessageBus(clientRepository, () => messagesProcessor);
+            SetDependency<Func<IMessagesProcessor>>(() => messagesProcessor);
 
             specifiedAsyncResult = MockRepository.GenerateStub<ICometAsyncResult>();
         };
