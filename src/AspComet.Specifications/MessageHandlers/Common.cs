@@ -1,4 +1,9 @@
 ﻿// ReSharper disable InconsistentNaming
+using System;
+using System.Collections.Generic;
+
+using AspComet.Eventing;
+
 using Machine.Specifications;
 
 namespace AspComet.Specifications.MessageHandlers
@@ -6,6 +11,22 @@ namespace AspComet.Specifications.MessageHandlers
     public static class Constants
     {
         public const string MessageHandlingSubject = "Message handling";
+    }
+
+    public class EventHubMonitor
+    {
+        private static readonly Dictionary<Type, IEvent> events = new Dictionary<Type, IEvent>();
+
+        public static void Monitor<T>() where T : IEvent
+        {
+            EventHub.Subscribe<T>(ev => events.Add(typeof(T), ev));
+        }
+
+        public static T PublishedEvent<T>() where T : IEvent
+        {
+            Type type = typeof(T);
+            return events.ContainsKey(type) ? (T) events[type] : default(T);
+        }
     }
 
     [Behaviors]
