@@ -30,7 +30,7 @@ namespace AspComet.Specifications.MessageHandlers
             StartMonitoring<T2>();
         }
 
-        public T PublishedEvent<T>() where T : IEvent
+        public T RaisedEvent<T>() where T : IEvent
         {
             Type type = typeof(T);
             return events.ContainsKey(type) ? (T) events[type] : default(T);

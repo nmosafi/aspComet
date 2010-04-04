@@ -27,10 +27,10 @@ namespace AspComet.Specifications.MessageHandlers
             client.ShouldHaveHadCalled(x => x.UnsubscribeFrom(request.subscription));
 
         It should_publish_an_unsubscribed_event_with_the_client_which_sent_the_message = () =>
-            eventHubMonitor.PublishedEvent<UnsubscribedEvent>().Client.ShouldEqual(client);
+            eventHubMonitor.RaisedEvent<UnsubscribedEvent>().Client.ShouldEqual(client);
 
         It should_publish_an_unsubscribed_event_with_the_channel_being_unsubscribed_from = () =>
-            eventHubMonitor.PublishedEvent<UnsubscribedEvent>().Channel.ShouldEqual(request.subscription);
+            eventHubMonitor.RaisedEvent<UnsubscribedEvent>().Channel.ShouldEqual(request.subscription);
 
         It should_return_a_successful_message = () =>
             result.Message.successful.ShouldEqual(true);

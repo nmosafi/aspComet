@@ -23,10 +23,10 @@ namespace AspComet.Specifications.MessageHandlers
             client.ShouldHaveHadCalled(x => x.SubscribeTo(request.subscription));
 
         It should_publish_a_subscribed_event_with_the_client_which_sent_the_message = () =>
-            eventHubMonitor.PublishedEvent<SubscribedEvent>().Client.ShouldEqual(client);
+            eventHubMonitor.RaisedEvent<SubscribedEvent>().Client.ShouldEqual(client);
 
         It should_publish_a_subscribed_event_with_the_channel_being_subscribed_to = () =>
-            eventHubMonitor.PublishedEvent<SubscribedEvent>().Channel.ShouldEqual(request.subscription);
+            eventHubMonitor.RaisedEvent<SubscribedEvent>().Channel.ShouldEqual(request.subscription);
 
         It should_return_a_successful_message = () =>
             result.Message.successful.ShouldEqual(true);
@@ -51,7 +51,7 @@ namespace AspComet.Specifications.MessageHandlers
         Behaves_like<ItHasHandledASubscribeMessage> has_handled_a_subscribe_message;
 
         It should_not_publish_a_subscribed_event = () =>
-            eventHubMonitor.PublishedEvent<SubscribedEvent>().ShouldBeNull();
+            eventHubMonitor.RaisedEvent<SubscribedEvent>().ShouldBeNull();
 
         It should_not_subscribe_the_client_to_the_channel = () =>
             client.ShouldNotHaveHadCalled(x => x.SubscribeTo(request.subscription));
@@ -70,10 +70,10 @@ namespace AspComet.Specifications.MessageHandlers
             clientRepository.ShouldHaveHadCalled(x => x.GetByID(request.clientId));
 
         It should_publish_a_subscribing_event_with_the_client_which_sent_the_message = () =>
-            eventHubMonitor.PublishedEvent<SubscribingEvent>().Client.ShouldEqual(client);
+            eventHubMonitor.RaisedEvent<SubscribingEvent>().Client.ShouldEqual(client);
 
         It should_publish_a_subscribing_event_with_the_channel_being_subscribed_to = () =>
-            eventHubMonitor.PublishedEvent<SubscribingEvent>().Channel.ShouldEqual(request.subscription);
+            eventHubMonitor.RaisedEvent<SubscribingEvent>().Channel.ShouldEqual(request.subscription);
 
         It should_specify_that_the_result_cannot_be_treated_as_a_long_poll = () =>
             result.CanTreatAsLongPoll.ShouldBeFalse();
