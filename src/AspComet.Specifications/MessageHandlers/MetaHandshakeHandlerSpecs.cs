@@ -100,10 +100,10 @@ namespace AspComet.Specifications.MessageHandlers
 
         Establish context = () =>
         {
-            Dependency<IClientIDGenerator>().Stub(x => x.GenerateClientID()).Return(GeneratedClientID);
-
+            client = MockRepository.GenerateStub<IClient>();
             client.Stub(x => x.ID).Return(GeneratedClientID);
 
+            Dependency<IClientIDGenerator>().Stub(x => x.GenerateClientID()).Return(GeneratedClientID);
             Dependency<IClientFactory>().Stub(x => x.CreateClient(Arg<string>.Is.Anything)).Return(client);
 
             eventHubMonitor.StartMonitoring<HandshakingEvent, HandshakenEvent>();

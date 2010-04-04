@@ -7,7 +7,7 @@ using Machine.Specifications;
 
 namespace AspComet.Specifications.MessageHandlers
 {
-    public class when_handling_a_message_which_should_be_swallowed : MessageHandlerScenario<SwallowHandler>
+    public class when_swallowing_a_message : MessageHandlerScenario<SwallowHandler>
     {
         Establish context = () =>
             eventHubMonitor.StartMonitoring<PublishingEvent>();

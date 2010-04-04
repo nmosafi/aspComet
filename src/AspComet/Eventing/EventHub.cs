@@ -4,7 +4,7 @@ namespace AspComet.Eventing
 {
     public static class EventHub
     {
-        private static readonly Lookup<Type, Delegate> Subscriptions = new Lookup<Type, Delegate>();
+        private static Lookup<Type, Delegate> Subscriptions = new Lookup<Type, Delegate>();
 
         public static void Subscribe<T>(Action<T> action) where T : IEvent
         {
@@ -33,6 +33,11 @@ namespace AspComet.Eventing
             {
                 ; // TODO: What if one of the handlers throws an exception?
             }
+        }
+
+        public static void Reset()
+        {
+            Subscriptions = new Lookup<Type, Delegate>();
         }
     }
 }

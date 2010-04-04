@@ -62,9 +62,37 @@ namespace AspComet.Specifications.MessageHandlers
 
         Establish context = () =>
         {
-            request = MessageBuilder.BuildRandomRequest();
+            EventHub.Reset();
             eventHubMonitor = new EventHubMonitor();
+
+            request = MessageBuilder.BuildRandomRequest();
+
             client = MockRepository.GenerateStub<IClient>();
+            client.Stub(x => x.ID).Return(request.clientId);
         };
+    }
+
+    public static class MessageBuilder
+    {
+        private static readonly Random Random = new Random();
+
+        public static Message BuildRandomRequest()
+        {
+            return new Message
+            {
+                channel = RandomString(),
+                clientId = RandomString(),
+                connectionType = RandomString(),
+                error = RandomString(),
+                id = RandomString(),
+                minimumVersion = RandomString(),
+                subscription = RandomString()
+            };
+        }
+
+        private static string RandomString()
+        {
+            return Random.Next().ToString();
+        }
     }
 }

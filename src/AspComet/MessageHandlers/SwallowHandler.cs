@@ -3,7 +3,8 @@
 namespace AspComet.MessageHandlers
 {
     /// <summary>
-    ///     A message handler which swallows the message without sending to any clients
+    ///     A message handler which swallows the message without forwarding to any clients
+    ///     NOTE: I am considering calling this NonForwardingHandler - or maybe it should be combined with ForwardingHandler?!
     /// </summary>
     public class SwallowHandler : IMessageHandler
     {

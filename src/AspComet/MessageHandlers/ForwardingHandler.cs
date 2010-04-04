@@ -18,7 +18,7 @@ namespace AspComet.MessageHandlers
 
         public MessageHandlerResult HandleMessage(Message request)
         {
-            PublishingEvent e = this.PublishPublishingEvent(request);
+            PublishingEvent e = PublishPublishingEvent(request);
 
             Message messageToSendToSender = null;
 
@@ -26,14 +26,16 @@ namespace AspComet.MessageHandlers
             {
                 messageToSendToSender = GetForwardingFailedResponse(request, e.CancellationReason);
             }
-
-            Message forwardMessage = GetForwardMessage(request);
-
-            bool shouldFowardToSender = SendMessageToRecipients(request, forwardMessage);
-
-            if (shouldFowardToSender)
+            else
             {
-                messageToSendToSender = forwardMessage;
+                Message forwardMessage = GetForwardMessage(request);
+
+                bool shouldFowardToSender = SendMessageToRecipients(request, forwardMessage);
+
+                if (shouldFowardToSender)
+                {
+                    messageToSendToSender = forwardMessage;
+                }
             }
 
             return new MessageHandlerResult { Message = messageToSendToSender, CanTreatAsLongPoll = false };
@@ -44,7 +46,7 @@ namespace AspComet.MessageHandlers
             IEnumerable<IClient> recipients = clientRepository.WhereSubscribedTo(request.channel);
 
             bool shouldFowardToSender = false;
-            foreach (Client client in recipients)
+            foreach (IClient client in recipients)
             {
                 if (client.ID == request.clientId)
                 {
@@ -73,13 +75,15 @@ namespace AspComet.MessageHandlers
         {
             return new Message
             {
+                id = request.id,
+                clientId = request.clientId,
                 successful = false,
                 channel = request.channel,
                 error = cancellationReason
             };
         }
 
-        private PublishingEvent PublishPublishingEvent(Message request)
+        private static PublishingEvent PublishPublishingEvent(Message request)
         {
             PublishingEvent e = new PublishingEvent(request);
             EventHub.Publish(e);
