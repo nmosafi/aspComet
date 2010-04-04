@@ -75,6 +75,7 @@
     <Compile Include="MessageHandlers\MetaDisconnectHandlerSpecs.cs" />
     <Compile Include="MessageHandlers\MetaHandshakeHandlerSpecs.cs" />
     <Compile Include="MessageHandlers\MetaSubscribeHandlerSpecs.cs" />
+    <Compile Include="MessageHandlers\MetaUnsubscribeHandlerSpecs.cs" />
     <Compile Include="MessagesProcessorSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShouldExtensionMethods.cs" />

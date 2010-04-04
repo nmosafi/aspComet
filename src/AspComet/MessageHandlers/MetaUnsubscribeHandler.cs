@@ -1,4 +1,3 @@
-using System;
 using AspComet.Eventing;
 
 namespace AspComet.MessageHandlers
@@ -14,12 +13,7 @@ namespace AspComet.MessageHandlers
 
         public MessageHandlerResult HandleMessage(Message request)
         {
-            IClient client = clientRepository.GetByID(request.clientId);
-
-            client.UnsubscribeFrom(request.subscription);
-
-            var e = new UnsubscribedEvent(client, request.subscription);
-            EventHub.Publish(e);
+            UnsubscribeClientAndPublishEvent(request.clientId, request.subscription);
 
             return new MessageHandlerResult
             {
@@ -28,11 +22,20 @@ namespace AspComet.MessageHandlers
                     id = request.id,
                     channel = request.channel,
                     successful = true,
-                    clientId = client.ID,
+                    clientId = request.clientId,
                     subscription = request.subscription
                 },
                 CanTreatAsLongPoll = false
             };
+        }
+
+        private void UnsubscribeClientAndPublishEvent(string clientId, string subscription)
+        {
+            IClient client = this.clientRepository.GetByID(clientId);
+            client.UnsubscribeFrom(subscription);
+
+            UnsubscribedEvent e = new UnsubscribedEvent(client, subscription);
+            EventHub.Publish(e);
         }
     }
 }
