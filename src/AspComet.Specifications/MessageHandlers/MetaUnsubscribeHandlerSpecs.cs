@@ -13,12 +13,12 @@ namespace AspComet.Specifications.MessageHandlers
     public class when_handling_a_meta_unsubscribe_message : MetaUnsubscribeHandlerScenario
     {
         Because of = () =>
-            result = metaUnsubscribeHandler.HandleMessage(request);
+            result = SUT.HandleMessage(request);
 
         Behaves_like<ItHasHandledAMessage> has_handled_a_message;
 
         It should_retrieve_the_client_using_the_client_id_in_the_message = () =>
-            clientRepository.ShouldHaveHadCalled(x => x.GetByID(request.clientId));
+            Dependency<IClientRepository>().ShouldHaveHadCalled(x => x.GetByID(request.clientId));
 
         It should_specify_that_the_result_cannot_be_treated_as_a_long_poll = () =>
             result.CanTreatAsLongPoll.ShouldBeFalse();
@@ -39,20 +39,11 @@ namespace AspComet.Specifications.MessageHandlers
             result.Message.subscription.ShouldEqual(request.subscription);
     }
 
-    public abstract class MetaUnsubscribeHandlerScenario : MessageHandlerScenario
+    public abstract class MetaUnsubscribeHandlerScenario : MessageHandlerScenario<MetaUnsubscribeHandler>
     {
-        protected static IClientRepository clientRepository;
-        protected static IClient client;
-        protected static MetaUnsubscribeHandler metaUnsubscribeHandler;
-
         Establish context = () =>
         {
-            client = MockRepository.GenerateStub<IClient>();
-
-            clientRepository = MockRepository.GenerateStub<IClientRepository>();
-            clientRepository.Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
-
-            metaUnsubscribeHandler = new MetaUnsubscribeHandler(clientRepository);
+            Dependency<IClientRepository>().Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
 
             eventHubMonitor.StartMonitoring<UnsubscribedEvent>();
         };

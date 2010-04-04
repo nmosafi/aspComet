@@ -13,7 +13,7 @@ namespace AspComet.Specifications.MessageHandlers
     public class when_handling_a_meta_subscribe_message : MetaSubscribeHandlerScenario
     {
         Because of = () =>
-            result = metaSubscribeHandler.HandleMessage(request);
+            result = SUT.HandleMessage(request);
 
         Behaves_like<ItHasHandledAMessage> has_handled_a_message;
 
@@ -44,7 +44,7 @@ namespace AspComet.Specifications.MessageHandlers
             EventHub.Subscribe<SubscribingEvent>(ev => { ev.Cancel = true; ev.CancellationReason = CancellationReason; });
 
         Because of = () =>
-            result = metaSubscribeHandler.HandleMessage(request);
+            result = SUT.HandleMessage(request);
 
         Behaves_like<ItHasHandledAMessage> has_handled_a_message;
 
@@ -67,7 +67,7 @@ namespace AspComet.Specifications.MessageHandlers
     public class ItHasHandledASubscribeMessage : MetaSubscribeHandlerScenario
     {
         It should_retrieve_the_client_using_the_client_id_in_the_message = () =>
-            clientRepository.ShouldHaveHadCalled(x => x.GetByID(request.clientId));
+            Dependency<IClientRepository>().ShouldHaveHadCalled(x => x.GetByID(request.clientId));
 
         It should_publish_a_subscribing_event_with_the_client_which_sent_the_message = () =>
             eventHubMonitor.RaisedEvent<SubscribingEvent>().Client.ShouldEqual(client);
@@ -79,20 +79,11 @@ namespace AspComet.Specifications.MessageHandlers
             result.CanTreatAsLongPoll.ShouldBeFalse();
     }
 
-    public abstract class MetaSubscribeHandlerScenario : MessageHandlerScenario
+    public abstract class MetaSubscribeHandlerScenario : MessageHandlerScenario<MetaSubscribeHandler>
     {
-        protected static IClientRepository clientRepository;
-        protected static IClient client;
-        protected static MetaSubscribeHandler metaSubscribeHandler;
-
         Establish context = () =>
         {
-            client = MockRepository.GenerateStub<IClient>();
-
-            clientRepository = MockRepository.GenerateStub<IClientRepository>();
-            clientRepository.Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
-
-            metaSubscribeHandler = new MetaSubscribeHandler(clientRepository);
+            Dependency<IClientRepository>().Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
 
             eventHubMonitor.StartMonitoring<SubscribingEvent, SubscribedEvent>();
         };

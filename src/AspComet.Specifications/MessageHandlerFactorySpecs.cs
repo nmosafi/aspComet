@@ -74,6 +74,6 @@ namespace AspComet.Specifications
     public class for_any_other_channel : AutoStubbingScenario<MessageHandlerFactory>
     {
         It should_create_a_PassThruHandler = () =>
-            SUT.GetMessageHandler("/abc/def").ShouldBeOfType<PassThruHandler>();
+            SUT.GetMessageHandler("/abc/def").ShouldBeOfType<ForwardingHandler>();
     }
 }

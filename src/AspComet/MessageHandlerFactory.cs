@@ -10,18 +10,17 @@ namespace AspComet
         private readonly IMessageHandler metaSubscribeHandler;
         private readonly IMessageHandler metaUnsubscribeHandler;
         private readonly IMessageHandler swallowHandler;
-        private readonly IClientRepository clientRepository;
+        private readonly IMessageHandler forwardingHandler;
 
         public MessageHandlerFactory(IClientRepository clientRepository, IClientIDGenerator clientIDGenerator, IClientFactory clientFactory, IClientWorkflowManager clientWorkflowManager)
         {
-            this.clientRepository = clientRepository;
-
             this.metaConnectHandler = new MetaConnectHandler(clientRepository);
             this.metaDisconnectHandler = new MetaDisconnectHandler(clientRepository);
             this.metaHandshakeHandler = new MetaHandshakeHandler(clientIDGenerator, clientFactory, clientWorkflowManager);
             this.metaSubscribeHandler = new MetaSubscribeHandler(clientRepository);
             this.metaUnsubscribeHandler = new MetaUnsubscribeHandler(clientRepository);
             this.swallowHandler = new SwallowHandler();
+            this.forwardingHandler = new ForwardingHandler(clientRepository);
         }
 
         public IMessageHandler GetMessageHandler(string channelName)
@@ -41,7 +40,7 @@ namespace AspComet
                 return this.swallowHandler;
             }
 
-            return new PassThruHandler(channelName, this.clientRepository.WhereSubscribedTo(channelName));
+            return this.forwardingHandler;
         }
 
         private IMessageHandler GetMetaHandler(string channelName)

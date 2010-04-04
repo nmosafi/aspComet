@@ -13,17 +13,17 @@ namespace AspComet.Specifications.MessageHandlers
     public class when_handling_a_meta_handshake_message : MetaHandshakeMessageHandlerScenario
     {
         Because of =()=>
-            result = metaHandshakeHandler.HandleMessage(request);
+            result = SUT.HandleMessage(request);
 
         Behaves_like<ItHasHandledAMetaHandshakeMessage> has_handled_a_meta_handshake_message;
 
         It should_register_the_client_with_the_client_workflow_manager = () =>
-            clientWorkflowManager.ShouldHaveHadCalled(x => x.RegisterClient(clientWhichWasCreated));
+            Dependency<IClientWorkflowManager>().ShouldHaveHadCalled(x => x.RegisterClient(client));
 
         It should_publish_a_handshaken_event_with_the_client_which_was_created = () =>
-            handshakenEventWhichWasRaised.Client.ShouldEqual(clientWhichWasCreated);
+            eventHubMonitor.RaisedEvent<HandshakenEvent>().Client.ShouldEqual(client);
 
-        It should_return_a_successul_message = () =>
+        It should_return_a_successful_message = () =>
             result.Message.successful.ShouldEqual(true);
 
         It should_return_a_message_with_a_client_id_equal_to_the_generated_one = () =>
@@ -46,15 +46,15 @@ namespace AspComet.Specifications.MessageHandlers
             });
 
         Because of = () =>
-            result = metaHandshakeHandler.HandleMessage(request);
+            result = SUT.HandleMessage(request);
 
         Behaves_like<ItHasHandledAMetaHandshakeMessage> has_handled_a_meta_handshake_message;
 
         It should_not_register_the_client_with_the_client_workflow_manager = () =>
-            clientWorkflowManager.ShouldNotHaveHadCalled(x => x.RegisterClient(Arg<IClient>.Is.Anything));
+            Dependency<IClientWorkflowManager>().ShouldNotHaveHadCalled(x => x.RegisterClient(Arg<IClient>.Is.Anything));
 
         It should_not_publish_a_handshaken_event = () =>
-            handshakenEventWhichWasRaised.ShouldBeNull();
+            eventHubMonitor.RaisedEvent<HandshakenEvent>().ShouldBeNull();
 
         It should_return_an_unsuccessul_message = () =>
             result.Message.successful.ShouldEqual(false);
@@ -70,13 +70,13 @@ namespace AspComet.Specifications.MessageHandlers
     public class ItHasHandledAMetaHandshakeMessage : MetaHandshakeMessageHandlerScenario
     {
         It should_create_a_client_with_the_id_generated_by_the_client_id_generator = () =>
-            clientFactory.ShouldHaveHadCalled(x => x.CreateClient(GeneratedClientID));
+            Dependency<IClientFactory>().ShouldHaveHadCalled(x => x.CreateClient(GeneratedClientID));
 
         It should_publish_a_handshaking_event_with_the_client_which_was_created = () =>
-            handshakingEventWhichWasRaised.Client.ShouldEqual(clientWhichWasCreated);
+            eventHubMonitor.RaisedEvent<HandshakingEvent>().Client.ShouldEqual(client);
 
         It should_publish_a_handshaking_event_with_the_request_message = () =>
-            handshakingEventWhichWasRaised.Handshake.ShouldEqual(request);
+            eventHubMonitor.RaisedEvent<HandshakingEvent>().Handshake.ShouldEqual(request);
 
         It should_return_a_message_with_the_same_id_as_the_request_message = () =>
             result.Message.id.ShouldEqual(request.id);
@@ -94,36 +94,19 @@ namespace AspComet.Specifications.MessageHandlers
             result.Message.supportedConnectionTypes.ShouldContainOnly("long-polling");
     }
 
-    public class MetaHandshakeMessageHandlerScenario : MessageHandlerScenario
+    public class MetaHandshakeMessageHandlerScenario : MessageHandlerScenario<MetaHandshakeHandler>
     {
         protected static readonly string GeneratedClientID = "GeneratedClientId";
-        protected static IClientIDGenerator clientIDGenerator;
-        protected static IClientFactory clientFactory;
-        protected static IClientWorkflowManager clientWorkflowManager;
-        protected static MetaHandshakeHandler metaHandshakeHandler;
-        protected static IClient clientWhichWasCreated;
-        protected static HandshakingEvent handshakingEventWhichWasRaised;
-        protected static HandshakenEvent handshakenEventWhichWasRaised;
 
         Establish context = () =>
         {
-            clientIDGenerator = MockRepository.GenerateStub<IClientIDGenerator>();
-            clientIDGenerator.Stub(x => x.GenerateClientID()).Return(GeneratedClientID);
+            Dependency<IClientIDGenerator>().Stub(x => x.GenerateClientID()).Return(GeneratedClientID);
 
-            clientWhichWasCreated = MockRepository.GenerateStub<IClient>();
-            clientWhichWasCreated.Stub(x => x.ID).Return(GeneratedClientID);
+            client.Stub(x => x.ID).Return(GeneratedClientID);
 
-            clientFactory = MockRepository.GenerateStub<IClientFactory>();
-            clientFactory.Stub(x => x.CreateClient(Arg<string>.Is.Anything)).Return(clientWhichWasCreated);
+            Dependency<IClientFactory>().Stub(x => x.CreateClient(Arg<string>.Is.Anything)).Return(client);
 
-            clientWorkflowManager = MockRepository.GenerateStub<IClientWorkflowManager>();
-
-            metaHandshakeHandler = new MetaHandshakeHandler(clientIDGenerator, clientFactory, clientWorkflowManager);
-
-            handshakingEventWhichWasRaised = null;
-            handshakenEventWhichWasRaised = null;
-            EventHub.Subscribe<HandshakingEvent>(ev => handshakingEventWhichWasRaised = ev);
-            EventHub.Subscribe<HandshakenEvent>(ev => handshakenEventWhichWasRaised = ev);
+            eventHubMonitor.StartMonitoring<HandshakingEvent, HandshakenEvent>();
         };
     }
 }

@@ -7,16 +7,15 @@ using Machine.Specifications;
 namespace AspComet.Specifications.MessageHandlers
 {
     [Subject(Constants.MessageHandlingSubject)]
-    public class when_handling_a_message_which_has_generated_an_exception : MessageHandlerScenario
+    public class when_handling_a_message_which_has_generated_an_exception : MessageHandlerScenario<ExceptionHandler>
     {
         const string ErrorMessage = "This is the error message";
-        static ExceptionHandler exceptionHandler;
 
         Establish context = () =>
-            exceptionHandler = new ExceptionHandler(ErrorMessage);
+            SetSUT(new ExceptionHandler(ErrorMessage));
 
         Because of = () =>
-            result = exceptionHandler.HandleMessage(request);
+            result = SUT.HandleMessage(request);
 
         Behaves_like<ItHasHandledAMessage>
             has_handled_a_message;

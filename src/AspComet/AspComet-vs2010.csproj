@@ -120,7 +120,7 @@
     <Compile Include="MessageHandlers\MetaHandshakeHandler.cs" />
     <Compile Include="MessageHandlers\MetaSubscribeHandler.cs" />
     <Compile Include="MessageHandlers\MetaUnsubscribeHandler.cs" />
-    <Compile Include="MessageHandlers\PassThruHandler.cs" />
+    <Compile Include="MessageHandlers\ForwardingHandler.cs" />
     <Compile Include="MessageHandlers\SwallowHandler.cs" />
     <Compile Include="MessagesProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

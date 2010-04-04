@@ -75,6 +75,11 @@ namespace AspComet.Specifications
             }
         }
 
+        protected static void SetSUT(TSut value)
+        {
+            sut = value;
+        }
+
         private static TSut GenerateSut()
         {
             Type type = typeof(TSut);

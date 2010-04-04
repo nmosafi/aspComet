@@ -15,15 +15,12 @@ namespace AspComet.MessageHandlers
         {
             IClient client = clientRepository.GetByID(request.clientId);
 
-            ICancellableEvent subscribingEvent = PubishSubscribingEvent(request, client);
+            ICancellableEvent subscribingEvent = PublishSubscribingEvent(request, client);
 
             if (subscribingEvent.Cancel)
-            {
-                return new MessageHandlerResult
-                {
-                    Message = GetSubscriptionFailedResponse(request, subscribingEvent.CancellationReason),
-                    CanTreatAsLongPoll = false
-                };
+            {   
+                Message subscriptionFailedResponse = GetSubscriptionFailedResponse(request, subscribingEvent.CancellationReason);
+                return new MessageHandlerResult { Message = subscriptionFailedResponse, CanTreatAsLongPoll = false };
             }
 
             client.SubscribeTo(request.subscription);
@@ -39,7 +36,7 @@ namespace AspComet.MessageHandlers
             EventHub.Publish(subscribedEvent);
         }
 
-        private static ICancellableEvent PubishSubscribingEvent(Message request, IClient client)
+        private static ICancellableEvent PublishSubscribingEvent(Message request, IClient client)
         {
             SubscribingEvent subscribingEvent = new SubscribingEvent(client, request.subscription);
             EventHub.Publish(subscribingEvent);

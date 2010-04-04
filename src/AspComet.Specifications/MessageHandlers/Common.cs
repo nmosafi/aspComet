@@ -6,6 +6,8 @@ using AspComet.Eventing;
 
 using Machine.Specifications;
 
+using Rhino.Mocks;
+
 namespace AspComet.Specifications.MessageHandlers
 {
     public static class Constants
@@ -38,7 +40,7 @@ namespace AspComet.Specifications.MessageHandlers
     }
 
     [Behaviors]
-    public class ItHasHandledAMessage : MessageHandlerScenario
+    public class ItHasHandledAMessage : MessageHandlerScenario<IMessageHandler>
     {
         It should_return_a_message_with_the_same_id_as_the_request_message = () =>
             result.Message.id.ShouldEqual(request.id);
@@ -50,16 +52,19 @@ namespace AspComet.Specifications.MessageHandlers
             result.Message.clientId.ShouldEqual(request.clientId);
     }
 
-    public class MessageHandlerScenario
+    public class MessageHandlerScenario<TMessageHandler> : AutoStubbingScenario<TMessageHandler>
+        where TMessageHandler : class, IMessageHandler
     {
         protected static Message request;
         protected static MessageHandlerResult result;
         protected static EventHubMonitor eventHubMonitor;
+        protected static IClient client;
 
         Establish context = () =>
         {
             request = MessageBuilder.BuildRandomRequest();
             eventHubMonitor = new EventHubMonitor();
+            client = MockRepository.GenerateStub<IClient>();
         };
     }
 }

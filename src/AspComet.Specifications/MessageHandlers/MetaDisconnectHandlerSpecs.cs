@@ -9,24 +9,13 @@ using Rhino.Mocks;
 namespace AspComet.Specifications.MessageHandlers
 {
     [Subject(Constants.MessageHandlingSubject)]
-    public class when_handling_a_meta_disconnect_message : MessageHandlerScenario
+    public class when_handling_a_meta_disconnect_message : MessageHandlerScenario<MetaDisconnectHandler>
     {
-        static IClient client;
-        static IClientRepository clientRepository;
-        static MetaDisconnectHandler metaDisconnectHandler;
-
         Establish context = () =>
-        {
-            client = MockRepository.GenerateStub<IClient>();
-
-            clientRepository = MockRepository.GenerateStub<IClientRepository>();
-            clientRepository.Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
-            
-            metaDisconnectHandler = new MetaDisconnectHandler(clientRepository);
-        };
+            Dependency<IClientRepository>().Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
 
         Because of = () =>
-            result = metaDisconnectHandler.HandleMessage(request);
+            result = SUT.HandleMessage(request);
 
         Behaves_like<ItHasHandledAMessage> has_handled_a_message;
 
