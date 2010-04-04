@@ -18,7 +18,7 @@ namespace AspComet.Specifications.MessageHandlers
         };
 
         Because of = () =>
-            swallowHandler.HandleMessage(request);
+            result = swallowHandler.HandleMessage(request);
 
         It should_raise_a_published_event_with_the_request_message =()=>
             eventHubMonitor.RaisedEvent<PublishingEvent>().Message.ShouldEqual(request);
