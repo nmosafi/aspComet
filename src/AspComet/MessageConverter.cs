@@ -5,7 +5,7 @@ using System.Web.Script.Serialization;
 
 namespace AspComet
 {
-    public class MessageConverter
+    public class MessageConverter 
     {
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
         private static readonly Regex ArrayRegex = new Regex(@"^\s*\[", RegexOptions.Compiled);

@@ -65,7 +65,9 @@
     <Compile Include="AutoStubbingScenario.cs" />
     <Compile Include="ChannelNameSpecs.cs" />
     <Compile Include="ClientFactorySpecs.cs" />
+    <Compile Include="EventHubMonitor.cs" />
     <Compile Include="HttpHandlerSpecs.cs" />
+    <Compile Include="MessageBuilder.cs" />
     <Compile Include="MessageBusSpecs.cs" />
     <Compile Include="MessageHandlerFactorySpecs.cs" />
     <Compile Include="MessageHandlers\Common.cs" />
@@ -80,6 +82,7 @@
     <Compile Include="MessagesProcessorSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShouldExtensionMethods.cs" />
+    <Compile Include="Transports\CallingPollingTransportSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AspComet\AspComet.csproj">
