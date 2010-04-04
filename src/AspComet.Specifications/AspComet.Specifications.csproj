@@ -70,7 +70,7 @@
     <Compile Include="MessageHandlerFactorySpecs.cs" />
     <Compile Include="MessageHandlers\Common.cs" />
     <Compile Include="MessageHandlers\ExceptionHandlerSpecs.cs" />
-    <Compile Include="MessageHandlers\MessageBuilder.cs" />
+    <Compile Include="MessageHandlers\ForwardingHandlerSpecs.cs" />
     <Compile Include="MessageHandlers\MetaConnectHandlerSpecs.cs" />
     <Compile Include="MessageHandlers\MetaDisconnectHandlerSpecs.cs" />
     <Compile Include="MessageHandlers\MetaHandshakeHandlerSpecs.cs" />
