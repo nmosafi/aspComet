@@ -15,6 +15,12 @@ using Rhino.Mocks;
 namespace AspComet.Specifications
 {
     [Subject("Handling HTTP requests")]
+    public class when_checking_for_reusability : HttpHandlerScenario
+    {
+        It should_not_be_reusable = () => cometHttpHandler.IsReusable.ShouldBeFalse();
+    }
+
+    [Subject("Handling HTTP requests")]
     public class synchronously : HttpHandlerScenario
     {
         static Exception exception;
