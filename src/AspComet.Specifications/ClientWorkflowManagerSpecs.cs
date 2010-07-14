@@ -38,7 +38,7 @@ namespace AspComet.Specifications
         };
 
         Because of = () =>
-            client.Raise(x => x.Disconnected += null);
+            client.Raise(x => x.Disconnected += null, null, null);
 
         It should_publish_a_disconnected_event_with_the_client_which_disconnected =()=>
             eventHubMonitor.RaisedEvent<DisconnectedEvent>().Client.ShouldEqual(client);
@@ -47,6 +47,7 @@ namespace AspComet.Specifications
             Dependency<IClientRepository>().ShouldHaveHadCalled(x => x.DeleteByID(ClientID));
     }
 
+    [Subject(typeof(ClientWorkflowManager))]
     public class when_an_already_disconnected_client_disconnects : AutoStubbingScenario<ClientWorkflowManager>
     {
         It should_not_publish_the_disconnected_event_again;
