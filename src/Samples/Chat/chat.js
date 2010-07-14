@@ -6,7 +6,7 @@
     (a) for the simpler chat program we're using, and
     (b) to work with both the jQuery and Dojo toolkits
 */
-var chat = function() {
+var chat = function () {
     var _chatSubscription;
     var _metaSubscriptions = [];
     var _cometd;
@@ -14,7 +14,7 @@ var chat = function() {
     var _disconnecting;
 
     return {
-        init: function(cometd, username, password) {
+        init: function (cometd, username, password) {
 
             // Store the initialisation parameters    
             _cometd = cometd;
@@ -38,16 +38,16 @@ var chat = function() {
             });
         }
 
-        , leave: function() {
+        , leave: function () {
             if (!_username) return;
 
-            _cometd.startBatch();
-            _cometd.publish('/chat', {
-                message: _username + ' has left'
+            _cometd.batch(function () {
+                _cometd.publish('/chat', {
+                    message: _username + ' has left'
+                });
+                _unsubscribe();
             });
-            _unsubscribe();
             _cometd.disconnect();
-            _cometd.endBatch();
 
             _metaUnsubscribe();
             _disconnecting = true;
@@ -91,12 +91,12 @@ var chat = function() {
                 message: 'Connection to Server Opened'
             }
         });
-        _cometd.startBatch();
-        _subscribe();
-        _cometd.publish('/chat', {
-            message: _username + ' has joined'
+        _cometd.batch(function () {
+            _subscribe();
+            _cometd.publish('/chat', {
+                message: _username + ' has joined'
+            });
         });
-        _cometd.endBatch();
     }
 
     function _connectionBroken() {
