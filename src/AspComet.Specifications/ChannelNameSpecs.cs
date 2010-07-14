@@ -1,5 +1,4 @@
-﻿// ReSharper disable InconsistentNaming
-//
+﻿//
 // These specs are attempting to capture the rules in section 2.2 of 
 // http://svn.cometd.org/trunk/bayeux/bayeux.html
 //

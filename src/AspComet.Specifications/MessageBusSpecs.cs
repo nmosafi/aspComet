@@ -1,5 +1,3 @@
-// ReSharper disable InconsistentNaming
-
 using System;
 using System.Collections.Generic;
 
@@ -37,7 +35,7 @@ namespace AspComet.Specifications
     }
 
     [Subject("The message bus")]
-    public class when_handling_messages_and_there_is_no_AsyncResult_on_client_and_it_should_not_send_back_result_immediately : MessageBusScenario
+    public class when_handling_messages_and_there_is_no_async_result_on_client_and_it_should_not_send_back_result_immediately : MessageBusScenario
     {
         static readonly Message[] messages = new[] { new Message { clientId = SpecifiedClientId }, new Message { clientId = SpecifiedClientId } };
 
@@ -51,7 +49,7 @@ namespace AspComet.Specifications
     }
 
     [Subject("The message bus")]
-    public class when_handling_messages_and_there_is_no_AsyncResult_on_client_and_it_should_send_back_result_immediately : MessageBusScenario
+    public class when_handling_messages_and_there_is_no_async_result_on_client_and_it_should_send_back_result_immediately : MessageBusScenario
     {
         static readonly Message[] messages = new[] { new Message { clientId = SpecifiedClientId }, new Message { clientId = SpecifiedClientId } };
 
@@ -68,7 +66,7 @@ namespace AspComet.Specifications
     }
 
     [Subject("The message bus")]
-    public class when_handling_messages_and_there_is_already_an_AsyncResult_on_client_and_it_should_send_back_result_immediately : MessageBusScenario
+    public class when_handling_messages_and_there_is_already_an_async_result_on_client_and_it_should_send_back_result_immediately : MessageBusScenario
     {
         static readonly Message[] messages = new[] { new Message { clientId = SpecifiedClientId }, new Message { clientId = SpecifiedClientId } };
 
@@ -99,7 +97,6 @@ namespace AspComet.Specifications
         It should_enqueue_the_response_messages_to_the_client = () =>
             client.ShouldHaveHadCalled(x => x.Enqueue(messagesProcessor.Result));
     }
-
 
     public abstract class MessageBusScenario : AutoStubbingScenario<MessageBus>
     {

@@ -42,6 +42,7 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>169</NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -86,6 +87,7 @@
     <Compile Include="AutoStubbingScenario.cs" />
     <Compile Include="ChannelNameSpecs.cs" />
     <Compile Include="ClientFactorySpecs.cs" />
+    <Compile Include="ClientWorkflowManagerSpecs.cs" />
     <Compile Include="EventHubMonitor.cs" />
     <Compile Include="HttpHandlerSpecs.cs" />
     <Compile Include="MessageBuilder.cs" />

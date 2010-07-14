@@ -1,6 +1,4 @@
-﻿// ReSharper disable InconsistentNaming
-
-using System;
+﻿using System;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;

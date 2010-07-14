@@ -1,5 +1,3 @@
-// ReSharper disable InconsistentNaming
-
 using Machine.Specifications;
 
 using Rhino.Mocks;

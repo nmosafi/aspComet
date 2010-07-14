@@ -3,7 +3,7 @@ namespace AspComet.Eventing
     /// <summary>
     ///     Raised when a client disconnects to the message bus
     /// </summary>
-    class DisconnectedEvent : IEvent
+    public class DisconnectedEvent : IEvent
     {
         private readonly IClient client;
 

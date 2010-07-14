@@ -1,10 +1,6 @@
-﻿// ReSharper disable InconsistentNaming
-
-using AspComet.MessageHandlers;
+﻿using AspComet.MessageHandlers;
 
 using Machine.Specifications;
-
-using Rhino.Mocks;
 
 namespace AspComet.Specifications
 {
@@ -21,35 +17,35 @@ namespace AspComet.Specifications
     [Subject("Creating message handlers")]
     public class for_the_meta_handshake_channel : AutoStubbingScenario<MessageHandlerFactory>
     {
-        It should_create_a_MetaHandshakeHandler = () =>
+        It should_create_a_meta_handshake_handler = () =>
             SUT.GetMessageHandler("/meta/handshake").ShouldBeOfType<MetaHandshakeHandler>();
     }
 
     [Subject("Creating message handlers")]
     public class for_the_meta_subscribe_channel : AutoStubbingScenario<MessageHandlerFactory>
     {
-        It should_create_a_MetaSubcribeHandler = () =>
+        It should_create_a_meta_subcribe_handler = () =>
             SUT.GetMessageHandler("/meta/subscribe").ShouldBeOfType<MetaSubscribeHandler>();
     }
 
     [Subject("Creating message handlers")]
     public class for_the_meta_unsubscribe_channel : AutoStubbingScenario<MessageHandlerFactory>
     {
-        It should_create_a_MetaUnsubcribeHandler = () =>
+        It should_create_a_meta_unsubcribe_handler = () =>
             SUT.GetMessageHandler("/meta/unsubscribe").ShouldBeOfType<MetaUnsubscribeHandler>();
     }
 
     [Subject("Creating message handlers")]
     public class for_the_meta_connect_channel : AutoStubbingScenario<MessageHandlerFactory>
     {
-        It should_create_a_MetaConnectHandler = () =>
+        It should_create_a_meta_connect_handler = () =>
             SUT.GetMessageHandler("/meta/connect").ShouldBeOfType<MetaConnectHandler>();
     }
 
     [Subject("Creating message handlers")]
     public class for_the_meta_disconnect_channel : AutoStubbingScenario<MessageHandlerFactory>
     {
-        It should_create_a_MetaDisconnectHandler = () =>
+        It should_create_a_meta_disconnect_handler = () =>
             SUT.GetMessageHandler("/meta/disconnect").ShouldBeOfType<MetaDisconnectHandler>();
     }
 
@@ -59,21 +55,21 @@ namespace AspComet.Specifications
         It should_create_an_exception_handler = () =>
             SUT.GetMessageHandler("/meta/idonotexist").ShouldBeOfType<ExceptionHandler>();
 
-        It should_create_an_exception_handler_with_message_Unknwon_meta_channel = () =>
+        It should_create_an_exception_handler_with_message_unknown_meta_channel = () =>
             ((ExceptionHandler)SUT.GetMessageHandler("/meta/idonotexist")).ErrorMessage.ShouldEqual("Unknown meta channel.");
     }
 
     [Subject("Creating message handlers")]
     public class for_a_service_channel : AutoStubbingScenario<MessageHandlerFactory>
     {
-        It should_create_a_SwallowHandler = () =>
+        It should_create_a_swallow_handler = () =>
             SUT.GetMessageHandler("/service/fdskml").ShouldBeOfType<SwallowHandler>();
     }
 
     [Subject("Creating message handlers")]
     public class for_any_other_channel : AutoStubbingScenario<MessageHandlerFactory>
     {
-        It should_create_a_PassThruHandler = () =>
+        It should_create_a_pass_thru_handler = () =>
             SUT.GetMessageHandler("/abc/def").ShouldBeOfType<ForwardingHandler>();
     }
 }
