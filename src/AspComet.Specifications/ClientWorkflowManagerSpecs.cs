@@ -3,6 +3,7 @@ using AspComet.Eventing;
 using Machine.Specifications;
 
 using Rhino.Mocks;
+using System;
 
 namespace AspComet.Specifications
 {
@@ -38,7 +39,7 @@ namespace AspComet.Specifications
         };
 
         Because of = () =>
-            client.Raise(x => x.Disconnected += null, null, null);
+            client.Raise(x => x.Disconnected += null, client, EventArgs.Empty);
 
         It should_publish_a_disconnected_event_with_the_client_which_disconnected =()=>
             eventHubMonitor.RaisedEvent<DisconnectedEvent>().Client.ShouldEqual(client);
