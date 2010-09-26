@@ -28,7 +28,7 @@ Then you need to add one line to your Global.asax.cs file:
 
 	Setup.AspComet.InANonExtensibleAndNonConfigurableManner()
 
-And that's it!  You can now build client applications using a supported client Javascript framework, subscribe to channels and publish messages to them.
+And that's it!  You can now build client applications using a supported Bayeux Javascript framework, subscribe to channels and publish messages to them.
 
 # Some more advanced scenarios
 
