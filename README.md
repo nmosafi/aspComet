@@ -4,7 +4,7 @@ The aim of this project is to develop a COMET implementation which does not requ
 
 Most COMET implementations require a custom server, due to the fact that ASP.NET's threading model (pooled threads) does not promote scalability for COMET applications.
 
-To find out more about COMET, it's worth reading Neil Mosafi's blog post at (http://neilmosafi.blogspot.com/2009/03/comet-pushing-to-web-browser.html) which describes some of the motivations for this project.
+To find out more about COMET, it's worth reading Neil Mosafi's blog post at [http://neilmosafi.blogspot.com/2009/03/comet-pushing-to-web-browser.html](http://neilmosafi.blogspot.com/2009/03/comet-pushing-to-web-browser.html) which describes some of the motivations for this project.
 
 # The Bayeux Protocol
 
@@ -12,7 +12,7 @@ To find out more about COMET, it's worth reading Neil Mosafi's blog post at (htt
 
 AspComet supports "long polling" under the [Bayeux protocol](http://svn.cometd.org/trunk/bayeux/bayeux.html), using Asynchronous Http Handlers in ASP.NET, which allows applications to scale to be able to service large number of client sessions.
 
-Find out more background information at Neil Mosafi's blog post here: (http://neilmosafi.blogspot.com/2009/03/comet-bayeux-protocol-and-aspnet.html)
+Find out more background information at Neil Mosafi's blog post here: [http://neilmosafi.blogspot.com/2009/03/comet-bayeux-protocol-and-aspnet.html](http://neilmosafi.blogspot.com/2009/03/comet-bayeux-protocol-and-aspnet.html)
 
 # Getting started
 
@@ -42,4 +42,4 @@ The configuration step described in the Getting Started section - Setup.AspComet
 
 However, AspComet is built with IoC in mind and is fully configurable via IoC, which lets applications completely replace any internal component of the framework.  It uses the [Common Service Locator Library](http://commonservicelocator.codeplex.com) to locate the services it needs, and provides metadata for applications to easily configure their container of choice with the default services required by the framework.
 
-The best example if this is to look at the [Global.asax.cs file in the Chat sample](blob/master/src/Samples/Chat/Global.asax.cs) which uses the Autofac container and replaces a few of the default objects with custom ones.
+The best example if this is to look at the [Global.asax.cs file in the Chat sample](aspComet/blob/master/src/Samples/Chat/Global.asax.cs) which uses the Autofac container and replaces a few of the default objects with custom ones.
