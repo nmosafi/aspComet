@@ -32,6 +32,7 @@ namespace AspComet.Samples.Chat
             EventHub.Subscribe<HandshakingEvent>(container.Resolve<HandshakeAuthenticator>().CheckHandshake);
             EventHub.Subscribe<PublishingEvent>(container.Resolve<BadLanguageBlocker>().CheckMessage);
             EventHub.Subscribe<SubscribingEvent>(container.Resolve<SubscriptionChecker>().CheckSubscription);
+            EventHub.Subscribe<PublishingEvent>( "/service/whisper", container.Resolve<Whisperer>().SendWhisper );
         }
 
         protected void Application_End(object sender, EventArgs e)
@@ -61,6 +62,7 @@ namespace AspComet.Samples.Chat
             builder.RegisterType<HandshakeAuthenticator>().SingleInstance();
             builder.RegisterType<BadLanguageBlocker>().SingleInstance();
             builder.RegisterType<SubscriptionChecker>().SingleInstance();
+            builder.RegisterType<Whisperer>().SingleInstance();
 
             // Set up the common service locator
             container = builder.Build();

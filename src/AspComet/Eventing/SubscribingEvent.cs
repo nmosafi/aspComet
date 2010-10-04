@@ -3,7 +3,7 @@
     /// <summary>
     ///     Raised when a client is subscribing to a channel
     /// </summary>
-    public class SubscribingEvent : CancellableEvent
+    public class SubscribingEvent : CancellableEvent, IChannelEvent
     {
         private readonly IClient client;
         private readonly string channel;

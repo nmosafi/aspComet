@@ -16,12 +16,12 @@
 
 		    $(document).ready(function() {
 
-    		    // Ensure we disconnect appropriately
-	    	    $(window).unload(chat.leave);
-		    
+		        // Ensure we disconnect appropriately
+		        $(window).unload(chat.leave);
+
 		        // Get the users name
-	    	    var name = window.prompt('Enter your nick name:');
-	    	    var password = window.prompt('Enter your password ("password" will work!):');
+		        var name = window.prompt('Enter your nick name:');
+		        var password = window.prompt('Enter your password ("password" will work!):');
 
 		        // Initialise the chat - this will take the jQuery comet object, 
 		        // handshake with the server
@@ -30,7 +30,12 @@
 
 		        // Publish any messages the user enters
 		        $('#entry').submit(function() {
-		            $.cometd.publish('/chat', { sender: name, message: $('#message').val() });
+		            var text = $('#message').val();
+		            if (text.substring(0, 8) == "/whisper") {
+		                $.cometd.publish('/service/whisper', { sender: name, message: text.substring(9) });
+		            } else {
+		                $.cometd.publish('/chat', { sender: name, message: text });
+		            }
 		            $('#message').focus().val('');
 		            return false;
 		        });
@@ -64,6 +69,7 @@
 		<form id="entry" action="">
 			<input type="text" id="message" />
 			<input type="submit" value="&raquo;" />
+			&nbsp; try also /whisper &lt;username&gt; &lt;message&gt;
 		</form>
 	</body>
 </html>

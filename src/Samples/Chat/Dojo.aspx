@@ -14,35 +14,39 @@
 		<script src="chat.js" type="text/javascript"></script>
 		<script type="text/javascript" language="javascript">
 
-			dojo.addOnLoad(function() {
+		    dojo.addOnLoad(function() {
 
-    			// Ensure we disconnect appropriately
-			    dojo.addOnUnload(dojox.cometd, chat.leave);
+		        // Ensure we disconnect appropriately
+		        dojo.addOnUnload(dojox.cometd, chat.leave);
 
-			    // Get the users name	    
-			    var name = window.prompt('Enter your nick name:');
-			    var password = window.prompt('Enter your password ("password" will work!):');
+		        // Get the users name	    
+		        var name = window.prompt('Enter your nick name:');
+		        var password = window.prompt('Enter your password ("password" will work!):');
 
-				// Initialise the chat - this will take the Dojo comet object, 
-				// handshake with the server
-				// and then subscribe to the /chat channel
-				chat.init(dojox.cometd, name, password);
+		        // Initialise the chat - this will take the Dojo comet object, 
+		        // handshake with the server
+		        // and then subscribe to the /chat channel
+		        chat.init(dojox.cometd, name, password);
 
-				// Publish any messages the user enters
-				dojo.byId('entry').onsubmit = function() {
-					var msg = dojo.byId('message').value;
-					if (msg) {
-						dojox.cometd.publish('/chat', { sender: name, message: msg });
-						dojo.byId('message').value = '';
-						dojo.byId('message').focus();
-					}
-					return false;
-            	};
+		        // Publish any messages the user enters
+		        dojo.byId('entry').onsubmit = function() {
+		            var msg = dojo.byId('message').value;
+		            if (msg) {
+		                if (msg.substring(0, 8) == "/whisper") {
+		                    dojox.cometd.publish('/service/whisper', { sender: name, message: msg.substring(9) });
+		                } else {
+		                    dojox.cometd.publish('/chat', { sender: name, message: msg });
+		                }
+		                dojo.byId('message').value = '';
+		                dojo.byId('message').focus();
+		            }
+		            return false;
+		        };
 
-                // focus the entry box
-	            dojo.byId('message').focus();
+		        // focus the entry box
+		        dojo.byId('message').focus();
 
-	        });
+		    });
 
 	        function handleIncomingMessage(comet) {
 			    var message = document.createElement('li');
@@ -71,6 +75,7 @@
 		<form id="entry" action="">
 			<input type="text" id="message" />
 			<input type="submit" value="&raquo;" />
+			&nbsp; try also /whisper &lt;username&gt; &lt;message&gt;
 		</form>
 	</body>
 </html>

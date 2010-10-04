@@ -10,6 +10,7 @@ namespace AspComet
 
         public void Add(TKey key, TValue value)
         {
+            // TODO: lock?
             if (this.dictionary.ContainsKey(key))
             {
                 this.dictionary[key].Add(value);
@@ -52,6 +53,11 @@ namespace AspComet
         public IEnumerable<TValue> this[TKey key]
         {
             get { return this.dictionary[key]; }
+        }
+
+        public Dictionary<TKey, List<TValue>>.KeyCollection Keys
+        {
+            get { return this.dictionary.Keys; }
         }
     }
 }
