@@ -9,6 +9,7 @@ namespace AspComet
         ICometAsyncResult CurrentAsyncResult { get; set; }
         string ID { get; }
         bool IsConnected { get; }
+        int PendingMessageCount { get; }
 
         void Enqueue(IEnumerable<Message> messages);
         void FlushQueue();

@@ -137,5 +137,10 @@ namespace AspComet
         {
             return (this.ID != null ? this.ID.GetHashCode() : 0);
         }
+
+        public int PendingMessageCount
+		    {
+			      get { return this.messageQueue.Count; }
+		    }
     }
 }
