@@ -20,6 +20,9 @@ namespace AspComet
             this.httpContext = httpContext;
             this.callback = callback;
             this.asyncState = asyncState;
+            if ( httpContext.Request.HttpMethod == "GET" ) {
+                transport = CallbackPollingTransport.Instance;
+            }
         }
 
         public bool IsCompleted { get; private set; }
@@ -36,7 +39,7 @@ namespace AspComet
 
         public void SendAwaitingMessages()
         {
-            transport.SendMessages(HttpContext.Response, responseMessages);
+            transport.SendMessages(HttpContext.Response, HttpContext.Request, responseMessages);
         }
 
         public void CompleteRequestWithMessages(IEnumerable<Message> responseMessages)

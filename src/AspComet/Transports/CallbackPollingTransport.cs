@@ -5,17 +5,12 @@ namespace AspComet.Transports
 {
     public class CallbackPollingTransport : ITransport
     {
-        private readonly string callback;
+      public static CallbackPollingTransport Instance = new CallbackPollingTransport();
 
-        public CallbackPollingTransport(string callback)
-        {
-            this.callback = callback;
-        }
-
-        public void SendMessages(HttpResponseBase response, IEnumerable<Message> messages)
+        public void SendMessages(HttpResponseBase response, HttpRequestBase request, IEnumerable<Message> messages)
         {
             string messageAsJson = MessageConverter.ToJson(messages);
-            string functionName = callback ?? "jsonpcallback";
+            string functionName = request.Params["jsonp"] ?? "jsonpcallback";
             string functionCall = string.Format("{0} ( {1} )", functionName, messageAsJson);
 
             response.ContentType = "text/javascript";
