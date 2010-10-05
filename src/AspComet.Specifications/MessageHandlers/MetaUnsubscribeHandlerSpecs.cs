@@ -1,5 +1,6 @@
 // ReSharper disable InconsistentNaming
 
+using System;
 using AspComet.Eventing;
 using AspComet.MessageHandlers;
 
@@ -9,6 +10,16 @@ using Rhino.Mocks;
 
 namespace AspComet.Specifications.MessageHandlers
 {
+    [Subject(Constants.MessageHandlingSubject)]
+    public class when_handling_a_meta_unsubscribe_message_from_an_non_existent_client : MessageHandlerScenario<MetaUnsubscribeHandler>
+    {
+        Because of = () => exception = Catch.Exception(() => SUT.HandleMessage(request));
+
+        It should_not_fail = () => exception.ShouldBeNull();
+
+        static Exception exception;
+    }
+
     [Subject(Constants.MessageHandlingSubject)]
     public class when_handling_a_meta_unsubscribe_message : MetaUnsubscribeHandlerScenario
     {
