@@ -32,6 +32,10 @@ namespace AspComet.MessageHandlers
         private void UnsubscribeClientAndPublishEvent(string clientId, string subscription)
         {
             IClient client = this.clientRepository.GetByID(clientId);
+
+			if (client == null)
+				return;
+
             client.UnsubscribeFrom(subscription);
 
             UnsubscribedEvent e = new UnsubscribedEvent(client, subscription);
