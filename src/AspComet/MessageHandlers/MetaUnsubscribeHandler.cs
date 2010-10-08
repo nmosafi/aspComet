@@ -13,7 +13,7 @@ namespace AspComet.MessageHandlers
 
         public MessageHandlerResult HandleMessage(Message request)
         {
-            UnsubscribeClientAndPublishEvent(request.clientId, request.subscription);
+            bool wasUnsubscribed = UnsubscribeClientAndPublishEvent(request.clientId, request.subscription);
 
             return new MessageHandlerResult
             {
@@ -21,7 +21,7 @@ namespace AspComet.MessageHandlers
                 {
                     id = request.id,
                     channel = request.channel,
-                    successful = true,
+                    successful = wasUnsubscribed,
                     clientId = request.clientId,
                     subscription = request.subscription
                 },
@@ -29,17 +29,19 @@ namespace AspComet.MessageHandlers
             };
         }
 
-        private void UnsubscribeClientAndPublishEvent(string clientId, string subscription)
+        private bool UnsubscribeClientAndPublishEvent(string clientId, string subscription)
         {
             IClient client = clientRepository.GetByID(clientId);
 
-            if (client == null)
-                return;
+            if (client == null || !client.IsSubscribedTo(subscription))
+                return false;
 
             client.UnsubscribeFrom(subscription);
 
             UnsubscribedEvent e = new UnsubscribedEvent(client, subscription);
             EventHub.Publish(e);
+
+            return true;
         }
     }
 }
