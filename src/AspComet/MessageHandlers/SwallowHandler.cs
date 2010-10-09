@@ -14,7 +14,8 @@ namespace AspComet.MessageHandlers
             EventHub.Publish(e);
 
             Message msg = null;
-            if ( e.Cancel ) {
+            if (e.Cancel)
+            {
                 msg = new Message
                 {
                     id = request.id,

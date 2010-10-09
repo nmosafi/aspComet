@@ -15,7 +15,7 @@ namespace AspComet.Specifications.MessageHandlers
         Because of = () =>
             result = SUT.HandleMessage(request);
 
-        It should_raise_a_published_event_with_the_request_message =()=>
+        It should_raise_a_published_event_with_the_request_message = () =>
             eventHubMonitor.RaisedEvent<PublishingEvent>().Message.ShouldEqual(request);
 
         It should_not_return_a_response_message = () =>
@@ -29,7 +29,8 @@ namespace AspComet.Specifications.MessageHandlers
     {
         private const string CancellationReason = "ThisIsTheCancellationReasonForSwallowing";
 
-        Establish context = () => {
+        Establish context = () =>
+        {
             EventHub.Subscribe<PublishingEvent>(x =>
             {
                 x.Cancel = true;
@@ -43,17 +44,16 @@ namespace AspComet.Specifications.MessageHandlers
 
         Behaves_like<ItHasHandledAMessage> has_handled_a_message;
 
-        It should_raise_a_published_event_with_the_request_message =()=>
+        It should_raise_a_published_event_with_the_request_message = () =>
             eventHubMonitor.RaisedEvent<PublishingEvent>().Message.ShouldEqual(request);
 
         It should_send_an_unsuccessful_response = () =>
-            result.Message.successful.ShouldEqual( false );
+            result.Message.successful.ShouldEqual(false);
 
         It should_send_an_unsuccessful_response_with_error_equal_to_cancellation_reason = () =>
-            result.Message.error.ShouldEqual( CancellationReason );
+            result.Message.error.ShouldEqual(CancellationReason);
 
         It should_specify_that_the_result_cannot_be_treated_as_a_long_poll = () =>
             result.CanTreatAsLongPoll.ShouldBeFalse();
     }
-
 }
