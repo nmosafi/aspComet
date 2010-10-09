@@ -13,7 +13,23 @@ namespace AspComet.MessageHandlers
             var e = new PublishingEvent(request);
             EventHub.Publish(e);
 
-            return null;
+            Message msg = null;
+            if ( e.Cancel ) {
+                msg = new Message
+                {
+                    id = request.id,
+                    clientId = request.clientId,
+                    channel = request.channel,
+                    successful = false,
+                    error = e.CancellationReason
+                };
+            }
+
+            return new MessageHandlerResult
+            {
+                Message = msg,
+                CanTreatAsLongPoll = false
+            };
         }
     }
 }
