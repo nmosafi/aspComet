@@ -13,36 +13,29 @@ namespace AspComet.Samples.Chat
             // ext will be a Dictionary<string,object> with a key, "authentication"
             // authentication will be a Dictionary<string,object> with two keys, "user" and "credentials"            
 
-            // Note, the following lines could be collapsed in to one giant if() statement, but they are expanded for clarity
-            if (ev.Handshake.ext is Dictionary<string, object>)
-            {
-                Dictionary<string, object> dictExt = (Dictionary<string, object>)ev.Handshake.ext;
-                if (dictExt.ContainsKey("authentication")
-                    && dictExt["authentication"] is Dictionary<string, object>)
-                {
-                    Dictionary<string, object> dictAuth = (Dictionary<string, object>)dictExt["authentication"];
-                    // Authenticate the client
-                    if (dictAuth["user"] is string
-                            && dictAuth["credentials"] is string
-                            && (string)dictAuth["credentials"] == "password")
-                    {
-                        AuthenticatedClient authClient = (AuthenticatedClient)ev.Client;
-                        authClient.username = (string)dictAuth["user"];
-                        authClient.password = (string)dictAuth["credentials"];
-                        return;
-                    }
-                    else
-                    {
-                        ev.CancellationReason = "Incorrect username or password";
-                    }
-                }
-            }
+            var authenticationDictionary = ev.Handshake.GetExt<Dictionary<string, object>>("authentication");
 
-            // If we got this far, we couldn't authenticate 
-            if (ev.CancellationReason == null)
+            object user;
+            object credentials;
+            if (authenticationDictionary != null &&
+                authenticationDictionary.TryGetValue("user", out user) && 
+                authenticationDictionary.TryGetValue("credentials", out credentials))
+            {
+                if (user is string && credentials.Equals("password"))
+                {
+                    AuthenticatedClient authenticatedClient = (AuthenticatedClient) ev.Client;
+                    authenticatedClient.Username = (string) user;
+                    authenticatedClient.Password = (string) credentials;
+                    return;
+                }
+
+                ev.CancellationReason = "Incorrect username or password";
+            }
+            else
             {
                 ev.CancellationReason = "Credentials not supplied";
             }
+
             ev.Cancel = true;
             ev.Retry = false;
         }

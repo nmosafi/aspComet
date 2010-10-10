@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace AspComet.Samples.Chat
+﻿namespace AspComet.Samples.Chat
 {
-    public class AuthenticatedClient : AspComet.Client 
+    public class AuthenticatedClient : Client 
     {
-        public string username { get; set; }
-        public string password { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
 
         public AuthenticatedClient(string id) : base(id)
         {
         }
-
     }
 }
