@@ -1,5 +1,6 @@
 // ReSharper disable InconsistentNaming
 
+using System;
 using AspComet.Eventing;
 using AspComet.MessageHandlers;
 
@@ -10,8 +11,35 @@ using Rhino.Mocks;
 namespace AspComet.Specifications.MessageHandlers
 {
     [Subject(Constants.MessageHandlingSubject)]
+    public class when_handling_a_meta_unsubscribe_message_from_an_non_existent_client : MessageHandlerScenario<MetaUnsubscribeHandler>
+    {
+        Because of = () => 
+            result = SUT.HandleMessage(request);
+
+        Behaves_like<ItHasHandledAMessage> has_handled_a_message;
+
+        It should_return_an_unsuccessful_message = () =>
+            result.Message.successful.ShouldEqual(false);
+    }
+    
+    [Subject(Constants.MessageHandlingSubject)]
+    public class when_handling_a_meta_unsubscribe_message_from_a_client_which_is_not_suscribed_to_the_channel : MetaUnsubscribeHandlerScenario
+    {
+        Because of = () => 
+            result = SUT.HandleMessage(request);
+
+        Behaves_like<ItHasHandledAMessage> has_handled_a_message;
+
+        It should_return_an_unsuccessful_message = () =>
+            result.Message.successful.ShouldEqual(false);
+    }
+
+    [Subject(Constants.MessageHandlingSubject)]
     public class when_handling_a_meta_unsubscribe_message : MetaUnsubscribeHandlerScenario
     {
+        Establish context = () =>
+            client.Stub(x => x.IsSubscribedTo(request.subscription)).Return(true);
+
         Because of = () =>
             result = SUT.HandleMessage(request);
 
