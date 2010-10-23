@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AspComet
 {
@@ -51,7 +52,7 @@ namespace AspComet
         private IClient GetSenderOf(IEnumerable<Message> messages)
         {
             string sendingClientId = null;
-            foreach (Message message in messages)
+            foreach (Message message in messages.Where(x => x != null))
             {
                 if (sendingClientId != null
                     && message.clientId != null
