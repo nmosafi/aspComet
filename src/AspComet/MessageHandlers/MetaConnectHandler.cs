@@ -20,11 +20,14 @@ namespace AspComet.MessageHandlers
                 return new MessageHandlerResult { Message = GetUnrecognisedClientResponse(request), CanTreatAsLongPoll = false };
             }
 
-            bool isFirstConnectRequest = !client.IsConnected;
+            bool canTreatAsLongPoll = false;
+            if ( client.IsConnected ) {
+                canTreatAsLongPoll = client.PendingMessageCount == 0;
+            }
 
             client.NotifyConnected();
 
-            return new MessageHandlerResult { Message = GetSuccessfulResponse(request), CanTreatAsLongPoll = !isFirstConnectRequest };
+            return new MessageHandlerResult { Message = GetSuccessfulResponse(request), CanTreatAsLongPoll = canTreatAsLongPoll };
         }
 
         private static Message GetSuccessfulResponse(Message request)
