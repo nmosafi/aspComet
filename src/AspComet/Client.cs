@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 
 namespace AspComet
 {
     public class Client : IClient
     {
-
         private readonly List<string> subscriptions = new List<string>();
         private readonly Queue<Message> messageQueue = new Queue<Message>();
         private readonly object syncRoot = new object();
@@ -18,12 +18,18 @@ namespace AspComet
             this.timer.Elapsed += HandleTimerCallback;
         }
 
+        public event EventHandler<EventArgs> Disconnected = delegate { };
+        
         public string ID { get; private set; }
         public ICometAsyncResult CurrentAsyncResult { get; set; }
         public bool IsConnected { get; private set; }
         public DateTime LastConnectTime { get; private set; }
         public DateTime LastMessageTime { get; private set; }
-        public event EventHandler<EventArgs> Disconnected = delegate { };
+
+        public bool HasPendingMessages
+        {
+            get { return this.messageQueue.Any(); }
+        }
 
         public void SubscribeTo(string subscription)
         {
@@ -46,7 +52,7 @@ namespace AspComet
                 this.subscriptions.Remove(subscription);
             }
         }
-        
+
         public void Enqueue(IEnumerable<Message> messages)
         {
             lock (this.syncRoot)
@@ -137,10 +143,5 @@ namespace AspComet
         {
             return (this.ID != null ? this.ID.GetHashCode() : 0);
         }
-
-        public int PendingMessageCount
-		    {
-			      get { return this.messageQueue.Count; }
-		    }
     }
 }

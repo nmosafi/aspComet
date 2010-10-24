@@ -13,17 +13,14 @@ namespace AspComet.MessageHandlers
 
         public MessageHandlerResult HandleMessage(Message request)
         {
-            IClient client = clientRepository.GetByID(request.clientId);
+            IClient client = this.clientRepository.GetByID(request.clientId);
 
             if (client == null)
             {
                 return new MessageHandlerResult { Message = GetUnrecognisedClientResponse(request), CanTreatAsLongPoll = false };
             }
 
-            bool canTreatAsLongPoll = false;
-            if ( client.IsConnected ) {
-                canTreatAsLongPoll = client.PendingMessageCount == 0;
-            }
+            bool canTreatAsLongPoll = client.IsConnected && !client.HasPendingMessages;
 
             client.NotifyConnected();
 

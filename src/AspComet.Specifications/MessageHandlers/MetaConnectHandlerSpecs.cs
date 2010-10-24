@@ -73,6 +73,29 @@ namespace AspComet.Specifications.MessageHandlers
             result.CanTreatAsLongPoll.ShouldBeTrue();
     }
 
+    [Subject(Constants.MessageHandlingSubject)]
+    public class when_handling_a_meta_connect_message_for_a_client_which_has_already_connected_but_has_pending_messages : MessageHandlerScenario<MetaConnectHandler>
+    {
+        Establish context = () =>
+        {
+            Dependency<IClientRepository>().Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(client);
+            client.Stub(x => x.IsConnected).Return(true);
+            client.Stub(x => x.HasPendingMessages).Return(true);
+        };
+
+        Because of = () =>
+            result = SUT.HandleMessage(request);
+
+        Behaves_like<ItHasHandledAMessage>
+            has_handled_a_message;
+
+        Behaves_like<ItHasSuccessfullyHandledAMetaConnectMessage>
+            has_successfully_handled_a_meta_connect_message;
+
+        It should_specify_that_the_response_cannot_be_treated_as_a_long_poll = () =>
+            result.CanTreatAsLongPoll.ShouldBeFalse();
+    }
+
     [Behaviors]
     public class ItHasSuccessfullyHandledAMetaConnectMessage : MessageHandlerScenario<MetaConnectHandler>
     {
