@@ -3,7 +3,7 @@ namespace AspComet.Eventing
     /// <summary>
     ///     Raised when a client unsubscribes from a channel
     /// </summary>
-    public class UnsubscribedEvent : IEvent
+    public class UnsubscribedEvent : IChannelEvent
     {
         private readonly IClient client;
         private readonly string channel;

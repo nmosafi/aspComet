@@ -3,7 +3,7 @@
     /// <summary>
     ///     Raised when a client has subscribed to a channel
     /// </summary>
-    public class SubscribedEvent : IEvent
+    public class SubscribedEvent : IChannelEvent
     {
         private readonly IClient client;
         private readonly string channel;
