@@ -125,6 +125,7 @@ namespace AspComet.Specifications
         protected static IMessageBus messageBus;
         protected static HttpContextBase httpContext;
         protected static HttpRequestBase httpRequest;
+        protected static IMessageConverter messageConverter;
 
         Establish context =()=>
         {
@@ -133,10 +134,12 @@ namespace AspComet.Specifications
             httpRequest = MockRepository.GenerateStub<HttpRequestBase>();
             httpContext = MockRepository.GenerateStub<HttpContextBase>();
             serviceLocator = MockRepository.GenerateStub<IServiceLocator>();
+            messageConverter = new MessageConverter(new MessageSerializer());
 
             httpContext.Stub(x => x.Request).Return(httpRequest);
             httpRequest.Stub(x => x.Form).Return(new NameValueCollection());
             serviceLocator.Stub(x => x.GetInstance<IMessageBus>()).Return(messageBus);
+            serviceLocator.Stub(x => x.GetInstance<IMessageConverter>()).Return(messageConverter);
 
             ServiceLocator.SetLocatorProvider(() => serviceLocator);
         };

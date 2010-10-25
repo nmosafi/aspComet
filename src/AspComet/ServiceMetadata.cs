@@ -25,6 +25,8 @@ namespace AspComet
             yield return new ServiceMetadata { ServiceType = typeof(IMessagesProcessor), ActualType = typeof(MessagesProcessor), IsPerRequest = true };
             yield return new ServiceMetadata { ServiceType = typeof(IMessageBus), ActualType = typeof(MessageBus) };
             yield return new ServiceMetadata { ServiceType = typeof(IClientWorkflowManager), ActualType = typeof(ClientWorkflowManager) };
+            yield return new ServiceMetadata { ServiceType = typeof(IMessageConverter), ActualType = typeof(MessageConverter) };
+            yield return new ServiceMetadata { ServiceType = typeof(IMessageSerializer), ActualType = typeof(MessageSerializer) };
         }
     }
 }

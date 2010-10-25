@@ -5,13 +5,17 @@ using System.Web.Script.Serialization;
 
 namespace AspComet
 {
-    public class MessageConverter 
+    public class MessageConverter: IMessageConverter
     {
-        private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
+        private readonly IMessageSerializer Serializer;
         private static readonly Regex ArrayRegex = new Regex(@"^\s*\[", RegexOptions.Compiled);
-        private static readonly Regex NullRegex = new Regex(@"(""[^""]+"":null,)|(,""[^""]+"":null)", RegexOptions.Compiled);
 
-        public static Message[] FromJson(HttpRequestBase request)
+        public MessageConverter(IMessageSerializer serializer)
+        {
+            Serializer = serializer;
+        }
+
+        public Message[] FromJson(HttpRequestBase request)
         {
             // Get the "message" parameter from the post collection, as specified in Bayeux sec. 3.4.
             // Dojo seems to just send the message as the body, without any name, so cater for that too.
@@ -33,10 +37,9 @@ namespace AspComet
                 return reader.ReadToEnd();
         }
 
-        public static string ToJson<TModel>(TModel model)
+        public string ToJson<TModel>(TModel model)
         {
-            string txt = Serializer.Serialize(model);
-            return NullRegex.Replace(txt, string.Empty);
+            return Serializer.Serialize(model);
         }
     }
 }

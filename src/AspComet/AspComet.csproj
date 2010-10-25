@@ -61,6 +61,9 @@
     <Compile Include="CometAsyncResult.cs" />
     <Compile Include="CometHttpHandler.cs" />
     <Compile Include="IClientWorkflowManager.cs" />
+    <Compile Include="IMessageConverter.cs" />
+    <Compile Include="IMessageSerializer.cs" />
+    <Compile Include="MessageSerializer.cs" />
     <Compile Include="ServiceMetadata.cs" />
     <Compile Include="Setup.cs" />
     <Compile Include="Eventing\CancellableEvent.cs" />

@@ -28,7 +28,7 @@ namespace AspComet
 
         public IAsyncResult BeginProcessRequest(HttpContextBase context, AsyncCallback callback, object asyncState)
         {
-            Message[] request = MessageConverter.FromJson(context.Request);
+            Message[] request = GetMessageConverter().FromJson(context.Request);
             CometAsyncResult asyncResult = new CometAsyncResult(context, callback, asyncState);
             GetMessageBus().HandleMessages(request, asyncResult);
             return asyncResult;
@@ -43,6 +43,17 @@ namespace AspComet
             }
 
             return serviceLocator.GetInstance<IMessageBus>();
+        }
+
+        private static IMessageConverter GetMessageConverter()
+        {
+            IServiceLocator serviceLocator = ServiceLocator.Current;
+            if (serviceLocator == null)
+            {
+                throw new ConfigurationErrorsException("AspComet has not been configured. Either use the default configuration or set up a service locator");
+            }
+
+            return serviceLocator.GetInstance<IMessageConverter>();
         }
 
         public void EndProcessRequest(IAsyncResult result)

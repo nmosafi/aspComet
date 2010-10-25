@@ -8,6 +8,7 @@ using Machine.Specifications;
 
 using Rhino.Mocks;
 using Rhino.Mocks.Constraints;
+using Microsoft.Practices.ServiceLocation;
 
 namespace AspComet.Specifications.Transports
 {
@@ -51,19 +52,26 @@ namespace AspComet.Specifications.Transports
 
     public abstract class CallbackPollingTransportScenario
     {
+        protected static IServiceLocator serviceLocator;
+        protected static IMessageConverter messageConverter;
         protected static Message[] messages;
         protected static string messagesAsJson;
         protected static HttpResponseBase httpResponse;
 
         Establish context = () =>
         {
+            messageConverter = new MessageConverter(new MessageSerializer());
+            serviceLocator = MockRepository.GenerateStub<IServiceLocator>();
+            serviceLocator.Stub(x => x.GetInstance<IMessageConverter>()).Return(messageConverter);
+            ServiceLocator.SetLocatorProvider(() => serviceLocator);
+
             messages = new[]
             { 
                 MessageBuilder.BuildWithRandomPropertyValues(),
                 MessageBuilder.BuildWithRandomPropertyValues()
             };
 
-            messagesAsJson = MessageConverter.ToJson(messages);
+            messagesAsJson = messageConverter.ToJson(messages);
             httpResponse = MockRepository.GenerateStub<HttpResponseBase>();
         };
     }
