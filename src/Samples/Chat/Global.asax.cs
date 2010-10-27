@@ -32,7 +32,7 @@ namespace AspComet.Samples.Chat
             EventHub.Subscribe<HandshakingEvent>(container.Resolve<HandshakeAuthenticator>().CheckHandshake);
             EventHub.Subscribe<PublishingEvent>(container.Resolve<BadLanguageBlocker>().CheckMessage);
             EventHub.Subscribe<SubscribingEvent>(container.Resolve<SubscriptionChecker>().CheckSubscription);
-            EventHub.Subscribe<PublishingEvent>( "/service/whisper", container.Resolve<Whisperer>().SendWhisper );
+            EventHub.Subscribe<PublishingEvent>("/service/whisper", container.Resolve<Whisperer>().SendWhisper);
         }
 
         protected void Application_End(object sender, EventArgs e)
@@ -51,9 +51,9 @@ namespace AspComet.Samples.Chat
             // Let AspComet put its registrations into the container
             foreach (ServiceMetadata metadata in ServiceMetadata.GetMinimumSet())
             {
-                if (metadata.IsPerRequest) 
+                if (metadata.IsPerRequest)
                     builder.RegisterType(metadata.ActualType).As(metadata.ServiceType);
-                else 
+                else
                     builder.RegisterType(metadata.ActualType).As(metadata.ServiceType).SingleInstance();
             }
 

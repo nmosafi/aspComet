@@ -85,9 +85,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoStubbingScenario.cs" />
-    <Compile Include="ChannelNameSpecs.cs" />
     <Compile Include="ClientFactorySpecs.cs" />
     <Compile Include="ClientWorkflowManagerSpecs.cs" />
+    <Compile Include="ChannelPatternSpecs.cs" />
     <Compile Include="EventHubMonitor.cs" />
     <Compile Include="HttpHandlerSpecs.cs" />
     <Compile Include="MessageBuilder.cs" />

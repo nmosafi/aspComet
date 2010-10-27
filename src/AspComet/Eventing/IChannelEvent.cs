@@ -5,8 +5,8 @@ using System.Text;
 
 namespace AspComet.Eventing
 {
-  public interface IChannelEvent : IEvent
-  {
-    string Channel { get; }
-  }
+    public interface IChannelEvent : IEvent
+    {
+        string Channel { get; }
+    }
 }

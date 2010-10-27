@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
+﻿using System.Linq;
 using AspComet.Eventing;
-
 
 namespace AspComet.Samples.Chat
 {
@@ -17,42 +12,68 @@ namespace AspComet.Samples.Chat
             this.clientRepository = clientRepository;
         }
 
-        public void SendWhisper( PublishingEvent ev )
+        public void SendWhisper(PublishingEvent ev)
         {
-            if ( ev.Cancel ) return;
+            if (ev.Cancel) return;
 
-            AuthenticatedClient sender = (AuthenticatedClient)clientRepository.GetByID( ev.Message.clientId );
-            string message = ev.Message.GetData<string>( "message" );
-            int spacePos = message.IndexOf( ' ' );
-            if ( spacePos == -1 ) {
+            AuthenticatedClient sender = (AuthenticatedClient) clientRepository.GetByID(ev.Message.clientId);
+            Whisper whisper = Whisper.FromMessage(ev.Message);
+
+            if (whisper == null)
+            {
                 ev.Cancel = true;
                 ev.CancellationReason = "Format error";
-                SendInfoToUser( sender, "Usage: /whisper <nickname> message" );
+                SendInfoToClient(sender, "Usage: /whisper <nickname> message");
+                return;                
+            }
+
+            AuthenticatedClient receiver = 
+                clientRepository.WhereSubscribedTo("/chat")
+                                .Cast<AuthenticatedClient>()
+                                .FirstOrDefault(user => user.HasUsername(whisper.Username));
+            if (receiver == null)
+            {
+                SendInfoToClient(sender, "User " + whisper.Username + " is not connected to the chat");
                 return;
             }
-            string nickname = message.Substring( 0, spacePos );
-            var receiver = ( from AuthenticatedClient user in clientRepository.WhereSubscribedTo( "/chat" )
-                             where String.Equals( user.username, nickname, StringComparison.InvariantCultureIgnoreCase )
-                             select user ).FirstOrDefault();
-            if ( receiver == null ) {
-                SendInfoToUser( sender, "User " + nickname + " is not connected to the chat" );
-                return;
-            }
-            string text = message.Substring( spacePos+1 );
-            SendInfoToUser( sender, "To " + nickname + ": " + text );
-            SendInfoToUser( receiver, sender.username + " whispers: " + text );
+            SendInfoToClient(sender, "To " + whisper.Username + ": " + whisper.Message);
+            SendInfoToClient(receiver, sender.Username + " whispers: " + whisper.Message);
         }
 
-        public void SendInfoToUser( AuthenticatedClient i_user, string i_text )
+        private static void SendInfoToClient(IClient client, string info)
         {
-            Message message = new Message {
+            Message message = new Message
+            {
                 channel = "/chat",
-                clientId = i_user.ID
+                clientId = client.ID
             };
-            message.SetData( "message", i_text );
-            i_user.Enqueue( message );
-            i_user.FlushQueue();
+
+            message.SetData("message", info);
+            client.Enqueue(message);
+            client.FlushQueue();
         }
 
+        private class Whisper
+        {
+            public string Username { get; private set; }
+            public string Message { get; private set; }
+
+            public static Whisper FromMessage(Message message)
+            {
+                string whisperContent = message.GetData<string>("message");
+
+                int spacePosition = whisperContent.IndexOf(' ');
+                if (spacePosition == -1)
+                {
+                    return null;
+                }
+
+                return new Whisper
+                {
+                    Username = whisperContent.Substring(0, spacePosition),
+                    Message = whisperContent.Substring(spacePosition + 1)
+                };
+            }
+        }
     }
 }

@@ -76,12 +76,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChannelName.cs" />
+    <Compile Include="ChannelPattern.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="ClientFactory.cs" />
     <Compile Include="ClientWorkflowManager.cs" />
     <Compile Include="CometAsyncResult.cs" />
     <Compile Include="CometHttpHandler.cs" />
+    <Compile Include="Eventing\IChannelEvent.cs" />
     <Compile Include="IClientWorkflowManager.cs" />
     <Compile Include="ServiceMetadata.cs" />
     <Compile Include="Setup.cs" />

@@ -54,7 +54,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChannelName.cs" />
     <Compile Include="ChannelPattern.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="ClientFactory.cs" />

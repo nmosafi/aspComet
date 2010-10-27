@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace AspComet.Eventing
@@ -15,36 +16,45 @@ namespace AspComet.Eventing
 
         // NOTE: we assume, that there's just a few channel subscriptions, so that we can loop over them in
         // search of matches. If this is not true, we'd need better data structure 
-        public static void Subscribe<T>( string channelPattern, Action<T> action ) where T : IChannelEvent
+        public static void Subscribe<T>(string channelPattern, Action<T> action) where T : IChannelEvent
         {
-            lock ( ChannelSubscriptions ) {
-                if ( !ChannelSubscriptions.ContainsKey( typeof(T) ) ) {
-                    ChannelSubscriptions[typeof( T )] = new Lookup<ChannelPattern, Delegate>();
+            Type type = typeof(T);
+            if (!ChannelSubscriptions.ContainsKey(type))
+            {
+                lock (ChannelSubscriptions)
+                {
+                    if (!ChannelSubscriptions.ContainsKey(type))
+                    {
+                        ChannelSubscriptions[type] = new Lookup<ChannelPattern, Delegate>();
+                    }
                 }
-                ChannelSubscriptions[typeof( T )].Add( new ChannelPattern( channelPattern ), action );
             }
+            ChannelSubscriptions[type].Add(new ChannelPattern(channelPattern), action);
         }
 
         public static void Publish<T>(T ev) where T : IEvent
         {
             // NOTE: This should be thread safe as we can't currently unsubscribe, no need to lock
-            if ( Subscriptions.Contains( typeof( T ) ) ) {
-              // First run all generic handlers
-              foreach ( Action<T> action in Subscriptions[typeof( T )] ) {
-                TryAndInvoke( action, ev );
-              }
+
+            // First run all generic handlers
+            if (Subscriptions.Contains(typeof(T)))
+            {
+                foreach (Action<T> action in Subscriptions[typeof(T)])
+                {
+                    TryAndInvoke(action, ev);
+                }
             }
 
             // And then channel handlers
-            if ( ev is IChannelEvent ) {
-                Lookup<ChannelPattern, Delegate> handlers;
-                if ( ChannelSubscriptions.TryGetValue( typeof(T), out handlers ) ) {
-                    string channel = ((IChannelEvent)ev).Channel;
-                    foreach ( ChannelPattern pattern in handlers.Keys ) {
-                        if ( !pattern.Matches( channel ) ) continue;
-                        foreach ( Action<T> action in handlers[pattern] ) {
-                            TryAndInvoke( action, ev );
-                        }
+            Lookup<ChannelPattern, Delegate> handlers;
+            if (ev is IChannelEvent && ChannelSubscriptions.TryGetValue(typeof(T), out handlers))
+            {
+                string channel = ((IChannelEvent) ev).Channel;
+                foreach (ChannelPattern pattern in handlers.Keys.Where(p => p.Matches(channel)))
+                {
+                    foreach (Action<T> action in handlers[pattern])
+                    {
+                        TryAndInvoke(action, ev);
                     }
                 }
             }
@@ -65,6 +75,7 @@ namespace AspComet.Eventing
         public static void Reset()
         {
             Subscriptions = new Lookup<Type, Delegate>();
+            ChannelSubscriptions = new Dictionary<Type, Lookup<ChannelPattern, Delegate>>();
         }
     }
 }
