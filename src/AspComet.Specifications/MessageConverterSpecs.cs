@@ -27,11 +27,7 @@ namespace AspComet.Specifications
 
         Because of = () => json = MessageConverter.ToJson(message);
 
-<<<<<<< HEAD
         It should_should_strip_out_null_properties_from_json_string = () => json.ShouldNotContain(@"""error"":");
-=======
-        It should_should_strip_out_null_properties_from_json_string = () => json.ShouldNotContain("error:");
->>>>>>> 83376a86c914532c8db17fd3666386692ff0f23a
 
         static string json;
         static Message message;
