@@ -45,3 +45,7 @@ The configuration step described in the Getting Started section - Setup.AspComet
 However, AspComet is built with IoC in mind and is fully configurable via IoC, which lets applications completely replace any internal component of the framework.  It uses the [Common Service Locator Library](http://commonservicelocator.codeplex.com) to locate the services it needs, and provides metadata for applications to easily configure their container of choice with the default services required by the framework.
 
 The best example if this is to look at the [Global.asax.cs file in the Chat sample](aspComet/blob/master/src/Samples/Chat/Global.asax.cs) which uses the Autofac container and replaces a few of the default objects with custom ones.
+
+# License
+
+AspComet is licensed under the terms of the MIT License, see the [included MIT-LICENSE file](aspComet/blob/master/MIT-LICENSE).
