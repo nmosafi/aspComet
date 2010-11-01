@@ -92,6 +92,7 @@
     <Compile Include="HttpHandlerSpecs.cs" />
     <Compile Include="MessageBuilder.cs" />
     <Compile Include="MessageBusSpecs.cs" />
+    <Compile Include="MessageConverterSpecs.cs" />
     <Compile Include="MessageHandlerFactorySpecs.cs" />
     <Compile Include="MessageHandlers\Common.cs" />
     <Compile Include="MessageHandlers\ExceptionHandlerSpecs.cs" />
