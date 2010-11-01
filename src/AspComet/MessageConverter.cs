@@ -2,14 +2,16 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Script.Serialization;
+using System.Text;
+using System.Reflection;
 
 namespace AspComet
 {
-    public class MessageConverter 
+    public static class MessageConverter 
     {
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
         private static readonly Regex ArrayRegex = new Regex(@"^\s*\[", RegexOptions.Compiled);
-        private static readonly Regex NullRegex = new Regex(@"(""[^""]+"":null,)|(,""[^""]+"":null)", RegexOptions.Compiled);
+        private static readonly Regex NullRegex = new Regex(CreateNullRegexString(), RegexOptions.Compiled);
 
         public static Message[] FromJson(HttpRequestBase request)
         {
@@ -37,6 +39,23 @@ namespace AspComet
         {
             string txt = Serializer.Serialize(model);
             return NullRegex.Replace(txt, string.Empty);
+        }
+
+        /// <summary>
+        /// Creates a Regex which will strip out Nulls from the top level fields of the Message
+        /// </summary>
+        private static string CreateNullRegexString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            PropertyInfo[] properties = typeof(Message).GetProperties();
+            for (int index = 0; index < properties.Length - 1; index++)
+            {
+                stringBuilder.AppendFormat(@"(""{0}"":null,)|(,""{0}"":null)|", properties[index].Name);
+            }
+            stringBuilder.AppendFormat(@"(""{0}"":null)|(,""{0}"":null)", properties[properties.Length - 1].Name);
+
+            return stringBuilder.ToString();
         }
     }
 }
