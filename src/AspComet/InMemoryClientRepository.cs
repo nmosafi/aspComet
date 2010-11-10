@@ -36,6 +36,14 @@ namespace AspComet
             }
         }
 
+        public IEnumerable<IClient> All()
+        {
+            lock (syncRoot)
+            {
+                return Clients.ToList();
+            }
+        }
+
         public IEnumerable<IClient> WhereSubscribedTo(string channel)
         {
             lock (syncRoot)

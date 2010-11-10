@@ -7,6 +7,7 @@ namespace AspComet
         IClient GetByID(string clientID);
         void DeleteByID(string clientID);
         void Insert(IClient client);
+        IEnumerable<IClient> All();
         IEnumerable<IClient> WhereSubscribedTo(string channel);
     }
 }

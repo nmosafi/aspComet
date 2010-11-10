@@ -109,9 +109,9 @@
     <Compile Include="Transports\CallingPollingTransportSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AspComet\AspComet.csproj">
+    <ProjectReference Include="..\AspComet\AspComet-vs2010.csproj">
       <Project>{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}</Project>
-      <Name>AspComet</Name>
+      <Name>AspComet-vs2010</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

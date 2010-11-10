@@ -10,61 +10,53 @@ namespace AspComet
     {
         public static class AspComet
         {
-            public static void InANonExtensibleAndNonConfigurableManner()
+            public static void WithTheDefaultServices()
             {
-                IClientRepository clientRepository = new InMemoryClientRepository();
-                IClientIDGenerator clientIDGenerator = new RngUniqueClientIDGenerator(clientRepository);
-                IClientFactory clientFactory = new ClientFactory();
-                IClientWorkflowManager clientWorkflowManager = new ClientWorkflowManager(clientRepository);
-                IMessageHandlerFactory messageHandlerFactory = new MessageHandlerFactory(clientRepository, clientIDGenerator, clientFactory, clientWorkflowManager);
-                IMessageBus messageBus = new MessageBus(clientRepository, () => new MessagesProcessor(messageHandlerFactory));
+                DummyServiceLocator serviceLocator = new DummyServiceLocator();
+                serviceLocator.ClientRepository = new InMemoryClientRepository();
+                serviceLocator.ClientIDGenerator = new RngUniqueClientIDGenerator(serviceLocator.ClientRepository);
+                serviceLocator.ClientFactory = new ClientFactory();
+                serviceLocator.ClientWorkflowManager = new ClientWorkflowManager(serviceLocator.ClientRepository);
+                serviceLocator.MessageHandlerFactory = new MessageHandlerFactory(serviceLocator.ClientRepository, serviceLocator.ClientIDGenerator, serviceLocator.ClientFactory, serviceLocator.ClientWorkflowManager);
+                serviceLocator.MessageBus = new MessageBus(serviceLocator.ClientRepository, () => new MessagesProcessor(serviceLocator.MessageHandlerFactory));
 
-                ServiceLocator.SetLocatorProvider(() => new DummyServiceLocator(messageBus));
+                ServiceLocator.SetLocatorProvider(() => serviceLocator);
             }
 
             private class DummyServiceLocator : IServiceLocator
             {
-                private readonly IMessageBus messageBus;
-
-                public DummyServiceLocator(IMessageBus messageBus)
-                {
-                    this.messageBus = messageBus;
-                }
+                public IMessageBus MessageBus { get; set; }
+                public IClientRepository ClientRepository { get; set; }
+                public IClientIDGenerator ClientIDGenerator { get; set; }
+                public IClientFactory ClientFactory { get; set; }
+                public IClientWorkflowManager ClientWorkflowManager { get; set; }
+                public IMessageHandlerFactory MessageHandlerFactory { get; set; }
 
                 public object GetService(Type serviceType)
                 {
-                    if (serviceType == typeof(IMessageBus))
-                    {
-                        return messageBus;
-                    }
-                    throw new Exception("DummyServiceLocator does not support retrieving anything but the message bus");
+                    if (serviceType == typeof(IMessageBus)) return MessageBus;
+                    if (serviceType == typeof(IClientRepository)) return ClientRepository;
+                    if (serviceType == typeof(IClientIDGenerator)) return ClientIDGenerator;
+                    if (serviceType == typeof(IClientFactory)) return ClientFactory;
+                    if (serviceType == typeof(IClientWorkflowManager)) return ClientWorkflowManager;
+                    if (serviceType == typeof(IMessageHandlerFactory)) return MessageHandlerFactory;
+
+                    throw new Exception("DummyServiceLocator does not support retrieving types of " + serviceType);
                 }
 
                 public object GetInstance(Type serviceType)
                 {
-                    if (serviceType == typeof(IMessageBus))
-                    {
-                        return messageBus;
-                    }
-                    throw new Exception("DummyServiceLocator does not support retrieving anything but the message bus");
+                    return GetService(serviceType);
                 }
 
                 public object GetInstance(Type serviceType, string key)
                 {
-                    if (serviceType == typeof(IMessageBus))
-                    {
-                        return messageBus;
-                    }
-                    throw new Exception("DummyServiceLocator does not support retrieving anything but the message bus");
+                    return GetService(serviceType);
                 }
 
                 public IEnumerable<object> GetAllInstances(Type serviceType)
                 {
-                    if (serviceType == typeof(IMessageBus))
-                    {
-                        yield return messageBus;
-                    }
-                    throw new Exception("DummyServiceLocator does not support retrieving anything but the message bus");
+                    yield return GetService(serviceType);
                 }
 
                 public TService GetInstance<TService>()

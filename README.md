@@ -28,7 +28,7 @@ Once you have AspComet.dll, you'll need to set up the Http Handler for handling 
 
 Then you need to add one line to your Global.asax.cs file:
 
-	Setup.AspComet.InANonExtensibleAndNonConfigurableManner();
+	Setup.AspComet.WithTheDefaultServices();
 
 And that's it!  You can now build client applications using a supported Bayeux Javascript client, subscribe to channels and publish messages to them.
 
@@ -40,7 +40,7 @@ AspComet provides an event hub which allows the COMET Endpoint hosting applicati
 
 ### Taking complete control
 
-The configuration step described in the Getting Started section - Setup.AspComet.InANonExtensibleAndNonConfigurableManner() - is just provided for the most basic scenarios and doesn't allow you to replace any components of the system.
+The configuration step described in the Getting Started section - Setup.AspComet.WithTheDefaultServices() - is just provided for the most basic scenarios and doesn't allow you to replace any components of the system.
 
 However, AspComet is built with IoC in mind and is fully configurable via IoC, which lets applications completely replace any internal component of the framework.  It uses the [Common Service Locator Library](http://commonservicelocator.codeplex.com) to locate the services it needs, and provides metadata for applications to easily configure their container of choice with the default services required by the framework.
 
