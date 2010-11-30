@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Web;
-using System.Web.Script.Serialization;
 using System.Text;
 using System.Reflection;
 
@@ -64,31 +63,5 @@ namespace AspComet
         {
             Serializer = () => new DefaultSerializer();
         }
-    }
-
-    public class DefaultSerializer : ISerializer
-    {
-        readonly JavaScriptSerializer _serializer;
-
-        public DefaultSerializer()
-        {
-            _serializer = new JavaScriptSerializer();
-        }
-
-        public string Serialize(object obj)
-        {
-            return _serializer.Serialize(obj);
-        }
-
-        public T Deserialize<T>(string json)
-        {
-            return _serializer.Deserialize<T>(json);
-        }
-    }
-
-    public interface ISerializer
-    {
-        string Serialize(object obj);
-        T Deserialize<T>(string json);
     }
 }
