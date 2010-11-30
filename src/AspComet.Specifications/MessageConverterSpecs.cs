@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web.Script.Serialization;
 using Machine.Specifications;
 
 namespace AspComet.Specifications
@@ -49,4 +50,39 @@ namespace AspComet.Specifications
         static string json;
         static Message message;
     }
+
+    [Subject("Extending Serializer")]
+    public class when_using_the_default_serializer
+    {
+        It should_be_an_instance_of_JavaScriptSerializer = () => MessageConverter.Serializer().ShouldBeOfType(typeof (DefaultSerializer));
+    }
+
+    [Subject("Extending Serializer")]
+    public class when_extending_the_with_a_different_serializer
+    {
+        Because of = () =>
+        {
+            MessageConverter.Serializer = () => new TestSerializer();
+        };
+
+        It should_be_an_instance_of_JavaScriptSerializer = () => MessageConverter.Serializer().ShouldBeOfType(typeof(TestSerializer));
+
+        Cleanup reset_erializer = MessageConverter.ResetDefaultSerializer;
+
+        class TestSerializer : ISerializer
+        {
+            public string Serialize(object obj)
+            {
+                throw new NotImplementedException();
+            }
+
+            public T Deserialize<T>(string json)
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
+
+
+
 }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -9,7 +10,8 @@ namespace AspComet
 {
     public static class MessageConverter 
     {
-        private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
+        public static Func<ISerializer> Serializer = () => new DefaultSerializer();
+
         private static readonly Regex ArrayRegex = new Regex(@"^\s*\[", RegexOptions.Compiled);
         private static readonly Regex NullRegex = new Regex(CreateNullRegexString(), RegexOptions.Compiled);
 
@@ -20,8 +22,8 @@ namespace AspComet
             string json = GetJsonFromMessageFieldIn(request) ?? GetJsonFromBodyOf(request);
 
             // If the message starts with a '[' read as an array - otherwise read into single field array.
-            return ArrayRegex.IsMatch(json) ? Serializer.Deserialize<Message[]>(json)
-                                            : new[] { Serializer.Deserialize<Message>(json) };
+            return ArrayRegex.IsMatch(json) ? Serializer().Deserialize<Message[]>(json)
+                                            : new[] { Serializer().Deserialize<Message>(json) };
         }
 
         private static string GetJsonFromMessageFieldIn(HttpRequestBase request)
@@ -37,7 +39,7 @@ namespace AspComet
 
         public static string ToJson<TModel>(TModel model)
         {
-            string txt = Serializer.Serialize(model);
+            string txt = Serializer().Serialize(model);
             return NullRegex.Replace(txt, string.Empty);
         }
 
@@ -57,5 +59,36 @@ namespace AspComet
 
             return stringBuilder.ToString();
         }
+
+        public static void ResetDefaultSerializer()
+        {
+            Serializer = () => new DefaultSerializer();
+        }
+    }
+
+    public class DefaultSerializer : ISerializer
+    {
+        readonly JavaScriptSerializer _serializer;
+
+        public DefaultSerializer()
+        {
+            _serializer = new JavaScriptSerializer();
+        }
+
+        public string Serialize(object obj)
+        {
+            return _serializer.Serialize(obj);
+        }
+
+        public T Deserialize<T>(string json)
+        {
+            return _serializer.Deserialize<T>(json);
+        }
+    }
+
+    public interface ISerializer
+    {
+        string Serialize(object obj);
+        T Deserialize<T>(string json);
     }
 }
