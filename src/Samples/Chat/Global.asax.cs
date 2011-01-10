@@ -33,6 +33,7 @@ namespace AspComet.Samples.Chat
             EventHub.Subscribe<PublishingEvent>(container.Resolve<BadLanguageBlocker>().CheckMessage);
             EventHub.Subscribe<SubscribingEvent>(container.Resolve<SubscriptionChecker>().CheckSubscription);
             EventHub.Subscribe<PublishingEvent>("/service/whisper", container.Resolve<Whisperer>().SendWhisper);
+            CometHttpHandler.AllowOrigin = "*";
         }
 
         protected void Application_End(object sender, EventArgs e)
