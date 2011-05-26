@@ -53,7 +53,7 @@ namespace AspComet
             {
                 stringBuilder.AppendFormat(@"(""{0}"":null,)|(,""{0}"":null)|", properties[index].Name);
             }
-            stringBuilder.AppendFormat(@"(""{0}"":null)|(,""{0}"":null)", properties[properties.Length - 1].Name);
+            stringBuilder.AppendFormat(@"(""{0}"":null,)|(,""{0}"":null)", properties[properties.Length - 1].Name);
 
             return stringBuilder.ToString();
         }
