@@ -60,8 +60,10 @@
     <Compile Include="ClientWorkflowManager.cs" />
     <Compile Include="CometAsyncResult.cs" />
     <Compile Include="CometHttpHandler.cs" />
+    <Compile Include="DefaultSerializer.cs" />
     <Compile Include="Eventing\IChannelEvent.cs" />
     <Compile Include="IClientWorkflowManager.cs" />
+    <Compile Include="ISerializer.cs" />
     <Compile Include="ServiceMetadata.cs" />
     <Compile Include="Setup.cs" />
     <Compile Include="Eventing\CancellableEvent.cs" />
