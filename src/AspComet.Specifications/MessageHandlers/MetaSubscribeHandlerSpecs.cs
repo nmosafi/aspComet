@@ -63,6 +63,31 @@ namespace AspComet.Specifications.MessageHandlers
             result.Message.error.ShouldEqual(string.Format("403:{0},{1}:{2}", request.clientId, request.channel, CancellationReason));
     }
 
+	[Subject(Constants.MessageHandlingSubject)]
+	public class when_handling_a_meta_subscribe_message_for_an_unregistered_client : MessageHandlerScenario<MetaSubscribeHandler>
+	{
+		Establish context = () =>
+		{
+			Dependency<IClientRepository>().Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(null);
+
+			eventHubMonitor.StartMonitoring<SubscribingEvent, SubscribedEvent>();
+		};
+
+		Because of = () =>
+		   result = SUT.HandleMessage(request);
+
+		Behaves_like<ItHasHandledAMessage> has_handled_a_message;
+
+		It should_retrieve_the_client_using_the_client_id_in_the_message = () =>
+		  Dependency<IClientRepository>().ShouldHaveHadCalled(x => x.GetByID(request.clientId));
+
+		It should_specify_that_the_result_cannot_be_treated_as_a_long_poll = () =>
+			result.CanTreatAsLongPoll.ShouldBeFalse();
+
+		It should_return_a_message_with_402_error_containing_the_client_and_that_it_is_unknown = () =>
+			result.Message.error.ShouldEqual(string.Format("402:{0}:Unknown Client ID", request.clientId));
+	}
+
     [Behaviors]
     public class ItHasHandledASubscribeMessage : MetaSubscribeHandlerScenario
     {
