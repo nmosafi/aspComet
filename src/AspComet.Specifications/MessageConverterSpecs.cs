@@ -33,6 +33,26 @@ namespace AspComet.Specifications
         static Message message;
     }
 
+	[Subject("Converting messages")]
+	public class when_converting_a_message_where_the_first_property_is_null
+	{
+		Establish context = () =>
+		{
+			message = new Message
+			{
+				 advice = null,
+				 channel = "somestring"
+			};
+		};
+
+		Because of = () => json = MessageConverter.ToJson(message);
+
+		It should_not_leave_begin_with_a_comma = () => json.StartsWith(@"{,").ShouldBeFalse();
+
+		static string json;
+		static Message message;
+	}
+
     [Subject("Converting messages")]
     public class when_converting_a_message_with_a_null_property_in_the_data
     {
