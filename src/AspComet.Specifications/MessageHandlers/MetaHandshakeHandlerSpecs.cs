@@ -90,6 +90,7 @@ namespace AspComet.Specifications.MessageHandlers
         It should_specify_that_the_result_cannot_be_treated_as_a_long_poll = () =>
             result.CanTreatAsLongPoll.ShouldBeFalse();
 
+		//TODO: Factor this test out so we can check for both long-polling and callback separately.
         It should_return_a_message_with_supported_connection_types_of_long_polling = () =>
             result.Message.supportedConnectionTypes.ShouldContainOnly("long-polling");
     }
