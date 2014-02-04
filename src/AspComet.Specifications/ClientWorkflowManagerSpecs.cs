@@ -51,7 +51,24 @@ namespace AspComet.Specifications
     [Subject(typeof(ClientWorkflowManager))]
     public class when_an_already_disconnected_client_disconnects : AutoStubbingScenario<ClientWorkflowManager>
     {
-        It should_not_publish_the_disconnected_event_again;
+        const string ClientID = "TheClientID";
+        static IClient client;
+        static EventHubMonitor eventHubMonitor;
+
+        Establish context = () =>
+        {
+            client = MockRepository.GenerateStub<IClient>();
+            client.Stub(x => x.ID).Return(ClientID);
+            SUT.RegisterClient(client);
+            eventHubMonitor = new EventHubMonitor();
+            client.Raise(x => x.Disconnected += null, client, EventArgs.Empty);
+
+            eventHubMonitor.StartMonitoring<DisconnectedEvent>();
+        };
+
+        private Because of = () => client.Raise(x => x.Disconnected += null, client, EventArgs.Empty);
+
+        It should_not_publish_the_disconnected_event_again = () => eventHubMonitor.RaisedEvent<DisconnectedEvent>().ShouldBeNull();
     }
 
     public abstract class ClientWorkflowManagerScenario : AutoStubbingScenario<ClientWorkflowManager>

@@ -33,6 +33,26 @@ namespace AspComet.Specifications
         static Message message;
     }
 
+	[Subject("Converting messages")]
+	public class when_converting_a_message_where_the_first_property_is_null
+	{
+		Establish context = () =>
+		{
+			message = new Message
+			{
+				 advice = null,
+				 channel = "somestring"
+			};
+		};
+
+		Because of = () => json = MessageConverter.ToJson(message);
+
+		It should_not_leave_begin_with_a_comma = () => json.StartsWith(@"{,").ShouldBeFalse();
+
+		static string json;
+		static Message message;
+	}
+
     [Subject("Converting messages")]
     public class when_converting_a_message_with_a_null_property_in_the_data
     {
@@ -49,4 +69,39 @@ namespace AspComet.Specifications
         static string json;
         static Message message;
     }
+
+    [Subject("Extending Serializer")]
+    public class when_using_the_default_serializer
+    {
+        It should_be_an_instance_of_JavaScriptSerializer = () => MessageConverter.Serializer().ShouldBeOfType(typeof (DefaultSerializer));
+    }
+
+    [Subject("Extending Serializer")]
+    public class when_extending_the_with_a_different_serializer
+    {
+        Because of = () =>
+        {
+            MessageConverter.Serializer = () => new TestSerializer();
+        };
+
+        It should_be_an_instance_of_JavaScriptSerializer = () => MessageConverter.Serializer().ShouldBeOfType(typeof(TestSerializer));
+
+        Cleanup reset_erializer = MessageConverter.ResetDefaultSerializer;
+
+        class TestSerializer : ISerializer
+        {
+            public string Serialize(object obj)
+            {
+                throw new NotImplementedException();
+            }
+
+            public T Deserialize<T>(string json)
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
+
+
+
 }

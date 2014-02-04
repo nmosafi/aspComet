@@ -13,6 +13,12 @@ namespace AspComet.Specifications.MessageHandlers
     [Subject(Constants.MessageHandlingSubject)]
     public class when_handling_a_meta_unsubscribe_message_from_an_non_existent_client : MessageHandlerScenario<MetaUnsubscribeHandler>
     {
+		Establish context = () =>
+		{
+			Dependency<IClientRepository>().Stub(x => x.GetByID(Arg<string>.Is.Anything)).Return(null);
+
+			eventHubMonitor.StartMonitoring<UnsubscribedEvent>();
+		};
         Because of = () => 
             result = SUT.HandleMessage(request);
 
@@ -20,6 +26,9 @@ namespace AspComet.Specifications.MessageHandlers
 
         It should_return_an_unsuccessful_message = () =>
             result.Message.successful.ShouldEqual(false);
+
+		It should_return_a_message_with_402_error_containing_the_client_and_that_it_is_unknown = () =>
+			result.Message.error.ShouldEqual(string.Format("402:{0}:Unknown Client ID", request.clientId));
     }
     
     [Subject(Constants.MessageHandlingSubject)]

@@ -55,7 +55,7 @@ namespace AspComet.MessageHandlers
             {
                 channel = request.channel,
                 version = "1.0",
-                supportedConnectionTypes = new[] { "long-polling" },
+                supportedConnectionTypes = new[] { "long-polling", "callback-polling" },
                 clientId = client.ID,
                 successful = true,
                 id = request.id,
@@ -75,7 +75,7 @@ namespace AspComet.MessageHandlers
             {
                 channel = request.channel,
                 error = cancellationReason,
-                supportedConnectionTypes = new[] { "long-polling" },
+                supportedConnectionTypes = new[] { "long-polling", "callback-polling" },
                 version = "1.0",
                 successful = false,
                 id = request.id,

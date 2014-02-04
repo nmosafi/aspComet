@@ -6,7 +6,7 @@
     (a) for the simpler chat program we're using, and
     (b) to work with both the jQuery and Dojo toolkits
 */
-var chat = function () {
+var chat = function() {
     var _chatSubscription;
     var _metaSubscriptions = [];
     var _cometd;
@@ -14,7 +14,7 @@ var chat = function () {
     var _disconnecting;
 
     return {
-        init: function (cometd, username, password) {
+        init: function(cometd, username, password) {
 
             // Store the initialisation parameters    
             _cometd = cometd;
@@ -24,7 +24,13 @@ var chat = function () {
             _metaSubscribe();
 
             // Configure the connection
-            _cometd.configure({ url: 'comet.axd' });
+            if (false) {
+                var url = window.location.toString().substring(0, window.location.toString().lastIndexOf('/')) + "/comet.axd";
+                url = url.replace("localhost", "127.0.0.1");
+                _cometd.configure({ url: url });
+            } else {
+                _cometd.configure({ url: 'comet.axd' });
+            }
 
             // And handshake - with authentication, as described at
             // http://cometd.org/documentation/howtos/authentication
@@ -38,10 +44,10 @@ var chat = function () {
             });
         }
 
-        , leave: function () {
+        , leave: function() {
             if (!_username) return;
 
-            _cometd.batch(function () {
+            _cometd.batch(function() {
                 _cometd.publish('/chat', {
                     message: _username + ' has left'
                 });
@@ -91,7 +97,7 @@ var chat = function () {
                 message: 'Connection to Server Opened'
             }
         });
-        _cometd.batch(function () {
+        _cometd.batch(function() {
             _subscribe();
             _cometd.publish('/chat', {
                 message: _username + ' has joined'
