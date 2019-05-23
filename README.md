@@ -3,13 +3,13 @@
 The aim of this project is to provide a lightweight and extensible COMET implementation which does not require a custom server.
 You can pick between 2 implementations that are demonstrated in their own sample web projects:
 
-  1. **[Samples/Chat](tree/master/src/Samples/Chat)** \
+  1. **Samples/Chat** \
   Traditional ASP.NET Framework 4.7.1 app\
-  (implements comet with a custom HttpHandler in [the AspComet library](tree/master/src/AspComet))
+  (implements comet with a custom HttpHandler in the AspComet library
 
-  2. **[Samples/AspCometCoreApp](tree/master/src/Samples/AspCometCoreApp)**\
+  2. **Samples/AspCometCoreApp**\
    ASP.NET Core 2 app\
-   (implements comet with middleware from [the AspCoreCometware library]((tree/master/src/AspCoreCometware)))
+   (implements comet with middleware from the AspCoreCometware library
 
 Most COMET implementations require a custom server, due to the fact that ASP.NET's threading model (pooled threads) does not promote scalability for COMET applications. 
 
@@ -27,6 +27,42 @@ Find out more background information at Neil Mosafi's blog post here: [http://ne
 
 # Getting started
 
+   1.  Build or reference the AspCoreCometware library in your new netcoreapp2.1
+   2.  Configure your web app just like the sample that's provided:
+```C#
+    public void ConfigureServices(IServiceCollection services)
+    {
+        //Minimum req'd sevices
+        services.ConfigureBasicCometServices();
+        //your custom comet services
+        services.AddSingleton<IClientFactory, AuthenticatedClientFactory>();
+        services.AddSingleton<HandshakeAuthenticator>();
+        services.AddSingleton<BadLanguageBlocker>();
+        services.AddSingleton<SubscriptionChecker>();
+        services.AddSingleton<Whisperer>();
+    }
+```
+Then, configure the middleware to branch on your desired comet URL:
+```C#
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+    {
+        // Create branch to the CometMiddleware. 
+        // All requests ending in comet/45.0 will follow this branch.
+        app.MapWhen(
+            context => context.Request.Path.ToString().Contains("/comet/45.0"),
+            appBranch => {
+                // ... optionally add more middleware to this branch
+                appBranch.UseCometMiddleware();//formerly an 'HttpHandler'
+            });
+
+        EventHub.Subscribe<HandshakingEvent>(app.ApplicationServices.GetService<HandshakeAuthenticator>().CheckHandshake);
+        EventHub.Subscribe<PublishingEvent>(app.ApplicationServices.GetService<BadLanguageBlocker>().CheckMessage);
+        EventHub.Subscribe<SubscribingEvent>(app.ApplicationServices.GetService<SubscriptionChecker>().CheckSubscription);
+        EventHub.Subscribe<PublishingEvent>("/service/whisper", app.ApplicationServices.GetService<Whisperer>().SendWhisper);
+
+        app.UseFileServer();
+    }
+```
 The project uses [Jetbrains TeamCity](http://jetbrains.com/teamcity) for continuous integration, hosted at [TeamCity.CodeBetter.Com](http://teamcity.codebetter.com/project.html?projectId=project59).  The easiest way to get up and running is to download the most recent artifact from there.  Otherwise you can build from source.
 
 Once you have AspComet.dll, you'll need to set up the Http Handler for handling COMET requests.  Add a reference to the dll and add the following line to your Web.Config file:
