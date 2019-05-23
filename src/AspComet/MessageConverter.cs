@@ -26,7 +26,14 @@ namespace AspComet
 
         private static string GetJsonFromMessageFieldIn(HttpRequestBase request)
         {
-            return request.Form["message"];
+            try
+            {
+                return request.Form["message"];
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private static string GetJsonFromBodyOf(HttpRequestBase request)
