@@ -1,12 +1,21 @@
 # Background
 
-The aim of this project is to provide a lightweight and extensible COMET implementation which does not require a custom server but can run in native IIS under ASP.NET.
+The aim of this project is to provide a lightweight and extensible COMET implementation which does not require a custom server.
+You can pick between 2 implementations that are demonstrated in their own sample web projects:
+
+  1. **[Samples/Chat](tree/master/src/Samples/Chat)** \
+  Traditional ASP.NET Framework 4.7.1 app\
+  (implements comet with a custom HttpHandler in [the AspComet library](tree/master/src/AspComet))
+
+  2. **[Samples/AspCometCoreApp](tree/master/src/Samples/AspCometCoreApp)**\
+   ASP.NET Core 2 app\
+   (implements comet with middleware from [the AspCoreCometware library]((tree/master/src/AspCoreCometware)))
 
 Most COMET implementations require a custom server, due to the fact that ASP.NET's threading model (pooled threads) does not promote scalability for COMET applications. 
 
-A strong motivation for this project is therefore being able to remove this requirement, and to be able to deploy COMET applications to any shared infrastructure or cloud based hosting. It is packaged as a single .NET DLL coming in at under 40KB in size.
+A strong motivation for this project is therefore being able to remove this requirement, and to be able to deploy COMET applications to any shared infrastructure or cloud based hosting. Either implementation can be packaged as a single .NET DLL coming in at under 40KB in size.
 
-To find out more about COMET, it's worth reading Neil Mosafi's blog post at [http://neilmosafi.blogspot.com/2009/03/comet-pushing-to-web-browser.html](http://neilmosafi.blogspot.com/2009/03/comet-pushing-to-web-browser.html) which describes some of the motivations for this library.
+To find out more about COMET, it's worth reading [Neil Mosafi's blog post](http://neilmosafi.blogspot.com/2009/03/comet-pushing-to-web-browser.html) which describes some of the motivations for the original AspComet-vs2010 library. [bkwdesign]() 
 
 # The Bayeux Protocol
 

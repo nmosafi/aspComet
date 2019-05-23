@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{F672F752-37B9-43AD-B89E-9F0517083F44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{90E9DDF9-61E4-4BC2-AE26-E99ADF12F183}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\build\build.proj = ..\build\build.proj
+		..\MIT-LICENSE = ..\MIT-LICENSE
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet-vs2010", "AspComet\AspComet-vs2010.csproj", "{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspComet.Specifications-vs2010", "AspComet.Specifications\AspComet.Specifications-vs2010.csproj", "{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat-vs2010", "Samples\Chat\Chat-vs2010.csproj", "{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspCometCoreApp", "Samples\AspCometCoreApp\AspCometCoreApp.csproj", "{3BDD95F9-C055-49A4-BF5C-C37772E3A64F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspCoreCometware", "AspCoreCometware\AspCoreCometware.csproj", "{36852D15-4884-419A-98E6-A810272B6A75}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{112FCB54-F7B7-43D3-BA33-5BE8D62195BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82995F83-8DFE-4647-85B1-CEBBC73FEE1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5C5A727-7A0D-4106-9A80-739E8B52AA0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BDD95F9-C055-49A4-BF5C-C37772E3A64F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BDD95F9-C055-49A4-BF5C-C37772E3A64F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BDD95F9-C055-49A4-BF5C-C37772E3A64F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BDD95F9-C055-49A4-BF5C-C37772E3A64F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36852D15-4884-419A-98E6-A810272B6A75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36852D15-4884-419A-98E6-A810272B6A75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36852D15-4884-419A-98E6-A810272B6A75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36852D15-4884-419A-98E6-A810272B6A75}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B5C5A727-7A0D-4106-9A80-739E8B52AA0D} = {F672F752-37B9-43AD-B89E-9F0517083F44}
+		{3BDD95F9-C055-49A4-BF5C-C37772E3A64F} = {F672F752-37B9-43AD-B89E-9F0517083F44}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7D514B64-F393-4E34-9E7F-673242951B04}
+	EndGlobalSection
+EndGlobal

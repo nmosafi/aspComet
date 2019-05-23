@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>.NET Core Chat Web App</title>
+    <style>
+        body{font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;}
+    </style>
+</head>
+<body>
+    <h2>Welcome to the .NET Core 'Chat' Web App</h2>
+
+    <pre>
+    This is a direct steal of code from the older &quot;Chat-vs2010&quot; web application.
+    The older application relies on the DLL generated from the "AspComet-vs2010" library.
+    This application relies on the DLL generated from the "AspCoreCometware" library.
+</pre>
+    <p>
+        The comet URL in the older app was /comet, whereas this app uses /comet/45.0,<br />
+        as my goal was to mimick a SalesForce server (aka "org")
+    </p>
+    <p>
+        To change the comet path, look at the way the UseCometMiddleware is referenced in Startup.cs.<br />
+        You may need to update the javascript source for the below client UIs, too.
+    </p>
+    <h3>Comet Terminal</h3>
+    <a href="CometdTerminal.html" target="terminal">Go to the Comet Terminal</a>
+
+    <h3>Dojo</h3>
+    <p>You can see when others join the 'chat' channel - launch multiple Dojo clients (multiple browser windows)</p>
+    <a href="Dojo.html" target="_blank">Go to the Dojo to start a chat session.</a>
+</body>
+</html>
