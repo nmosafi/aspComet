@@ -3,3 +3,5 @@ obj
 _ReSharper*
 *.user
 *.suo
+.vs/*
+/src/.vs

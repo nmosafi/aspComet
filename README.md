@@ -1,12 +1,21 @@
 # Background
 
-The aim of this project is to provide a lightweight and extensible COMET implementation which does not require a custom server but can run in native IIS under ASP.NET.
+The aim of this project is to provide a lightweight and extensible COMET implementation which does not require a custom server.
+You can pick between 2 implementations that are demonstrated in their own sample web projects:
+
+  1. **Samples/Chat** \
+  Traditional ASP.NET Framework 4.7.1 app\
+  (implements comet with a custom HttpHandler in the AspComet library
+
+  2. **Samples/AspCometCoreApp**\
+   ASP.NET Core 2 app\
+   (implements comet with middleware from the AspCoreCometware library
 
 Most COMET implementations require a custom server, due to the fact that ASP.NET's threading model (pooled threads) does not promote scalability for COMET applications. 
 
-A strong motivation for this project is therefore being able to remove this requirement, and to be able to deploy COMET applications to any shared infrastructure or cloud based hosting. It is packaged as a single .NET DLL coming in at under 40KB in size.
+A strong motivation for this project is therefore being able to remove this requirement, and to be able to deploy COMET applications to any shared infrastructure or cloud based hosting. Either implementation can be packaged as a single .NET DLL coming in at under 40KB in size.
 
-To find out more about COMET, it's worth reading Neil Mosafi's blog post at [http://neilmosafi.blogspot.com/2009/03/comet-pushing-to-web-browser.html](http://neilmosafi.blogspot.com/2009/03/comet-pushing-to-web-browser.html) which describes some of the motivations for this library.
+To find out more about COMET, it's worth reading [Neil Mosafi's blog post](http://neilmosafi.blogspot.com/2009/03/comet-pushing-to-web-browser.html) which describes some of the motivations for the original AspComet-vs2010 library. [bkwdesign]() 
 
 # The Bayeux Protocol
 
@@ -18,6 +27,42 @@ Find out more background information at Neil Mosafi's blog post here: [http://ne
 
 # Getting started
 
+   1.  Build or reference the AspCoreCometware library in your new netcoreapp2.1
+   2.  Configure your web app just like the sample that's provided:
+```C#
+    public void ConfigureServices(IServiceCollection services)
+    {
+        //Minimum req'd sevices
+        services.ConfigureBasicCometServices();
+        //your custom comet services
+        services.AddSingleton<IClientFactory, AuthenticatedClientFactory>();
+        services.AddSingleton<HandshakeAuthenticator>();
+        services.AddSingleton<BadLanguageBlocker>();
+        services.AddSingleton<SubscriptionChecker>();
+        services.AddSingleton<Whisperer>();
+    }
+```
+Then, configure the middleware to branch on your desired comet URL:
+```C#
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+    {
+        // Create branch to the CometMiddleware. 
+        // All requests ending in comet/45.0 will follow this branch.
+        app.MapWhen(
+            context => context.Request.Path.ToString().Contains("/comet/45.0"),
+            appBranch => {
+                // ... optionally add more middleware to this branch
+                appBranch.UseCometMiddleware();//formerly an 'HttpHandler'
+            });
+
+        EventHub.Subscribe<HandshakingEvent>(app.ApplicationServices.GetService<HandshakeAuthenticator>().CheckHandshake);
+        EventHub.Subscribe<PublishingEvent>(app.ApplicationServices.GetService<BadLanguageBlocker>().CheckMessage);
+        EventHub.Subscribe<SubscribingEvent>(app.ApplicationServices.GetService<SubscriptionChecker>().CheckSubscription);
+        EventHub.Subscribe<PublishingEvent>("/service/whisper", app.ApplicationServices.GetService<Whisperer>().SendWhisper);
+
+        app.UseFileServer();
+    }
+```
 The project uses [Jetbrains TeamCity](http://jetbrains.com/teamcity) for continuous integration, hosted at [TeamCity.CodeBetter.Com](http://teamcity.codebetter.com/project.html?projectId=project59).  The easiest way to get up and running is to download the most recent artifact from there.  Otherwise you can build from source.
 
 Once you have AspComet.dll, you'll need to set up the Http Handler for handling COMET requests.  Add a reference to the dll and add the following line to your Web.Config file:
